@@ -1,0 +1,56 @@
+/*
+ * Copyright (C) 2012 Canonical, Ltd.
+ *
+ * Authors:
+ *  Guenter Schwann <guenter.schwann@canonical.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 3.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef AALCAMERACONTROL_H
+#define AALCAMERACONTROL_H
+
+#include <QCameraControl>
+
+class AalCameraService;
+class CameraControl;
+
+class AalCameraControl : public QCameraControl
+{
+Q_OBJECT
+public:
+    AalCameraControl(AalCameraService *service, QObject *parent = 0);
+    ~AalCameraControl();
+
+    QCamera::State state() const;
+    void setState(QCamera::State state);
+
+    QCamera::Status status() const;
+
+    QCamera::CaptureModes captureMode() const;
+    void setCaptureMode(QCamera::CaptureModes);
+    bool isCaptureModeSupported(QCamera::CaptureModes mode) const;
+
+    bool canChangeProperty(PropertyChangeType changeType, QCamera::Status status) const;
+
+    CameraControl *control();
+
+private:
+    AalCameraService *m_service;
+    CameraControl *m_control;
+    QCamera::State m_state;
+    QCamera::Status m_status;
+    QCamera::CaptureModes m_captureMode;
+};
+
+#endif
