@@ -45,6 +45,7 @@ Q_SIGNALS:
 
 private Q_SLOTS:
     void updateViewfinderFrame();
+    void getTextureId();
 
 private:
     QAbstractVideoSurface *m_surface;
@@ -53,6 +54,7 @@ private:
 
     int m_viewFinderWidth;
     int m_viewFinderHeight;
+    bool m_viewFinderRunning;
 };
 
 #endif

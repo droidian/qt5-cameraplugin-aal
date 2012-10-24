@@ -29,14 +29,15 @@
 #include <QAbstractVideoBuffer>
 #include <QAbstractVideoSurface>
 #include <QDebug>
+#include <QTimer>
 #include <QUrl>
 #include <QVideoSurfaceFormat>
 
 class AalGLTextureBuffer : public QAbstractVideoBuffer
 {
 public:
-    AalGLTextureBuffer(int textureId) :
-        QAbstractVideoBuffer(QAbstractVideoBuffer::QAbstractVideoBuffer::GLTextureHandle),
+    AalGLTextureBuffer(GLuint textureId) :
+        QAbstractVideoBuffer(QAbstractVideoBuffer::GLTextureHandle),
         m_textureId(textureId)
     {
     }
@@ -44,12 +45,10 @@ public:
     MapMode mapMode() const { return NotMapped; }
     uchar *map(MapMode mode, int *numBytes, int *bytesPerLine)
     {
-//        Q_UNUSED(mode);
-//        Q_UNUSED(numBytes);
-//        Q_UNUSED(bytesPerLine);
-
-        qDebug() << Q_FUNC_INFO << "|" << mode << "|" << *numBytes << "|" << *bytesPerLine;
-
+        qDebug() << Q_FUNC_INFO;
+        Q_UNUSED(mode);
+        Q_UNUSED(numBytes);
+        Q_UNUSED(bytesPerLine);
         return (uchar*)0;
     }
 
@@ -60,12 +59,11 @@ public:
 
     QVariant handle() const
     {
-        return m_textureId;
+        return QVariant::fromValue<unsigned int>(m_textureId);
     }
 
 private:
-//    GLuint m_textureId;
-    int m_textureId;
+    GLuint m_textureId;
 };
 
 
@@ -73,18 +71,22 @@ AalVideoRendererControl::AalVideoRendererControl(AalCameraService *service, QObj
    : QVideoRendererControl(parent)
    , m_surface(0),
      m_service(service),
+     m_textureBuffer(0),
      m_viewFinderWidth(960),
-     m_viewFinderHeight(720)
+     m_viewFinderHeight(720),
+     m_viewFinderRunning(false)
 {
-    GLuint previewTextureId;
-//    glGenTextures(1, &previewTextureId);
-//    m_textureBuffer = new AalGLTextureBuffer(previewTextureId);
-
     m_service->listener()->on_preview_texture_needs_update_cb = &AalVideoRendererControl::updateViewfinderFrameCB;
+    QTimer::singleShot(1, this, SLOT(getTextureId())); // delay until mainloop is running (GL context exists)
 }
 
 AalVideoRendererControl::~AalVideoRendererControl()
 {
+    if (m_textureBuffer) {
+        GLuint textureId = m_textureBuffer->handle().toUInt();
+        glDeleteTextures(1, &textureId);
+        delete m_textureBuffer;
+    }
 }
 
 QAbstractVideoSurface *AalVideoRendererControl::surface() const
@@ -102,51 +104,67 @@ void AalVideoRendererControl::setSurface(QAbstractVideoSurface *surface)
 
 void AalVideoRendererControl::startPreview()
 {
+    m_viewFinderRunning = true;
+
+    if (!m_textureBuffer)
+        return;
+
     CameraControl *cc = m_service->cameraControl()->control();
 
-    android_camera_dump_parameters(cc);
+    //android_camera_dump_parameters(cc);
+    android_camera_set_picture_size(cc, 2592, 1944);
 
     android_camera_set_preview_size(cc, m_viewFinderWidth, m_viewFinderHeight);
+    android_camera_set_preview_fps(cc, 15);
 
-//    CameraPixelFormat pixel_format;
-//    android_camera_get_preview_format(cc, &pixel_format);
-//    printf("Current preview pixel format: %d \n", pixel_format);
-    android_camera_get_preview_size(cc, &m_viewFinderWidth, &m_viewFinderHeight);
-    qDebug() << "Preview size: "<< m_viewFinderWidth << "x" << m_viewFinderHeight;
-
-    android_camera_set_preview_texture(cc, m_textureBuffer->handle().toInt());
+    qDebug() << "Using Texture ID: " << m_textureBuffer->handle().toUInt();
+    android_camera_set_preview_texture(cc, m_textureBuffer->handle().toUInt());
     android_camera_start_preview(cc);
 }
 
 void AalVideoRendererControl::updateViewfinderFrame()
 {
-    qDebug() << Q_FUNC_INFO;
-    if (!m_surface)
+    if (!m_surface || !m_textureBuffer)
         return;
 
-    android_camera_update_preview_texture(m_service->cameraControl()->control());
+    static QVideoFrame frame(m_textureBuffer, QSize(m_viewFinderWidth,m_viewFinderHeight), QVideoFrame::Format_RGB32);
 
-    QVideoFrame frame(m_textureBuffer, QSize(m_viewFinderWidth,m_viewFinderHeight), QVideoFrame::Format_BGRA32);
-    if (!frame.isValid())
+       if (!frame.isValid())
         return;
+
+    CameraControl *cc = m_service->cameraControl()->control();
+    frame.setMetaData("CamControl", (int)cc);
 
     if (!m_surface->isActive()) {
-        QVideoSurfaceFormat format(frame.size(), frame.pixelFormat());
+        QVideoSurfaceFormat format(frame.size(), frame.pixelFormat(), frame.handleType());
 
         if (!m_surface->start(format)) {
             qWarning() << "Failed to start viewfinder with format:" << format;
         }
     }
 
+
     if (m_surface->isActive()) {
         m_surface->present(frame);
     }
 }
 
+void AalVideoRendererControl::getTextureId()
+{
+    GLuint textureId = 0;
+    glGenTextures(1, &textureId);
+    if (textureId == 0) {
+        qWarning() << "unanble to get texture ID";
+        return;
+    }
+
+    m_textureBuffer = new AalGLTextureBuffer(textureId);
+    startPreview();
+}
+
 void AalVideoRendererControl::updateViewfinderFrameCB(void* context)
 {
     Q_UNUSED(context);
-    qDebug() << Q_FUNC_INFO;
-//    AalCameraService::instance()->videoOutputControl()->updateViewfinderFrame();
+    QMetaObject::invokeMethod(AalCameraService::instance()->videoOutputControl(),
+                              "updateViewfinderFrame", Qt::QueuedConnection);
 }
-

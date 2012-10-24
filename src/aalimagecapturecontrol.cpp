@@ -106,9 +106,6 @@ void AalImageCaptureControl::saveJpeg(void *data, uint32_t data_size)
 
     qDebug() << Q_FUNC_INFO << data_size;
     qDebug() << m_pendingCaptureFile;
-//    int fd = open(m_pendingCaptureFile.toLocal8Bit().constData(), O_RDWR | O_CREAT);
-//    write(fd, data, data_size);
-//    close(fd);
 
     QFile file(m_pendingCaptureFile);
     if (!file.open(QIODevice::WriteOnly)) {
@@ -120,6 +117,7 @@ void AalImageCaptureControl::saveJpeg(void *data, uint32_t data_size)
 
     file.write((const char*)data, data_size);
 
+    Q_EMIT imageCaptured(m_lastRequestId, QImage());
     Q_EMIT imageSaved(m_lastRequestId, m_pendingCaptureFile);
     m_pendingCaptureFile.clear();
     updateReady();

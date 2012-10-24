@@ -48,6 +48,7 @@ void tst_StorageManager::fileNameGenerator()
     QFETCH(QString, extension);
 
     StorageManager storage;
+    storage.m_directory = "/tmp";
 
     QString date = QDate::currentDate().toString("yyyyMMdd");
     QString expected = QString("/tmp/image%1_%2.%3").arg(date).arg(idxString).arg(extension);

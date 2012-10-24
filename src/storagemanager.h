@@ -27,12 +27,14 @@ class StorageManager
 public:
     StorageManager();
 
-    QString nextPhotoFileName() const;
-    QString nextVideoFileName() const;
+    QString nextPhotoFileName(const QString &directoy = QString());
+    QString nextVideoFileName(const QString &directoy = QString());
 
 private:
-    QString nextMediaFileName(const QString &extension) const;
-    QString fileNameGenerator(int idx, const QString &extension) const;
+    QString nextMediaFileName(const QString &extension);
+    QString fileNameGenerator(int idx, const QString &extension);
+
+    QString m_directory;
 };
 
 #endif // STORAGEMANAGER_H

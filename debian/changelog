@@ -1,3 +1,9 @@
+cameraplugin-aal (0.1.1) UNRELEASED; urgency=low
+
+  * Working viewfinder
+
+ -- Guenter Schwann <guenter.schwann@canonical.com>  Fri, 24 Oct 2012 17:52:25 +0100
+
 cameraplugin-aal (0.1) UNRELEASED; urgency=low
 
   * Initial release.
