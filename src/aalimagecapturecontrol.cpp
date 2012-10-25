@@ -25,6 +25,8 @@
 #include <camera_compatibility_layer.h>
 
 #include <QFile>
+#include <QFileInfo>
+#include <QTemporaryFile>
 
 AalImageCaptureControl::AalImageCaptureControl(AalCameraService *service, QObject *parent)
    : QCameraImageCaptureControl(parent),
@@ -57,10 +59,13 @@ int AalImageCaptureControl::capture(const QString &fileName)
 
     m_lastRequestId++;
 
-    m_pendingCaptureFile = fileName;
-    if (fileName.isEmpty()) {
-        m_pendingCaptureFile = m_storageManager.nextPhotoFileName();
+    QFileInfo fi(fileName);
+    if (fileName.isEmpty() || fi.isDir()) {
+        m_pendingCaptureFile = m_storageManager.nextPhotoFileName(fileName);
+    } else {
+        m_pendingCaptureFile = fileName;
     }
+    m_storageManager.checkDirectory(m_pendingCaptureFile);
 
     qDebug() << "android_camera_take_snapshot";
     android_camera_take_snapshot(m_cameraControl->control());
@@ -104,11 +109,8 @@ void AalImageCaptureControl::saveJpeg(void *data, uint32_t data_size)
     if (m_pendingCaptureFile.isNull())
         return;
 
-    qDebug() << Q_FUNC_INFO << data_size;
-    qDebug() << m_pendingCaptureFile;
-
-    QFile file(m_pendingCaptureFile);
-    if (!file.open(QIODevice::WriteOnly)) {
+    QTemporaryFile file;
+    if (!file.open()) {
         qWarning() << "Could not save image to " << m_pendingCaptureFile;
         m_pendingCaptureFile.clear();
         updateReady();
@@ -116,6 +118,10 @@ void AalImageCaptureControl::saveJpeg(void *data, uint32_t data_size)
     }
 
     file.write((const char*)data, data_size);
+    file.close();
+
+    QFile finalFile(file.fileName());
+    finalFile.rename(m_pendingCaptureFile);
 
     Q_EMIT imageCaptured(m_lastRequestId, QImage());
     Q_EMIT imageSaved(m_lastRequestId, m_pendingCaptureFile);

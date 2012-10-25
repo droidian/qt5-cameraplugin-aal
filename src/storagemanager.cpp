@@ -20,7 +20,9 @@
 #include "storagemanager.h"
 #include <QDate>
 #include <QDebug>
+#include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QStandardPaths>
 
 const QLatin1String photoBase = QLatin1String("image");
@@ -37,6 +39,7 @@ QString StorageManager::nextPhotoFileName(const QString &directoy)
     m_directory = directoy;
     if (m_directory.isEmpty())
         m_directory = QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
+
     return nextMediaFileName(photoExtension);
 }
 
@@ -45,7 +48,21 @@ QString StorageManager::nextVideoFileName(const QString &directoy)
     m_directory = directoy;
     if (m_directory.isEmpty())
         m_directory = QStandardPaths::writableLocation(QStandardPaths::MoviesLocation);
+
     return nextMediaFileName(videoExtension);
+}
+
+void StorageManager::checkDirectory(const QString &path) const
+{
+    QFileInfo fi(path);
+    QDir dir;
+    if (fi.isDir())
+        dir.setPath(path);
+    else
+        dir.setPath(fi.absoluteDir().absolutePath());
+
+    if (!dir.exists())
+        dir.mkpath(path);
 }
 
 QString StorageManager::nextMediaFileName(const QString &extension)

@@ -18,7 +18,8 @@ Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          libhybris,
-         qtmultimedia
+         qtmultimedia,
+         qtvideonode-plugin
 Description: A camera plugin faking by using a photo on disk
   A camera plugin faking by using a photo on disk
 
