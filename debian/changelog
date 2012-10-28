@@ -1,7 +1,13 @@
-cameraplugin-aal (0.1.2) UNRELEASED; urgency=low
+cameraplugin-aal (0.1.2) quantal; urgency=low
 
+  [ Guenter Schwann ]
   * Create directory to store the images when needed
   * Move file do final destination, instead of saveing it there directly
+
+  [ Bill Filler ]
+  * fix debian/control to conflicts, replaces, and provides cameraplugin-fake
+    such that upgrades will work correctly
+  * fix build-deps in debian/control 
 
  -- Guenter Schwann <guenter.schwann@canonical.com>  Thu, 25 Oct 2012 10:42:25 +0100
 
