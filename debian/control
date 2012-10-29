@@ -14,7 +14,7 @@ Standards-Version: 3.9.3
 Vcs-Bzr: https://code.launchpad.net/~amanzi-team/barrydale/cameraPlugin-aal
 
 Package: cameraplugin-aal
-Architecture: any
+Architecture: i386 armel armhf
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          qtmultimedia,
@@ -24,4 +24,3 @@ Replaces: cameraplugin-fake
 Provides: cameraplugin-fake
 Description: A camera plugin that talks to Android by using aal
   A camera plugin that talks to Android by using aal
-
