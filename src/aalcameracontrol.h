@@ -23,7 +23,6 @@
 #include <QCameraControl>
 
 class AalCameraService;
-class CameraControl;
 
 class AalCameraControl : public QCameraControl
 {
@@ -43,11 +42,8 @@ public:
 
     bool canChangeProperty(PropertyChangeType changeType, QCamera::Status status) const;
 
-    CameraControl *control();
-
 private:
     AalCameraService *m_service;
-    CameraControl *m_control;
     QCamera::State m_state;
     QCamera::Status m_status;
     QCamera::CaptureModes m_captureMode;

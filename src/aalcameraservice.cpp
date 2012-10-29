@@ -18,6 +18,7 @@
  */
 
 #include "aalcameracontrol.h"
+#include "aalcameraflashcontrol.h"
 #include "aalcameraservice.h"
 #include "aalimagecapturecontrol.h"
 #include "aalvideorenderercontrol.h"
@@ -45,7 +46,8 @@ void autofocus_msg_cb(void* context)
 AalCameraService *AalCameraService::m_service = 0;
 
 AalCameraService::AalCameraService(QObject *parent):
-    QMediaService(parent)
+    QMediaService(parent),
+    m_androidControl(0)
 {
     m_service = this;
 
@@ -53,6 +55,7 @@ AalCameraService::AalCameraService(QObject *parent):
     memset(m_cameraListener, 0, sizeof(*m_cameraListener));
 
     m_cameraControl = new AalCameraControl(this);
+    m_flashControl = new AalCameraFlashControl(this);
     m_imageCaptureControl = new AalImageCaptureControl(this);
     m_videoOutput = new AalVideoRendererControl(this);
 
@@ -65,14 +68,19 @@ AalCameraService::~AalCameraService()
 {
     m_cameraControl->setState(QCamera::UnloadedState);
     delete m_cameraControl;
+    delete m_flashControl;
     delete m_imageCaptureControl;
     delete m_videoOutput;
+    delete m_androidControl;
 }
 
 QMediaControl *AalCameraService::requestControl(const char *name)
 {
     if (qstrcmp(name, QCameraControl_iid) == 0)
         return m_cameraControl;
+
+    if (qstrcmp(name, QCameraFlashControl_iid) == 0)
+        return m_flashControl;
 
     if (qstrcmp(name, QCameraImageCaptureControl_iid) == 0)
         return m_imageCaptureControl;
@@ -88,3 +96,25 @@ void AalCameraService::releaseControl(QMediaControl *control)
     Q_UNUSED(control);
 }
 
+CameraControl *AalCameraService::androidControl()
+{
+    return m_androidControl;
+}
+
+bool AalCameraService::connectCamera()
+{
+    if (m_androidControl)
+        return true;
+
+    m_androidControl = android_camera_connect_to(FRONT_FACING_CAMERA_TYPE, m_cameraListener);
+    if (!m_androidControl) {
+        qWarning() << "Unable to connect to camera";
+        return false;
+    }
+
+    m_cameraListener->context = m_androidControl;
+    m_flashControl->init(m_androidControl);
+    m_videoOutput->startPreview();
+
+    return true;
+}

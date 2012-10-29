@@ -109,7 +109,7 @@ void AalVideoRendererControl::startPreview()
     if (!m_textureBuffer)
         return;
 
-    CameraControl *cc = m_service->cameraControl()->control();
+    CameraControl *cc = m_service->androidControl();
 
     //android_camera_dump_parameters(cc);
     android_camera_set_picture_size(cc, 2592, 1944);
@@ -117,7 +117,6 @@ void AalVideoRendererControl::startPreview()
     android_camera_set_preview_size(cc, m_viewFinderWidth, m_viewFinderHeight);
     android_camera_set_preview_fps(cc, 15);
 
-    qDebug() << "Using Texture ID: " << m_textureBuffer->handle().toUInt();
     android_camera_set_preview_texture(cc, m_textureBuffer->handle().toUInt());
     android_camera_start_preview(cc);
 }
@@ -132,7 +131,7 @@ void AalVideoRendererControl::updateViewfinderFrame()
        if (!frame.isValid())
         return;
 
-    CameraControl *cc = m_service->cameraControl()->control();
+    CameraControl *cc = m_service->androidControl();
     frame.setMetaData("CamControl", (int)cc);
 
     if (!m_surface->isActive()) {
