@@ -17,6 +17,7 @@ HEADERS += \
     aalcameraflashcontrol.h \
     aalcameraservice.h \
     aalcameraserviceplugin.h \
+    aalcamerazoomcontrol.h \
     aalimagecapturecontrol.h \
     aalvideorenderercontrol.h \
     storagemanager.h
@@ -26,6 +27,7 @@ SOURCES += \
     aalcameraflashcontrol.cpp \
     aalcameraservice.cpp \
     aalcameraserviceplugin.cpp \
+    aalcamerazoomcontrol.cpp \
     aalimagecapturecontrol.cpp \
     aalvideorenderercontrol.cpp \
     storagemanager.cpp

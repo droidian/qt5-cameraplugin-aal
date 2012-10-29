@@ -24,6 +24,7 @@
 
 class AalCameraControl;
 class AalCameraFlashControl;
+class AalCameraZoomControl;
 class AalImageCaptureControl;
 class AalVideoRendererControl;
 class QCameraControl;
@@ -43,6 +44,7 @@ public:
 
     AalCameraControl *cameraControl() const { return m_cameraControl; }
     AalCameraFlashControl *flashControl() const { return m_flashControl; }
+    AalCameraZoomControl *zoomControl() const { return m_zoomControl; }
     AalImageCaptureControl *imageCaptureControl() const { return m_imageCaptureControl; }
     AalVideoRendererControl *videoOutputControl() const { return m_videoOutput; }
 
@@ -59,6 +61,7 @@ private:
 
     AalCameraControl *m_cameraControl;
     AalCameraFlashControl *m_flashControl;
+    AalCameraZoomControl *m_zoomControl;
     AalImageCaptureControl *m_imageCaptureControl;
     AalVideoRendererControl *m_videoOutput;
 
