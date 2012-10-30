@@ -23,10 +23,12 @@
 #include <QMediaService>
 
 class AalCameraControl;
+class AalCameraFlashControl;
 class AalImageCaptureControl;
 class AalVideoRendererControl;
 class QCameraControl;
 
+struct CameraControl;
 struct CameraControlListener;
 
 class AalCameraService : public QMediaService
@@ -40,10 +42,15 @@ public:
     void releaseControl(QMediaControl *control);
 
     AalCameraControl *cameraControl() const { return m_cameraControl; }
+    AalCameraFlashControl *flashControl() const { return m_flashControl; }
     AalImageCaptureControl *imageCaptureControl() const { return m_imageCaptureControl; }
     AalVideoRendererControl *videoOutputControl() const { return m_videoOutput; }
 
+    CameraControl *androidControl();
+
     CameraControlListener *listener() {return m_cameraListener; }
+
+    bool connectCamera();
 
     static AalCameraService *instance() { return m_service; }
 
@@ -51,9 +58,11 @@ private:
     static AalCameraService *m_service;
 
     AalCameraControl *m_cameraControl;
+    AalCameraFlashControl *m_flashControl;
     AalImageCaptureControl *m_imageCaptureControl;
     AalVideoRendererControl *m_videoOutput;
 
+    CameraControl *m_androidControl;
     CameraControlListener *m_cameraListener;
 };
 

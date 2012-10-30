@@ -28,7 +28,6 @@
 AalCameraControl::AalCameraControl(AalCameraService *service, QObject *parent)
    : QCameraControl(parent),
     m_service(service),
-    m_control(0),
     m_state(QCamera::UnloadedState),
     m_status(QCamera::UnloadedStatus),
     m_captureMode(QCamera::CaptureStillImage)
@@ -37,7 +36,6 @@ AalCameraControl::AalCameraControl(AalCameraService *service, QObject *parent)
 
 AalCameraControl::~AalCameraControl()
 {
-    delete m_control;
 }
 
 QCamera::State AalCameraControl::state() const
@@ -51,13 +49,9 @@ void AalCameraControl::setState(QCamera::State state)
         return;
 
     if (m_state == QCamera::UnloadedState) {
-        m_control = android_camera_connect_to(FRONT_FACING_CAMERA_TYPE, m_service->listener());
-        if (!m_control) {
-            qWarning() << "Unable to connect to camera";
+        bool ok = m_service->connectCamera();
+        if (!ok)
             return;
-        }
-        m_service->listener()->context = m_control;
-        m_service->videoOutputControl()->startPreview();
     }
 
     qDebug() << m_state << "->" << state;
@@ -95,9 +89,4 @@ bool AalCameraControl::canChangeProperty(QCameraControl::PropertyChangeType chan
     Q_UNUSED(status);
 
     return true;
-}
-
-CameraControl *AalCameraControl::control()
-{
-    return m_control;
 }

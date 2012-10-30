@@ -53,7 +53,6 @@ bool AalImageCaptureControl::isReadyForCapture() const
 
 int AalImageCaptureControl::capture(const QString &fileName)
 {
-    qDebug() << Q_FUNC_INFO;
     if (!m_ready)
         return -1;
 
@@ -67,8 +66,7 @@ int AalImageCaptureControl::capture(const QString &fileName)
     }
     m_storageManager.checkDirectory(m_pendingCaptureFile);
 
-    qDebug() << "android_camera_take_snapshot";
-    android_camera_take_snapshot(m_cameraControl->control());
+    android_camera_take_snapshot(m_service->androidControl());
 
     updateReady();
     return m_lastRequestId;
