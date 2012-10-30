@@ -76,10 +76,10 @@ void AalCameraZoomControl::zoomTo(qreal optical, qreal digital)
         return;
     }
 
-    if ( m_pendingZoom == (int)(digital))
+    if ( m_pendingZoom == static_cast<int>(digital))
         return;
 
-    m_pendingZoom = (int)(digital);
+    m_pendingZoom = static_cast<int>(digital);
 
     if (m_zoomRunning) {
         if (!m_stopping)
