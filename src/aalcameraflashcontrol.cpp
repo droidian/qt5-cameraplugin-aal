@@ -40,9 +40,10 @@ QCameraExposure::FlashModes AalCameraFlashControl::flashMode() const
 
 bool AalCameraFlashControl::isFlashModeSupported(QCameraExposure::FlashModes mode) const
 {
-    if (mode==QCameraExposure::FlashAuto || mode==QCameraExposure::FlashOff
-            || mode==QCameraExposure::FlashOn || mode==QCameraExposure::FlashVideoLight)
+    if (mode==QCameraExposure::FlashAuto || mode==QCameraExposure::FlashOff ||
+            mode==QCameraExposure::FlashOn || mode==QCameraExposure::FlashVideoLight) {
         return true;
+    }
     return false;
 }
 
@@ -59,10 +60,12 @@ void AalCameraFlashControl::setFlashMode(QCameraExposure::FlashModes mode)
     FlashMode fmode = qt2Android(mode);
     m_currentMode = mode;
 
-    if (m_service->androidControl())
+    if (m_service->androidControl()) {
         android_camera_set_flash_mode(m_service->androidControl(), fmode);
-    else
+    }
+    else {
         setOnInit = true;
+    }
 }
 
 void AalCameraFlashControl::init(CameraControl *control)
