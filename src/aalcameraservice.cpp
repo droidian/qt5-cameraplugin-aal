@@ -20,6 +20,7 @@
 #include "aalcameracontrol.h"
 #include "aalcameraflashcontrol.h"
 #include "aalcameraservice.h"
+#include "aalcamerazoomcontrol.h"
 #include "aalimagecapturecontrol.h"
 #include "aalvideorenderercontrol.h"
 
@@ -29,11 +30,6 @@
 
 
 void error_msg_cb(void* context)
-{
-    printf("%s \n", __PRETTY_FUNCTION__);
-}
-
-void zoom_msg_cb(void* context, int32_t new_zoom_level)
 {
     printf("%s \n", __PRETTY_FUNCTION__);
 }
@@ -56,12 +52,12 @@ AalCameraService::AalCameraService(QObject *parent):
 
     m_cameraControl = new AalCameraControl(this);
     m_flashControl = new AalCameraFlashControl(this);
+    m_zoomControl = new AalCameraZoomControl(this);
     m_imageCaptureControl = new AalImageCaptureControl(this);
     m_videoOutput = new AalVideoRendererControl(this);
 
     m_cameraListener->on_msg_error_cb = error_msg_cb;
     m_cameraListener->on_msg_focus_cb = autofocus_msg_cb;
-    m_cameraListener->on_msg_zoom_cb = zoom_msg_cb;
 }
 
 AalCameraService::~AalCameraService()
@@ -69,6 +65,7 @@ AalCameraService::~AalCameraService()
     m_cameraControl->setState(QCamera::UnloadedState);
     delete m_cameraControl;
     delete m_flashControl;
+    delete m_zoomControl;
     delete m_imageCaptureControl;
     delete m_videoOutput;
     delete m_androidControl;
@@ -84,6 +81,9 @@ QMediaControl *AalCameraService::requestControl(const char *name)
 
     if (qstrcmp(name, QCameraImageCaptureControl_iid) == 0)
         return m_imageCaptureControl;
+
+    if (qstrcmp(name, QCameraZoomControl_iid) == 0)
+        return m_zoomControl;
 
     if (qstrcmp(name, QVideoRendererControl_iid) == 0)
         return m_videoOutput;
@@ -114,6 +114,7 @@ bool AalCameraService::connectCamera()
 
     m_cameraListener->context = m_androidControl;
     m_flashControl->init(m_androidControl);
+    m_zoomControl->init(m_androidControl, m_cameraListener);
     m_videoOutput->startPreview();
 
     return true;
