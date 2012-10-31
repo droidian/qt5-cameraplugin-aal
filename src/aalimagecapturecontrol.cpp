@@ -124,5 +124,7 @@ void AalImageCaptureControl::saveJpeg(void *data, uint32_t data_size)
     Q_EMIT imageCaptured(m_lastRequestId, QImage());
     Q_EMIT imageSaved(m_lastRequestId, m_pendingCaptureFile);
     m_pendingCaptureFile.clear();
+
+    android_camera_start_preview(m_service->androidControl());
     updateReady();
 }
