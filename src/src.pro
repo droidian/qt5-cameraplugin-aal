@@ -15,6 +15,7 @@ OTHER_FILES += aalcamera.json
 HEADERS += \
     aalcameracontrol.h \
     aalcameraflashcontrol.h \
+    aalcamerafocuscontrol.h \
     aalcameraservice.h \
     aalcameraserviceplugin.h \
     aalcamerazoomcontrol.h \
@@ -26,6 +27,7 @@ HEADERS += \
 SOURCES += \
     aalcameracontrol.cpp \
     aalcameraflashcontrol.cpp \
+    aalcamerafocuscontrol.cpp \
     aalcameraservice.cpp \
     aalcameraserviceplugin.cpp \
     aalcamerazoomcontrol.cpp \
