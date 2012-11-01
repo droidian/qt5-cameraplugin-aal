@@ -28,6 +28,7 @@
 
 class AalCameraService;
 class AalCameraControl;
+class CameraControl;
 
 class AalImageCaptureControl : public QCameraImageCaptureControl
 {
@@ -47,6 +48,9 @@ public:
     static void shutterCB(void* context);
     static void saveJpegCB(void* data, uint32_t data_size, void* context);
 
+public Q_SLOTS:
+    void init(CameraControl *control);
+
 private Q_SLOTS:
     void updateReady();
 
@@ -60,6 +64,8 @@ private:
     StorageManager m_storageManager;
     bool m_ready;
     QString m_pendingCaptureFile;
+    int m_photoWidth;
+    int m_photoHeight;
 };
 
 #endif

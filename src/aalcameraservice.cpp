@@ -113,6 +113,7 @@ bool AalCameraService::connectCamera()
     }
 
     m_cameraListener->context = m_androidControl;
+    m_imageCaptureControl->init(m_androidControl);
     m_flashControl->init(m_androidControl);
     m_focusControl->init(m_androidControl, m_cameraListener);
     m_zoomControl->init(m_androidControl, m_cameraListener);

@@ -72,7 +72,7 @@ AalVideoRendererControl::AalVideoRendererControl(AalCameraService *service, QObj
    , m_surface(0),
      m_service(service),
      m_textureBuffer(0),
-     m_viewFinderWidth(960),
+     m_viewFinderWidth(1280),
      m_viewFinderHeight(720),
      m_viewFinderRunning(false)
 {
@@ -111,11 +111,8 @@ void AalVideoRendererControl::startPreview()
 
     CameraControl *cc = m_service->androidControl();
 
-    //android_camera_dump_parameters(cc);
-    android_camera_set_picture_size(cc, 2592, 1944);
-
     android_camera_set_preview_size(cc, m_viewFinderWidth, m_viewFinderHeight);
-    android_camera_set_preview_fps(cc, 15);
+    android_camera_set_preview_fps(cc, 30);
 
     android_camera_set_preview_texture(cc, m_textureBuffer->handle().toUInt());
     android_camera_start_preview(cc);

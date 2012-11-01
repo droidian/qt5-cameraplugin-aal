@@ -23,6 +23,7 @@
 #include "storagemanager.h"
 
 #include <camera_compatibility_layer.h>
+#include <camera_compatibility_layer_capabilities.h>
 
 #include <QFile>
 #include <QFileInfo>
@@ -34,7 +35,9 @@ AalImageCaptureControl::AalImageCaptureControl(AalCameraService *service, QObjec
     m_cameraControl(service->cameraControl()),
     m_lastRequestId(0),
     m_ready(false),
-    m_pendingCaptureFile()
+    m_pendingCaptureFile(),
+    m_photoWidth(2592),
+    m_photoHeight(1458)
 {
     QObject::connect(m_cameraControl, SIGNAL(stateChanged(QCamera::State)),
                      this, SLOT(updateReady()));
@@ -86,6 +89,11 @@ void AalImageCaptureControl::saveJpegCB(void *data, uint32_t data_size, void *co
 {
     Q_UNUSED(context);
     AalCameraService::instance()->imageCaptureControl()->saveJpeg(data, data_size);
+}
+
+void AalImageCaptureControl::init(CameraControl *control)
+{
+    android_camera_set_picture_size(control, m_photoWidth, m_photoHeight);
 }
 
 void AalImageCaptureControl::updateReady()
