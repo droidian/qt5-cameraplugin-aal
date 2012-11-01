@@ -20,6 +20,7 @@
 #include "aalvideorenderercontrol.h"
 #include "aalcameracontrol.h"
 #include "aalcameraservice.h"
+#include "snapshotgenerator.h"
 
 #include "camera_compatibility_layer.h"
 #include "camera_compatibility_layer_capabilities.h"
@@ -62,6 +63,8 @@ public:
         return QVariant::fromValue<unsigned int>(m_textureId);
     }
 
+    GLuint textureId() { return m_textureId; }
+
 private:
     GLuint m_textureId;
 };
@@ -76,12 +79,15 @@ AalVideoRendererControl::AalVideoRendererControl(AalCameraService *service, QObj
      m_viewFinderHeight(720),
      m_viewFinderRunning(false)
 {
+    m_snapshotGenerator = new SnapshotGenerator;
     m_service->listener()->on_preview_texture_needs_update_cb = &AalVideoRendererControl::updateViewfinderFrameCB;
     QTimer::singleShot(1, this, SLOT(getTextureId())); // delay until mainloop is running (GL context exists)
 }
 
 AalVideoRendererControl::~AalVideoRendererControl()
 {
+    delete m_snapshotGenerator;
+
     if (m_textureBuffer) {
         GLuint textureId = m_textureBuffer->handle().toUInt();
         glDeleteTextures(1, &textureId);
@@ -114,6 +120,7 @@ void AalVideoRendererControl::startPreview()
     //android_camera_dump_parameters(cc);
     android_camera_set_picture_size(cc, 2592, 1944);
 
+    m_snapshotGenerator->setSize(m_viewFinderWidth, m_viewFinderHeight);
     android_camera_set_preview_size(cc, m_viewFinderWidth, m_viewFinderHeight);
     android_camera_set_preview_fps(cc, 15);
 
@@ -166,4 +173,20 @@ void AalVideoRendererControl::updateViewfinderFrameCB(void* context)
     Q_UNUSED(context);
     QMetaObject::invokeMethod(AalCameraService::instance()->videoOutputControl(),
                               "updateViewfinderFrame", Qt::QueuedConnection);
+}
+
+const QImage &AalVideoRendererControl::preview() const
+{
+    return m_preview;
+}
+
+void AalVideoRendererControl::createPreview()
+{
+    if (!m_textureBuffer)
+        return;
+
+    GLuint texId = m_textureBuffer->textureId();
+    GLfloat textureMatrix[16];
+    android_camera_get_preview_texture_transformation(m_service->androidControl(), textureMatrix);
+    m_preview = m_snapshotGenerator->snapshot(texId, textureMatrix);
 }
