@@ -3,6 +3,7 @@ cameraplugin-aal (0.1.4) UNRELEASED; urgency=low
   * Flash support
   * Zoom support
   * Start viewfinder after capture again
+  * Focus support
   * Use 16:9 aspect ratio for viewfinder and image (still hardcoded values)
   * Update viewfinder with 30 FPS
 

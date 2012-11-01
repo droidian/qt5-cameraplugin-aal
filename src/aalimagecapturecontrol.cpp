@@ -93,7 +93,6 @@ void AalImageCaptureControl::saveJpegCB(void *data, uint32_t data_size, void *co
 
 void AalImageCaptureControl::init(CameraControl *control)
 {
-    //android_camera_dump_parameters(cc);
     android_camera_set_picture_size(control, m_photoWidth, m_photoHeight);
 }
 
