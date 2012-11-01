@@ -39,7 +39,7 @@ CONFIG(coverage) {
 
     generate-coverage-gcovr.commands = \
         "@echo Generating coverage GCOVR report"; \
-        "gcovr -x -r $${TOP_SRC_DIR} -o $${TOP_SRC_DIR}/coverage.xml -e \".*/moc_.*\" -e \"tests/.*\" -e \".*\\.h\""
+        "gcovr -x -r $${TOP_SRC_DIR} -o $${TOP_SRC_DIR}/coverage.xml -e \".*/moc_.*\" -e \"unittests/.*\" -e \".*\\.h\""
 
     clean-coverage-gcovr.depends = clean-gcda
     clean-coverage-gcovr.commands = \
