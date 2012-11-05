@@ -21,7 +21,6 @@
 #define AALCAMERAZOOMCONTROL_H
 
 #include <QCameraZoomControl>
-#include <QMutex>
 
 class AalCameraService;
 class CameraControl;
@@ -41,13 +40,8 @@ public:
     qreal requestedOpticalZoom() const;
     void zoomTo(qreal optical, qreal digital);
 
-    static void zoomCB(void* context, int newZoomLevel);
-
 public Q_SLOTS:
     void init(CameraControl *control, CameraControlListener *listener);
-
-private Q_SLOTS:
-    void setZoomFromHW(int zoomLevel);
 
 private:
     AalCameraService *m_service;
@@ -55,9 +49,6 @@ private:
     int m_currentDigialZoom;
     int m_maximalDigitalZoom;
     int m_pendingZoom;
-    bool m_zoomRunning;
-    bool m_stopping;
-    QMutex m_zoomMutex;
 };
 
 #endif // AALCAMERAZOOMCONTROL_H
