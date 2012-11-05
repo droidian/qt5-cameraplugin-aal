@@ -68,13 +68,22 @@ void AalCameraZoomControl::zoomTo(qreal optical, qreal digital)
 {
     Q_UNUSED(optical);
 
+    if (!m_service->androidControl())
+        return;
+
     if (digital < 1.0 || digital > m_maximalDigitalZoom) {
         qWarning() << "Invalid zoom value:" << digital;
         return;
     }
 
     m_pendingZoom = static_cast<int>(digital);
+
+    if (m_pendingZoom == m_currentDigialZoom)
+        return;
+
     android_camera_set_zoom(m_service->androidControl(), m_pendingZoom);
+    m_currentDigialZoom = m_pendingZoom;
+    Q_EMIT currentDigitalZoomChanged(m_currentDigialZoom);
 }
 
 void AalCameraZoomControl::init(CameraControl *control, CameraControlListener *listener)
