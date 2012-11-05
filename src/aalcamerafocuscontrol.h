@@ -29,6 +29,7 @@ class AalCameraService;
 
 class AalCameraFocusControl : public QCameraFocusControl
 {
+    Q_OBJECT
 public:
     AalCameraFocusControl(AalCameraService *service, QObject *parent = 0);
 
@@ -42,8 +43,13 @@ public:
     void setFocusMode(QCameraFocus::FocusModes mode);
     void setFocusPointMode(QCameraFocus::FocusPointMode mode);
 
+    static void focusCB(void* context);
+
+    bool isFocusBusy() const;
+
 public Q_SLOTS:
     void init(CameraControl *control, CameraControlListener *listener);
+    void startFocus();
 
 private:
     AutoFocusMode qt2Android(QCameraFocus::FocusModes mode);
@@ -56,6 +62,7 @@ private:
     QPointF m_focusPoint;
     FocusRegion m_focusRegion;
     bool setOnInit;
+    bool m_focusRunning;
 };
 
 #endif // AALCAMERAFOCUSCONTROL_H

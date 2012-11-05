@@ -50,11 +50,10 @@ public:
 
 public Q_SLOTS:
     void init(CameraControl *control);
-
-private Q_SLOTS:
     void updateReady();
 
 private:
+    bool calculateReadyStatus();
     void shutter();
     void saveJpeg(void* data, uint32_t data_size);
 

@@ -19,6 +19,7 @@
 
 #include "aalimagecapturecontrol.h"
 #include "aalcameracontrol.h"
+#include "aalcamerafocuscontrol.h"
 #include "aalcameraservice.h"
 #include "storagemanager.h"
 
@@ -56,8 +57,10 @@ bool AalImageCaptureControl::isReadyForCapture() const
 
 int AalImageCaptureControl::capture(const QString &fileName)
 {
-    if (!m_ready)
+    if (!m_ready) {
+        qWarning() << "Camera not ready to capture";
         return -1;
+    }
 
     m_lastRequestId++;
 
@@ -98,11 +101,23 @@ void AalImageCaptureControl::init(CameraControl *control)
 
 void AalImageCaptureControl::updateReady()
 {
-    bool ready = m_cameraControl->state() == QCamera::ActiveState;
-    if (m_ready != ready && m_pendingCaptureFile.isNull()) {
+    bool ready = calculateReadyStatus();
+    if (m_ready != ready) {
         m_ready = ready;
         Q_EMIT readyForCaptureChanged(m_ready);
     }
+}
+
+bool AalImageCaptureControl::calculateReadyStatus()
+{
+    if (!m_cameraControl->state() == QCamera::ActiveState)
+        return false;
+    if (!m_pendingCaptureFile.isNull())
+        return false;
+    if (m_service->focusControl()->isFocusBusy())
+        return false;
+
+    return true;
 }
 
 void AalImageCaptureControl::shutter()
