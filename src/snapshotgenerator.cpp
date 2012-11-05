@@ -37,9 +37,10 @@ SnapshotGenerator::SnapshotGenerator()
 QImage SnapshotGenerator::snapshot(GLuint textureId, GLfloat textureMatrix[])
 {
     QGLFramebufferObject fbo(m_width, m_height);
-    QPainter p(&fbo);
+    QPainter paint(&fbo);
     fbo.bind();
 
+#ifdef __arm__
     QOpenGLShaderProgram program;
     program.addShaderFromSourceCode(QOpenGLShader::Vertex, vertexShader());
     program.addShaderFromSourceCode(QOpenGLShader::Fragment, fragmentShader());
@@ -101,6 +102,7 @@ QImage SnapshotGenerator::snapshot(GLuint textureId, GLfloat textureMatrix[])
     glActiveTexture(GL_TEXTURE0);
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, indices);
+#endif
 
     return fbo.toImage();
 }

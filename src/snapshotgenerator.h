@@ -22,7 +22,7 @@
 
 #include <QImage>
 
-#include <GLES2/gl2.h>
+#include <qgl.h>
 
 class SnapshotGenerator
 {

@@ -1,3 +1,4 @@
+include(../coverage.pri)
 TARGET = aalcamera
 QT += multimedia-private opengl
 

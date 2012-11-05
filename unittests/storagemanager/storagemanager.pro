@@ -1,3 +1,5 @@
+include(../../coverage.pri)
+
 CONFIG += testcase
 TARGET = tst_storagemanager
 
