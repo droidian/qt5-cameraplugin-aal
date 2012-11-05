@@ -21,6 +21,7 @@
 #include "aalcameracontrol.h"
 #include "aalcamerafocuscontrol.h"
 #include "aalcameraservice.h"
+#include "aalvideorenderercontrol.h"
 #include "storagemanager.h"
 
 #include <camera_compatibility_layer.h>
@@ -85,7 +86,8 @@ void AalImageCaptureControl::cancelCapture()
 void AalImageCaptureControl::shutterCB(void *context)
 {
     Q_UNUSED(context);
-    AalCameraService::instance()->imageCaptureControl()->shutter();
+    QMetaObject::invokeMethod(AalCameraService::instance()->imageCaptureControl(),
+                              "shutter", Qt::QueuedConnection);
 }
 
 void AalImageCaptureControl::saveJpegCB(void *data, uint32_t data_size, void *context)
@@ -123,6 +125,8 @@ bool AalImageCaptureControl::calculateReadyStatus()
 void AalImageCaptureControl::shutter()
 {
     Q_EMIT imageExposed(m_lastRequestId);
+    m_service->videoOutputControl()->createPreview();
+    Q_EMIT imageCaptured(m_lastRequestId, m_service->videoOutputControl()->preview());
 }
 
 void AalImageCaptureControl::saveJpeg(void *data, uint32_t data_size)
@@ -144,7 +148,6 @@ void AalImageCaptureControl::saveJpeg(void *data, uint32_t data_size)
     QFile finalFile(file.fileName());
     finalFile.rename(m_pendingCaptureFile);
 
-    Q_EMIT imageCaptured(m_lastRequestId, QImage());
     Q_EMIT imageSaved(m_lastRequestId, m_pendingCaptureFile);
     m_pendingCaptureFile.clear();
 
