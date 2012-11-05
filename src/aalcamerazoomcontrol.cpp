@@ -30,9 +30,7 @@ AalCameraZoomControl::AalCameraZoomControl(AalCameraService *service, QObject *p
       m_service(service),
       m_currentDigialZoom(1),
       m_maximalDigitalZoom(1),
-      m_pendingZoom(-1),
-      m_zoomRunning(false),
-      m_stopping(false)
+      m_pendingZoom(-1)
 {
 }
 
@@ -68,7 +66,6 @@ qreal AalCameraZoomControl::requestedOpticalZoom() const
 
 void AalCameraZoomControl::zoomTo(qreal optical, qreal digital)
 {
-    QMutexLocker locker(&m_zoomMutex);
     Q_UNUSED(optical);
 
     if (digital < 1.0 || digital > m_maximalDigitalZoom) {
@@ -76,60 +73,13 @@ void AalCameraZoomControl::zoomTo(qreal optical, qreal digital)
         return;
     }
 
-    if ( m_pendingZoom == static_cast<int>(digital))
-        return;
-
     m_pendingZoom = static_cast<int>(digital);
-
-    if (m_zoomRunning) {
-        if (!m_stopping)
-            android_camera_stop_zoom(m_service->androidControl());
-        m_stopping = true;
-        return;
-    }
-
-    if (m_pendingZoom == m_currentDigialZoom)
-        return;
-
-    android_camera_start_zoom(m_service->androidControl(), m_pendingZoom);
-    m_zoomRunning = true;
-}
-
-void AalCameraZoomControl::setZoomFromHW(int zoomLevel)
-{
-    QMutexLocker locker(&m_zoomMutex);
-    if (m_stopping) {
-        m_stopping = false;
-        if (zoomLevel == m_pendingZoom) {
-            m_zoomRunning = false;
-        } else {
-            android_camera_start_zoom(m_service->androidControl(), m_pendingZoom);
-            m_zoomRunning = true;
-        }
-        return;
-    }
-
-    if (zoomLevel == m_pendingZoom)
-        m_zoomRunning = false;
-
-    if (m_currentDigialZoom != zoomLevel) {
-        m_currentDigialZoom = zoomLevel;
-        Q_EMIT currentDigitalZoomChanged(m_currentDigialZoom);
-    }
+    android_camera_set_zoom(m_service->androidControl(), m_pendingZoom);
 }
 
 void AalCameraZoomControl::init(CameraControl *control, CameraControlListener *listener)
 {
-    listener->on_msg_zoom_cb = &AalCameraZoomControl::zoomCB;
-
+    Q_UNUSED(listener);
     android_camera_get_max_zoom(control, &m_maximalDigitalZoom);
     Q_EMIT maximumDigitalZoomChanged(m_maximalDigitalZoom);
-}
-
-void AalCameraZoomControl::zoomCB(void* context, int newZoomLevel)
-{
-    Q_UNUSED(context);
-    QMetaObject::invokeMethod(AalCameraService::instance()->zoomControl(),
-                              "setZoomFromHW", Qt::QueuedConnection,
-                              Q_ARG(int, newZoomLevel));
 }
