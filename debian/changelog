@@ -1,4 +1,4 @@
-cameraplugin-aal (0.1.4) UNRELEASED; urgency=low
+cameraplugin-aal (0.1.4) quantal; urgency=low
 
   * Flash support
   * Zoom support
