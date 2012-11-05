@@ -22,6 +22,7 @@ HEADERS += \
     aalcamerazoomcontrol.h \
     aalimagecapturecontrol.h \
     aalvideorenderercontrol.h \
+    snapshotgenerator.h \
     storagemanager.h
 
 SOURCES += \
@@ -33,4 +34,5 @@ SOURCES += \
     aalcamerazoomcontrol.cpp \
     aalimagecapturecontrol.cpp \
     aalvideorenderercontrol.cpp \
+    snapshotgenerator.cpp \
     storagemanager.cpp

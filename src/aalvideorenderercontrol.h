@@ -20,10 +20,12 @@
 #ifndef AALVIDEORENDERERCONTROL_H
 #define AALVIDEORENDERERCONTROL_H
 
+#include <QImage>
 #include <QVideoRendererControl>
 
 class AalCameraService;
 class AalGLTextureBuffer;
+class SnapshotGenerator;
 
 class AalVideoRendererControl : public QVideoRendererControl
 {
@@ -36,6 +38,9 @@ public:
     void setSurface(QAbstractVideoSurface *surface);
 
     static void updateViewfinderFrameCB(void *context);
+
+    const QImage &preview() const;
+    void createPreview();
 
 public Q_SLOTS:
     void startPreview();
@@ -55,6 +60,8 @@ private:
     int m_viewFinderWidth;
     int m_viewFinderHeight;
     bool m_viewFinderRunning;
+    QImage m_preview;
+    SnapshotGenerator *m_snapshotGenerator;
 };
 
 #endif

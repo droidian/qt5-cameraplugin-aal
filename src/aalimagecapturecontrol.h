@@ -54,8 +54,10 @@ public Q_SLOTS:
 private Q_SLOTS:
     void updateReady();
 
-private:
+private Q_SLOTS:
     void shutter();
+
+private:
     void saveJpeg(void* data, uint32_t data_size);
 
     AalCameraService *m_service;

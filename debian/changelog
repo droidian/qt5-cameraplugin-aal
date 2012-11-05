@@ -6,6 +6,7 @@ cameraplugin-aal (0.1.4) UNRELEASED; urgency=low
   * Focus support
   * Use 16:9 aspect ratio for viewfinder and image (still hardcoded values)
   * Update viewfinder with 30 FPS
+  * Generate snapshot after capture
 
  -- Guenter Schwann <guenter.schwann@canonical.com>  Mon, 29 Oct 2012 16:21:10 +0100
 
