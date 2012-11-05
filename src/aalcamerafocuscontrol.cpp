@@ -19,8 +19,10 @@
 
 #include "aalcamerafocuscontrol.h"
 #include "aalcameraservice.h"
+#include "aalimagecapturecontrol.h"
 
 #include <QDebug>
+#include <QTimer>
 
 #include <algorithm>
 
@@ -32,9 +34,11 @@ const int focusRegionSize = 100;
 AalCameraFocusControl::AalCameraFocusControl(AalCameraService *service, QObject *parent)
     : QCameraFocusControl(parent),
       m_service(service),
-      m_focusPoint(0.0,0.0),
-      setOnInit(false)
+      m_focusPoint(0.0, 0.0),
+      setOnInit(false),
+      m_focusRunning(false)
 {
+    m_focusRegion.weight = -9.9;
 }
 
 QPointF AalCameraFocusControl::customFocusPoint() const
@@ -80,11 +84,11 @@ void AalCameraFocusControl::setCustomFocusPoint(const QPointF &point)
 
     m_focusPoint = point;
     m_focusRegion = point2Region(m_focusPoint);
-    Q_EMIT  customFocusPointChanged(m_focusPoint);
+    Q_EMIT customFocusPointChanged(m_focusPoint);
 
     if (m_service->androidControl()) {
         android_camera_set_focus_region(m_service->androidControl(), &m_focusRegion);
-        android_camera_start_autofocus(m_service->androidControl());
+        startFocus();
     }
 }
 
@@ -113,20 +117,43 @@ void AalCameraFocusControl::setFocusPointMode(QCameraFocus::FocusPointMode mode)
     Q_EMIT focusPointModeChanged(m_focusPointMode);
 }
 
+void AalCameraFocusControl::focusCB(void *context)
+{
+    Q_UNUSED(context);
+    AalCameraService::instance()->focusControl()->m_focusRunning = false;
+    QMetaObject::invokeMethod(AalCameraService::instance()->imageCaptureControl(),
+                              "updateReady", Qt::QueuedConnection);
+}
+
+bool AalCameraFocusControl::isFocusBusy() const
+{
+    return m_focusRunning;
+}
+
 void AalCameraFocusControl::init(CameraControl *control, CameraControlListener *listener)
 {
-    Q_UNUSED(listener);
+    listener->on_msg_focus_cb = &AalCameraFocusControl::focusCB;
+
     if (setOnInit) {
         AutoFocusMode mode = qt2Android(m_focusMode);
         android_camera_set_auto_focus_mode(control, mode);
-        android_camera_set_focus_region(control, &m_focusRegion);
-        android_camera_start_autofocus(control);
+        if (m_focusRegion.weight > 0.0) {
+            android_camera_set_focus_region(control, &m_focusRegion);
+            QTimer::singleShot(1, this, SLOT(startFocus()));
+        }
         setOnInit = false;
     } else {
         AutoFocusMode mode;
         android_camera_get_auto_focus_mode(control, &mode);
         m_focusMode = android2Qt(mode);
     }
+}
+
+void AalCameraFocusControl::startFocus()
+{
+    m_focusRunning = true;
+    m_service->imageCaptureControl()->updateReady();
+    android_camera_start_autofocus(m_service->androidControl());
 }
 
 AutoFocusMode AalCameraFocusControl::qt2Android(QCameraFocus::FocusModes mode)

@@ -50,14 +50,13 @@ public:
 
 public Q_SLOTS:
     void init(CameraControl *control);
-
-private Q_SLOTS:
     void updateReady();
 
 private Q_SLOTS:
     void shutter();
 
 private:
+    bool calculateReadyStatus();
     void saveJpeg(void* data, uint32_t data_size);
 
     AalCameraService *m_service;
