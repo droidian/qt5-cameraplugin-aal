@@ -25,7 +25,7 @@
 #include "camera_compatibility_layer.h"
 #include "camera_compatibility_layer_capabilities.h"
 
-#include <GLES2/gl2.h>
+#include <qgl.h>
 
 #include <QAbstractVideoBuffer>
 #include <QAbstractVideoSurface>
