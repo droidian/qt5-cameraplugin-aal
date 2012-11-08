@@ -1,3 +1,9 @@
+cameraplugin-aal (0.1.5) UNRELEASED; urgency=low
+
+  * Rotate photo to be in portrait mode
+
+ -- Guenter Schwann <guenter.schwann@canonical.com>  Wed, 08 Oct 2012 11:53:25 +0100
+
 cameraplugin-aal (0.1.4) quantal; urgency=low
 
   * Flash support
