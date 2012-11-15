@@ -108,6 +108,10 @@ bool AalCameraService::connectCamera()
         return true;
 
     if (m_oldAndroidControl){
+        /// FIXME
+        /// becasue android_camera_disconnect() is asynchronous, it's not deleted directly when calling disconnect
+        /// properly implemented, whe should be notified when it can be deleted
+        /// in case 2 switches happend very fast, this delete might happen too eraly
         android_camera_delete(m_oldAndroidControl);
     }
     m_oldAndroidControl = m_androidControl;
