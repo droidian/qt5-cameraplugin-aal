@@ -72,6 +72,8 @@ int AalImageCaptureControl::capture(const QString &fileName)
     }
     m_storageManager.checkDirectory(m_pendingCaptureFile);
 
+    android_camera_set_rotation(m_service->androidControl(), 90);
+
     android_camera_take_snapshot(m_service->androidControl());
 
     updateReady();

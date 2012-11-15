@@ -62,7 +62,7 @@ void StorageManager::checkDirectory(const QString &path) const
         dir.setPath(fi.absoluteDir().absolutePath());
 
     if (!dir.exists())
-        dir.mkpath(path);
+        dir.mkpath(dir.absolutePath());
 }
 
 QString StorageManager::nextMediaFileName(const QString &extension)

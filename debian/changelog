@@ -1,8 +1,9 @@
 cameraplugin-aal (0.1.5) UNRELEASED; urgency=low
 
+  * Rotate photo to be in portrait mode
   * Support for the front camera and the switching between the front and back camera
 
- -- Guenter Schwann <guenter.schwann@canonical.com>  Thu, 15 Nov 2012 11:12:19 +0100
+ -- Guenter Schwann <guenter.schwann@canonical.com>  Wed, 08 Oct 2012 11:53:25 +0100
 
 cameraplugin-aal (0.1.4) quantal; urgency=low
 
