@@ -22,9 +22,12 @@
 
 #include <QImage>
 #include <QVideoRendererControl>
+#include <qgl.h>
+
 
 class AalCameraService;
-class AalGLTextureBuffer;
+struct CameraControl;
+struct CameraControlListener;
 class SnapshotGenerator;
 
 class AalVideoRendererControl : public QVideoRendererControl
@@ -42,24 +45,28 @@ public:
     const QImage &preview() const;
     void createPreview();
 
+    bool isViewfinderRunning() const;
+
 public Q_SLOTS:
+    void init(CameraControl *control, CameraControlListener *listener);
     void startPreview();
+    void stopPreview();
 
 Q_SIGNALS:
     void surfaceChanged(QAbstractVideoSurface *surface);
 
 private Q_SLOTS:
     void updateViewfinderFrame();
-    void getTextureId();
+    void doStartPreview();
 
 private:
     QAbstractVideoSurface *m_surface;
     AalCameraService *m_service;
-    AalGLTextureBuffer *m_textureBuffer;
 
     int m_viewFinderWidth;
     int m_viewFinderHeight;
     bool m_viewFinderRunning;
+    GLuint m_textureId;
     QImage m_preview;
     SnapshotGenerator *m_snapshotGenerator;
 };

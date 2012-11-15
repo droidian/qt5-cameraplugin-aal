@@ -29,6 +29,7 @@
 class AalCameraService;
 class AalCameraControl;
 class CameraControl;
+class CameraControlListener;
 
 class AalImageCaptureControl : public QCameraImageCaptureControl
 {
@@ -49,7 +50,7 @@ public:
     static void saveJpegCB(void* data, uint32_t data_size, void* context);
 
 public Q_SLOTS:
-    void init(CameraControl *control);
+    void init(CameraControl *control, CameraControlListener *listener);
     void updateReady();
 
 private Q_SLOTS:

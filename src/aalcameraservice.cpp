@@ -23,49 +23,47 @@
 #include "aalcameraservice.h"
 #include "aalcamerazoomcontrol.h"
 #include "aalimagecapturecontrol.h"
+#include "aalvideodeviceselectorcontrol.h"
 #include "aalvideorenderercontrol.h"
 
 #include "camera_compatibility_layer.h"
 
 #include <QDebug>
 
-
-void error_msg_cb(void* context)
-{
-    printf("%s \n", __PRETTY_FUNCTION__);
-}
-
 AalCameraService *AalCameraService::m_service = 0;
 
 AalCameraService::AalCameraService(QObject *parent):
     QMediaService(parent),
-    m_androidControl(0)
+    m_androidControl(0),
+    m_androidListener(0),
+    m_oldAndroidControl(0)
 {
     m_service = this;
-
-    m_cameraListener = new CameraControlListener;
-    memset(m_cameraListener, 0, sizeof(*m_cameraListener));
 
     m_cameraControl = new AalCameraControl(this);
     m_flashControl = new AalCameraFlashControl(this);
     m_focusControl = new AalCameraFocusControl(this);
     m_zoomControl = new AalCameraZoomControl(this);
     m_imageCaptureControl = new AalImageCaptureControl(this);
+    m_deviceSelectControl = new AalVideoDeviceSelectorControl(this);
     m_videoOutput = new AalVideoRendererControl(this);
-
-    m_cameraListener->on_msg_error_cb = error_msg_cb;
 }
 
 AalCameraService::~AalCameraService()
 {
+    disconnectCamera();
     m_cameraControl->setState(QCamera::UnloadedState);
     delete m_cameraControl;
     delete m_flashControl;
     delete m_focusControl;
     delete m_zoomControl;
     delete m_imageCaptureControl;
+    delete m_deviceSelectControl;
     delete m_videoOutput;
-    delete m_androidControl;
+    if (m_oldAndroidControl)
+        android_camera_delete(m_oldAndroidControl);
+    if (m_androidControl)
+        android_camera_delete(m_androidControl);
 }
 
 QMediaControl *AalCameraService::requestControl(const char *name)
@@ -84,6 +82,9 @@ QMediaControl *AalCameraService::requestControl(const char *name)
 
     if (qstrcmp(name, QCameraZoomControl_iid) == 0)
         return m_zoomControl;
+
+    if (qstrcmp(name, QVideoDeviceSelectorControl_iid) == 0)
+        return m_deviceSelectControl;
 
     if (qstrcmp(name, QVideoRendererControl_iid) == 0)
         return m_videoOutput;
@@ -106,18 +107,51 @@ bool AalCameraService::connectCamera()
     if (m_androidControl)
         return true;
 
-    m_androidControl = android_camera_connect_to(FRONT_FACING_CAMERA_TYPE, m_cameraListener);
+    if (m_oldAndroidControl){
+        android_camera_delete(m_oldAndroidControl);
+    }
+    m_oldAndroidControl = m_androidControl;
+
+    CameraType device = BACK_FACING_CAMERA_TYPE;
+    if (m_deviceSelectControl->selectedDevice() == 1)
+        device = FRONT_FACING_CAMERA_TYPE;
+
+    m_androidListener = new CameraControlListener;
+    memset(m_androidListener, 0, sizeof(*m_androidListener));
+
+    m_androidControl = android_camera_connect_to(device, m_androidListener);
     if (!m_androidControl) {
         qWarning() << "Unable to connect to camera";
+        delete m_androidListener;
+        m_androidListener = 0;
         return false;
     }
 
-    m_cameraListener->context = m_androidControl;
-    m_imageCaptureControl->init(m_androidControl);
-    m_flashControl->init(m_androidControl);
-    m_focusControl->init(m_androidControl, m_cameraListener);
-    m_zoomControl->init(m_androidControl, m_cameraListener);
+    m_androidListener->context = m_androidControl;
+    initControls(m_androidControl, m_androidListener);
     m_videoOutput->startPreview();
 
     return true;
+}
+
+void AalCameraService::disconnectCamera()
+{
+    if (m_androidControl) {
+        android_camera_disconnect(m_androidControl);
+        m_androidControl = 0;
+    }
+
+    if (m_androidListener) {
+        delete m_androidListener;
+        m_androidListener = 0;
+    }
+}
+
+void AalCameraService::initControls(CameraControl *camControl, CameraControlListener *listener)
+{
+    m_imageCaptureControl->init(camControl, listener);
+    m_flashControl->init(camControl);
+    m_focusControl->init(camControl, listener);
+    m_zoomControl->init(camControl, listener);
+    m_videoOutput->init(camControl, listener);
 }

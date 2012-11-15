@@ -21,6 +21,7 @@ HEADERS += \
     aalcameraserviceplugin.h \
     aalcamerazoomcontrol.h \
     aalimagecapturecontrol.h \
+    aalvideodeviceselectorcontrol.h \
     aalvideorenderercontrol.h \
     snapshotgenerator.h \
     storagemanager.h
@@ -33,6 +34,7 @@ SOURCES += \
     aalcameraserviceplugin.cpp \
     aalcamerazoomcontrol.cpp \
     aalimagecapturecontrol.cpp \
+    aalvideodeviceselectorcontrol.cpp \
     aalvideorenderercontrol.cpp \
     snapshotgenerator.cpp \
     storagemanager.cpp

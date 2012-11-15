@@ -19,6 +19,7 @@
 
 #include "aalcameraflashcontrol.h"
 #include "aalcameraservice.h"
+#include "aalvideodeviceselectorcontrol.h"
 
 #include <QDebug>
 
@@ -40,10 +41,16 @@ QCameraExposure::FlashModes AalCameraFlashControl::flashMode() const
 
 bool AalCameraFlashControl::isFlashModeSupported(QCameraExposure::FlashModes mode) const
 {
-    if (mode==QCameraExposure::FlashAuto || mode==QCameraExposure::FlashOff ||
-            mode==QCameraExposure::FlashOn || mode==QCameraExposure::FlashVideoLight) {
-        return true;
+    if (m_service->deviceSelector()->selectedDevice() == 0) {
+        if (mode==QCameraExposure::FlashAuto || mode==QCameraExposure::FlashOff ||
+                mode==QCameraExposure::FlashOn || mode==QCameraExposure::FlashVideoLight) {
+            return true;
+        }
+    } else {
+        if (mode==QCameraExposure::FlashOff)
+            return true;
     }
+
     return false;
 }
 
@@ -79,6 +86,11 @@ void AalCameraFlashControl::init(CameraControl *control)
         android_camera_get_flash_mode(control, &mode);
         m_currentMode = android2Qt(mode);
     }
+
+    if (!isFlashModeSupported(m_currentMode)) {
+        setFlashMode(QCameraExposure::FlashOff);
+    }
+
     Q_EMIT flashReady(true);
 }
 
