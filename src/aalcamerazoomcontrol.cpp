@@ -89,6 +89,16 @@ void AalCameraZoomControl::zoomTo(qreal optical, qreal digital)
 void AalCameraZoomControl::init(CameraControl *control, CameraControlListener *listener)
 {
     Q_UNUSED(listener);
-    android_camera_get_max_zoom(control, &m_maximalDigitalZoom);
-    Q_EMIT maximumDigitalZoomChanged(m_maximalDigitalZoom);
+
+    if (m_currentDigialZoom != 1) {
+        m_currentDigialZoom = 1;
+        Q_EMIT currentDigitalZoomChanged(m_currentDigialZoom);
+    }
+
+    int maxZoom;
+    android_camera_get_max_zoom(control, &maxZoom);
+    if (maxZoom != m_maximalDigitalZoom) {
+        m_maximalDigitalZoom = maxZoom;
+        Q_EMIT maximumDigitalZoomChanged(m_maximalDigitalZoom);
+    }
 }

@@ -151,6 +151,9 @@ void AalCameraFocusControl::init(CameraControl *control, CameraControlListener *
 
 void AalCameraFocusControl::startFocus()
 {
+    if (!m_service->androidControl())
+        return;
+
     m_focusRunning = true;
     m_service->imageCaptureControl()->updateReady();
     android_camera_start_autofocus(m_service->androidControl());

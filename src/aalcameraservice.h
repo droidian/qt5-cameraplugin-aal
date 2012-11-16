@@ -27,6 +27,7 @@ class AalCameraFlashControl;
 class AalCameraFocusControl;
 class AalCameraZoomControl;
 class AalImageCaptureControl;
+class AalVideoDeviceSelectorControl;
 class AalVideoRendererControl;
 class QCameraControl;
 
@@ -48,17 +49,19 @@ public:
     AalCameraFocusControl *focusControl() const { return m_focusControl; }
     AalCameraZoomControl *zoomControl() const { return m_zoomControl; }
     AalImageCaptureControl *imageCaptureControl() const { return m_imageCaptureControl; }
+    AalVideoDeviceSelectorControl *deviceSelector() const { return m_deviceSelectControl; }
     AalVideoRendererControl *videoOutputControl() const { return m_videoOutput; }
 
     CameraControl *androidControl();
 
-    CameraControlListener *listener() {return m_cameraListener; }
-
     bool connectCamera();
+    void disconnectCamera();
 
     static AalCameraService *instance() { return m_service; }
 
 private:
+    void initControls(CameraControl *camControl, CameraControlListener *listener);
+
     static AalCameraService *m_service;
 
     AalCameraControl *m_cameraControl;
@@ -66,10 +69,11 @@ private:
     AalCameraFocusControl *m_focusControl;
     AalCameraZoomControl *m_zoomControl;
     AalImageCaptureControl *m_imageCaptureControl;
+    AalVideoDeviceSelectorControl *m_deviceSelectControl;
     AalVideoRendererControl *m_videoOutput;
-
     CameraControl *m_androidControl;
-    CameraControlListener *m_cameraListener;
+    CameraControlListener *m_androidListener;
+    CameraControl *m_oldAndroidControl;
 };
 
 #endif

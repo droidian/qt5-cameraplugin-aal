@@ -21,6 +21,7 @@
 #include "aalcameracontrol.h"
 #include "aalcamerafocuscontrol.h"
 #include "aalcameraservice.h"
+#include "aalvideodeviceselectorcontrol.h"
 #include "aalvideorenderercontrol.h"
 #include "storagemanager.h"
 
@@ -38,13 +39,11 @@ AalImageCaptureControl::AalImageCaptureControl(AalCameraService *service, QObjec
     m_lastRequestId(0),
     m_ready(false),
     m_pendingCaptureFile(),
-    m_photoWidth(2592),
-    m_photoHeight(1458)
+    m_photoWidth(320),
+    m_photoHeight(240)
 {
     QObject::connect(m_cameraControl, SIGNAL(stateChanged(QCamera::State)),
                      this, SLOT(updateReady()));
-    m_service->listener()->on_msg_shutter_cb = &AalImageCaptureControl::shutterCB;
-    m_service->listener()->on_data_compressed_image_cb = &AalImageCaptureControl::saveJpegCB;
 }
 
 AalImageCaptureControl::~AalImageCaptureControl()
@@ -58,7 +57,7 @@ bool AalImageCaptureControl::isReadyForCapture() const
 
 int AalImageCaptureControl::capture(const QString &fileName)
 {
-    if (!m_ready) {
+    if (!m_ready || !m_service->androidControl()) {
         qWarning() << "Camera not ready to capture";
         return -1;
     }
@@ -98,9 +97,19 @@ void AalImageCaptureControl::saveJpegCB(void *data, uint32_t data_size, void *co
     AalCameraService::instance()->imageCaptureControl()->saveJpeg(data, data_size);
 }
 
-void AalImageCaptureControl::init(CameraControl *control)
+void AalImageCaptureControl::init(CameraControl *control, CameraControlListener *listener)
 {
+    if (m_service->deviceSelector()->selectedDevice() == 0) {
+        m_photoWidth = 2592;
+        m_photoHeight = 1458;
+    } else {
+        m_photoWidth = 1280;
+        m_photoHeight = 960;
+    }
     android_camera_set_picture_size(control, m_photoWidth, m_photoHeight);
+
+    listener->on_msg_shutter_cb = &AalImageCaptureControl::shutterCB;
+    listener->on_data_compressed_image_cb = &AalImageCaptureControl::saveJpegCB;
 }
 
 void AalImageCaptureControl::updateReady()
@@ -120,6 +129,8 @@ bool AalImageCaptureControl::calculateReadyStatus()
         return false;
     if (m_service->focusControl()->isFocusBusy())
         return false;
+    if (!m_service->videoOutputControl()->isViewfinderRunning())
+        return false;
 
     return true;
 }
@@ -133,7 +144,7 @@ void AalImageCaptureControl::shutter()
 
 void AalImageCaptureControl::saveJpeg(void *data, uint32_t data_size)
 {
-    if (m_pendingCaptureFile.isNull())
+    if (m_pendingCaptureFile.isNull() || !m_service->androidControl())
         return;
 
     QTemporaryFile file;
