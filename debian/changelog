@@ -1,9 +1,9 @@
-cameraplugin-aal (0.1.6) UNRELEASED; urgency=low
+cameraplugin-aal (0.1.6) quantal; urgency=low
 
   [ Guenter Schwann]
   * Support for the front camera and the switching between the front and back camera.
 
- -- Ugo Riboni <ugo.riboni@canonical.com>  Fri, 16 Nov 2012 20:03:09 +0100
+ -- Ugo Riboni <ugo.riboni@canonical.com>  Fri, 16 Nov 2012 20:04:02 +0100
 
 cameraplugin-aal (0.1.5) quantal; urgency=low
 
