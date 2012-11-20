@@ -52,7 +52,7 @@ QString StorageManager::nextVideoFileName(const QString &directoy)
     return nextMediaFileName(videoExtension);
 }
 
-void StorageManager::checkDirectory(const QString &path) const
+bool StorageManager::checkDirectory(const QString &path) const
 {
     QFileInfo fi(path);
     QDir dir;
@@ -61,8 +61,17 @@ void StorageManager::checkDirectory(const QString &path) const
     else
         dir.setPath(fi.absoluteDir().absolutePath());
 
-    if (!dir.exists())
-        dir.mkpath(dir.absolutePath());
+    if (!dir.exists()) {
+        bool ok = dir.mkpath(dir.absolutePath());
+        if (!ok)
+            return false;
+    }
+
+    fi.setFile(dir.absolutePath());
+    if (!fi.isWritable())
+        return false;
+
+    return true;
 }
 
 QString StorageManager::nextMediaFileName(const QString &extension)

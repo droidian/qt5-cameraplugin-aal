@@ -125,7 +125,6 @@ bool AalCameraService::connectCamera()
 
     m_androidControl = android_camera_connect_to(device, m_androidListener);
     if (!m_androidControl) {
-        qWarning() << "Unable to connect to camera";
         delete m_androidListener;
         m_androidListener = 0;
         return false;
@@ -153,6 +152,7 @@ void AalCameraService::disconnectCamera()
 
 void AalCameraService::initControls(CameraControl *camControl, CameraControlListener *listener)
 {
+    m_cameraControl->init(camControl, listener);
     m_imageCaptureControl->init(camControl, listener);
     m_flashControl->init(camControl);
     m_focusControl->init(camControl, listener);

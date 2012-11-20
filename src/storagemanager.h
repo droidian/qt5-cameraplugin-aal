@@ -30,7 +30,7 @@ public:
     QString nextPhotoFileName(const QString &directoy = QString());
     QString nextVideoFileName(const QString &directoy = QString());
 
-    void checkDirectory(const QString &path) const;
+    bool checkDirectory(const QString &path) const;
 
 private:
     QString nextMediaFileName(const QString &extension);

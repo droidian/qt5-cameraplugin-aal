@@ -1,8 +1,9 @@
-cameraplugin-aal (0.1.7) UNRELEASED; urgency=low
+cameraplugin-aal (0.1.7) quantal; urgency=low
 
   * Correct portrait rotation for the front camera
+  * Signal errors to app
 
- -- Guenter Schwann <guenter.schwann@canonical.com>  Fri, 20 Nov 2012 09:34:02 +0100
+ -- Guenter Schwann <guenter.schwann@canonical.com>  Tue, 20 Nov 2012 15:48:30 +0100
 
 cameraplugin-aal (0.1.6) quantal; urgency=low
 
