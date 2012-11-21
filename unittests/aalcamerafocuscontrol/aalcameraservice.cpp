@@ -17,39 +17,48 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "aalcameraserviceplugin.h"
 #include "aalcameraservice.h"
 
-#include <QDebug>
+AalCameraService *AalCameraService::m_service = 0;
 
-AalServicePlugin::AalServicePlugin()
+AalCameraService::AalCameraService(QObject *parent) :
+    QMediaService(parent),
+    m_androidControl(0),
+    m_androidListener(0)
 {
 }
 
-QMediaService* AalServicePlugin::create(QString const& key)
+AalCameraService::~AalCameraService()
 {
-    if (key == QLatin1String(Q_MEDIASERVICE_CAMERA))
-        return new AalCameraService;
-    else
-        qWarning() << "Key not supported:" << key;
+}
 
+QMediaControl *AalCameraService::requestControl(const char *name)
+{
+    Q_UNUSED(name);
     return 0;
 }
 
-void AalServicePlugin::release(QMediaService *service)
+void AalCameraService::releaseControl(QMediaControl *control)
 {
-    delete service;
+    Q_UNUSED(control);
 }
 
-QList<QByteArray> AalServicePlugin::devices(const QByteArray &service) const
+CameraControl *AalCameraService::androidControl()
 {
-    Q_UNUSED(service);
-    return QList<QByteArray>();
+    return m_androidControl;
 }
 
-QString AalServicePlugin::deviceDescription(const QByteArray &service, const QByteArray &device)
+bool AalCameraService::connectCamera()
 {
-    Q_UNUSED(service);
-    Q_UNUSED(device);
-    return QString();
+    return true;
+}
+
+void AalCameraService::disconnectCamera()
+{
+}
+
+void AalCameraService::initControls(CameraControl *camControl, CameraControlListener *listener)
+{
+    Q_UNUSED(camControl);
+    Q_UNUSED(listener);
 }

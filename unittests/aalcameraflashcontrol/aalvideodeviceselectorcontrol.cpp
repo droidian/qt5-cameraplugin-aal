@@ -18,49 +18,38 @@
  */
 
 #include "aalvideodeviceselectorcontrol.h"
-#include "aalcameraservice.h"
+//#include "aalcameraservice.h"
 
-#include <QDebug>
-
+#include "camera_compatibility_layer.h"
 #include "camera_compatibility_layer_capabilities.h"
 
 AalVideoDeviceSelectorControl::AalVideoDeviceSelectorControl(AalCameraService *service, QObject *parent)
-    :QVideoDeviceSelectorControl(parent),
-      m_service(service),
-      m_currentDevice(0),
-      m_numberOfCameras(-1)
+    : QVideoDeviceSelectorControl(parent),
+      m_currentDevice(0)
 {
+    Q_UNUSED(service);
 }
 
 int AalVideoDeviceSelectorControl::defaultDevice() const
 {
-    return m_currentDevice;
+    return 0;
 }
 
 int AalVideoDeviceSelectorControl::deviceCount() const
 {
-    if (m_numberOfCameras < 0)
-        m_numberOfCameras = android_camera_get_number_of_devices();
-
-    return m_numberOfCameras;
+    return 2;
 }
 
 QString AalVideoDeviceSelectorControl::deviceDescription(int index) const
 {
-    switch (index) {
-    case 0: return QLatin1String("Back camera");
-    case 1: return QLatin1String("Front camera");
-    default: return QLatin1String("");
-    }
+    Q_UNUSED(index);
+    return QString();
 }
 
 QString AalVideoDeviceSelectorControl::deviceName(int index) const
 {
-    switch (index) {
-    case 0: return QLatin1String("Back");
-    case 1: return QLatin1String("Front");
-    default: return QLatin1String("");
-    }
+    Q_UNUSED(index);
+    return QString();
 }
 
 int AalVideoDeviceSelectorControl::selectedDevice() const
@@ -70,18 +59,5 @@ int AalVideoDeviceSelectorControl::selectedDevice() const
 
 void AalVideoDeviceSelectorControl::setSelectedDevice(int index)
 {
-    if (index == m_currentDevice)
-        return;
-
-    if (index < 0 || index >= deviceCount()) {
-        qWarning() << "no valid device selected: " << index;
-        return;
-    }
-
-    m_service->disconnectCamera();
     m_currentDevice = index;
-    m_service->connectCamera();
-
-    Q_EMIT selectedDeviceChanged(m_currentDevice);
-    Q_EMIT selectedDeviceChanged(deviceName(m_currentDevice));
 }

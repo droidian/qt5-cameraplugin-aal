@@ -18,17 +18,85 @@
  */
 
 #include <QtTest/QtTest>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
 
 #define private public
 #include "storagemanager.h"
+
+const QLatin1String testPath("/tmp/aalCameraStorageManagerUnitTestDirectory0192837465/");
 
 class tst_StorageManager : public QObject
 {
     Q_OBJECT
 private slots:
+    void initTestCase();
+    void cleanupTestCase();
+    void nextFileName();
+    void checkDirectory();
     void fileNameGenerator_data();
     void fileNameGenerator();
+
+private:
+    void removeTestDirectory();
 };
+
+void tst_StorageManager::initTestCase()
+{
+    removeTestDirectory();
+}
+
+void tst_StorageManager::cleanupTestCase()
+{
+    removeTestDirectory();
+}
+
+void tst_StorageManager::nextFileName()
+{
+    StorageManager storage;
+
+    QString fileName = storage.nextPhotoFileName(testPath);
+    QString compareFileName = storage.fileNameGenerator(1, "jpg");
+    QCOMPARE(fileName, compareFileName);
+
+    QDir dir;
+    dir.mkpath(testPath);
+    QFile file(compareFileName);
+    file.open(QIODevice::ReadWrite);
+    file.close();
+    fileName = storage.nextPhotoFileName(testPath);
+    compareFileName = storage.fileNameGenerator(2, "jpg");
+    QCOMPARE(fileName, compareFileName);
+
+
+    fileName = storage.nextVideoFileName(testPath);
+    compareFileName = storage.fileNameGenerator(1, "mpg");
+    QCOMPARE(fileName, compareFileName);
+
+    removeTestDirectory();
+}
+
+void tst_StorageManager::checkDirectory()
+{
+    StorageManager storage;
+
+    QString path = testPath;
+    bool ok = storage.checkDirectory(path);
+    QCOMPARE(ok, true);
+    QDir dir(path);
+    ok = dir.exists();
+    QCOMPARE(ok, true);
+    dir.rmdir(path);
+
+    QString file = "image007.jpg";
+    ok = storage.checkDirectory(path+file);
+    QCOMPARE(ok, true);
+    dir.setPath(path);
+    ok = dir.exists();
+    QCOMPARE(ok, true);
+    dir.rmdir(path);
+}
 
 void tst_StorageManager::fileNameGenerator_data()
 {
@@ -56,6 +124,18 @@ void tst_StorageManager::fileNameGenerator()
     QCOMPARE(generated, expected);
 }
 
-QTEST_MAIN(tst_StorageManager)
+void tst_StorageManager::removeTestDirectory()
+{
+    QDir dir(testPath);
+    QStringList fileNames = dir.entryList(QDir::Files);
+    foreach (QString fileName, fileNames) {
+        QFile::remove(testPath+fileName);
+    }
+
+    if (dir.exists())
+        dir.rmdir(testPath);
+}
+
+QTEST_MAIN(tst_StorageManager);
 
 #include "tst_storagemanager.moc"

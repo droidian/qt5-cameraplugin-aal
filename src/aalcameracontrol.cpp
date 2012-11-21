@@ -19,11 +19,8 @@
 
 #include "aalcameracontrol.h"
 #include "aalcameraservice.h"
-#include "aalvideorenderercontrol.h"
 
 #include "camera_compatibility_layer.h"
-
-#include <QDebug>
 
 AalCameraControl::AalCameraControl(AalCameraService *service, QObject *parent)
    : QCameraControl(parent),
@@ -56,7 +53,6 @@ void AalCameraControl::setState(QCamera::State state)
         }
     }
 
-    qDebug() << m_state << "->" << state;
     m_state = state;
     Q_EMIT stateChanged(m_state);
 }
