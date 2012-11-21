@@ -80,7 +80,8 @@ void AalVideoDeviceSelectorControl::setSelectedDevice(int index)
 
     m_service->disconnectCamera();
     m_currentDevice = index;
-    m_service->connectCamera();
+    if (m_service->isCameraActive())
+        m_service->connectCamera();
 
     Q_EMIT selectedDeviceChanged(m_currentDevice);
     Q_EMIT selectedDeviceChanged(deviceName(m_currentDevice));

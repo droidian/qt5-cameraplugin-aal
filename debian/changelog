@@ -2,8 +2,9 @@ cameraplugin-aal (0.1.7) UNRELEASED; urgency=low
 
   * Correct portrait rotation for the front camera
   * Signal errors to app
+  * Support to stop/start the camera
 
- -- Guenter Schwann <guenter.schwann@canonical.com>  Tue, 20 Nov 2012 15:48:30 +0100
+ -- Guenter Schwann <guenter.schwann@canonical.com>  Wed, 21 Nov 2012 16:26:19 +0100
 
 cameraplugin-aal (0.1.6) quantal; urgency=low
 

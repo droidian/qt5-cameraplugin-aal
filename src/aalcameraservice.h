@@ -57,6 +57,8 @@ public:
     bool connectCamera();
     void disconnectCamera();
 
+    bool isCameraActive() const;
+
     static AalCameraService *instance() { return m_service; }
 
 private:
