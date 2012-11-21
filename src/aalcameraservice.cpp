@@ -153,6 +153,11 @@ void AalCameraService::disconnectCamera()
     }
 }
 
+bool AalCameraService::isCameraActive() const
+{
+    return m_cameraControl->state() == QCamera::ActiveState;
+}
+
 void AalCameraService::initControls(CameraControl *camControl, CameraControlListener *listener)
 {
     m_cameraControl->init(camControl, listener);
