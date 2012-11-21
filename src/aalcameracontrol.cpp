@@ -50,8 +50,10 @@ void AalCameraControl::setState(QCamera::State state)
 
     if (m_state == QCamera::UnloadedState) {
         bool ok = m_service->connectCamera();
-        if (!ok)
+        if (!ok) {
+            Q_EMIT error(QCamera::CameraError, QLatin1String("Unable to connect to camera"));
             return;
+        }
     }
 
     qDebug() << m_state << "->" << state;
@@ -89,4 +91,22 @@ bool AalCameraControl::canChangeProperty(QCameraControl::PropertyChangeType chan
     Q_UNUSED(status);
 
     return true;
+}
+
+void AalCameraControl::init(CameraControl *control, CameraControlListener *listener)
+{
+    Q_UNUSED(control);
+    listener->on_msg_error_cb = &AalCameraControl::errorCB;
+}
+
+void AalCameraControl::handleError()
+{
+    Q_EMIT error(QCamera::CameraError, QLatin1String("Unknown error in camera"));
+}
+
+void AalCameraControl::errorCB(void *context)
+{
+    Q_UNUSED(context);
+    QMetaObject::invokeMethod(AalCameraService::instance()->cameraControl(),
+                              "handleError", Qt::QueuedConnection);
 }

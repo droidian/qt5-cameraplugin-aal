@@ -23,6 +23,8 @@
 #include <QCameraControl>
 
 class AalCameraService;
+struct CameraControl;
+struct CameraControlListener;
 
 class AalCameraControl : public QCameraControl
 {
@@ -41,6 +43,14 @@ public:
     bool isCaptureModeSupported(QCamera::CaptureModes mode) const;
 
     bool canChangeProperty(PropertyChangeType changeType, QCamera::Status status) const;
+
+    static void errorCB(void* context);
+
+public Q_SLOTS:
+    void init(CameraControl *control, CameraControlListener *listener);
+
+private Q_SLOTS:
+    void handleError();
 
 private:
     AalCameraService *m_service;
