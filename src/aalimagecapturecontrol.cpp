@@ -57,12 +57,12 @@ bool AalImageCaptureControl::isReadyForCapture() const
 
 int AalImageCaptureControl::capture(const QString &fileName)
 {
-    if (!m_ready || !m_service->androidControl()) {
-        qWarning() << "Camera not ready to capture";
-        return -1;
-    }
-
     m_lastRequestId++;
+    if (!m_ready || !m_service->androidControl()) {
+        emit error(m_lastRequestId, QCameraImageCapture::NotReadyError,
+                   QLatin1String("Camera not ready to capture"));
+        return m_lastRequestId;
+    }
 
     QFileInfo fi(fileName);
     if (fileName.isEmpty() || fi.isDir()) {
@@ -70,7 +70,12 @@ int AalImageCaptureControl::capture(const QString &fileName)
     } else {
         m_pendingCaptureFile = fileName;
     }
-    m_storageManager.checkDirectory(m_pendingCaptureFile);
+    bool diskOk = m_storageManager.checkDirectory(m_pendingCaptureFile);
+    if (!diskOk) {
+        emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
+                   QString("Won't be able to save file %1 to disk").arg(m_pendingCaptureFile));
+        return m_lastRequestId;
+    }
 
     int rotation = 90;
     if (m_service->deviceSelector()->selectedDevice() == 1)
@@ -152,17 +157,32 @@ void AalImageCaptureControl::saveJpeg(void *data, uint32_t data_size)
 
     QTemporaryFile file;
     if (!file.open()) {
-        qWarning() << "Could not save image to " << m_pendingCaptureFile;
+        emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
+                   QString("Could not open temprary file %1").arg(file.fileName()));
         m_pendingCaptureFile.clear();
         updateReady();
         return;
     }
 
-    file.write((const char*)data, data_size);
+    qint64 writtenSize = file.write((const char*)data, data_size);
     file.close();
+    if (writtenSize != data_size) {
+        emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
+                   QString("Could not write file %1").arg(file.fileName()));
+        m_pendingCaptureFile.clear();
+        updateReady();
+        return;
+    }
 
     QFile finalFile(file.fileName());
-    finalFile.rename(m_pendingCaptureFile);
+    bool ok = finalFile.rename(m_pendingCaptureFile);
+    if (!ok) {
+        emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
+                   QString("Could not save image to %1").arg(m_pendingCaptureFile));
+        m_pendingCaptureFile.clear();
+        updateReady();
+        return;
+    }
 
     Q_EMIT imageSaved(m_lastRequestId, m_pendingCaptureFile);
     m_pendingCaptureFile.clear();
