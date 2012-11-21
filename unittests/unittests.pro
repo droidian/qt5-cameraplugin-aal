@@ -1,3 +1,10 @@
 include(../coverage.pri)
 TEMPLATE = subdirs
-SUBDIRS += storagemanager
+SUBDIRS += \
+    mocks \
+    aalcameracontrol \
+    aalcameraflashcontrol \
+    aalcamerafocuscontrol \
+    aalcamerazoomcontrol \
+    aalvideodeviceselectorcontrol \
+    storagemanager
