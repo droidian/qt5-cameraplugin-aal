@@ -49,15 +49,17 @@ public:
     static void shutterCB(void* context);
     static void saveJpegCB(void* data, uint32_t data_size, void* context);
 
+    void setReady(bool ready);
+
+    bool isCaptureRunning() const;
+
 public Q_SLOTS:
     void init(CameraControl *control, CameraControlListener *listener);
-    void updateReady();
 
 private Q_SLOTS:
     void shutter();
 
 private:
-    bool calculateReadyStatus();
     void saveJpeg(void* data, uint32_t data_size);
 
     AalCameraService *m_service;

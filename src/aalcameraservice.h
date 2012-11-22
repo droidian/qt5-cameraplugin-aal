@@ -58,8 +58,12 @@ public:
     void disconnectCamera();
 
     bool isCameraActive() const;
+    bool isBackCameraUsed() const;
 
     static AalCameraService *instance() { return m_service; }
+
+public Q_SLOTS:
+    void updateCaptureReady();
 
 private:
     void initControls(CameraControl *camControl, CameraControlListener *listener);

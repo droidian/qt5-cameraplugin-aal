@@ -19,7 +19,6 @@
 
 #include "aalcamerafocuscontrol.h"
 #include "aalcameraservice.h"
-#include "aalimagecapturecontrol.h"
 
 #include <QDebug>
 #include <QTimer>
@@ -121,8 +120,8 @@ void AalCameraFocusControl::focusCB(void *context)
 {
     Q_UNUSED(context);
     AalCameraService::instance()->focusControl()->m_focusRunning = false;
-    QMetaObject::invokeMethod(AalCameraService::instance()->imageCaptureControl(),
-                              "updateReady", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(AalCameraService::instance(),
+                              "updateCaptureReady", Qt::QueuedConnection);
 }
 
 bool AalCameraFocusControl::isFocusBusy() const
@@ -155,7 +154,7 @@ void AalCameraFocusControl::startFocus()
         return;
 
     m_focusRunning = true;
-    m_service->imageCaptureControl()->updateReady();
+    m_service->updateCaptureReady();
     android_camera_start_autofocus(m_service->androidControl());
 }
 

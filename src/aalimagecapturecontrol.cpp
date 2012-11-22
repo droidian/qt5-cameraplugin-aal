@@ -18,10 +18,7 @@
  */
 
 #include "aalimagecapturecontrol.h"
-#include "aalcameracontrol.h"
-#include "aalcamerafocuscontrol.h"
 #include "aalcameraservice.h"
-#include "aalvideodeviceselectorcontrol.h"
 #include "aalvideorenderercontrol.h"
 #include "storagemanager.h"
 
@@ -42,8 +39,6 @@ AalImageCaptureControl::AalImageCaptureControl(AalCameraService *service, QObjec
     m_photoWidth(320),
     m_photoHeight(240)
 {
-    QObject::connect(m_cameraControl, SIGNAL(stateChanged(QCamera::State)),
-                     this, SLOT(updateReady()));
 }
 
 AalImageCaptureControl::~AalImageCaptureControl()
@@ -78,13 +73,13 @@ int AalImageCaptureControl::capture(const QString &fileName)
     }
 
     int rotation = 90;
-    if (m_service->deviceSelector()->selectedDevice() == 1)
+    if (!m_service->isBackCameraUsed())
         rotation = 270;
     android_camera_set_rotation(m_service->androidControl(), rotation);
 
     android_camera_take_snapshot(m_service->androidControl());
 
-    updateReady();
+    m_service->updateCaptureReady();
     return m_lastRequestId;
 }
 
@@ -107,7 +102,7 @@ void AalImageCaptureControl::saveJpegCB(void *data, uint32_t data_size, void *co
 
 void AalImageCaptureControl::init(CameraControl *control, CameraControlListener *listener)
 {
-    if (m_service->deviceSelector()->selectedDevice() == 0) {
+    if (m_service->isBackCameraUsed()) {
         m_photoWidth = 2592;
         m_photoHeight = 1458;
     } else {
@@ -120,27 +115,17 @@ void AalImageCaptureControl::init(CameraControl *control, CameraControlListener 
     listener->on_data_compressed_image_cb = &AalImageCaptureControl::saveJpegCB;
 }
 
-void AalImageCaptureControl::updateReady()
+void AalImageCaptureControl::setReady(bool ready)
 {
-    bool ready = calculateReadyStatus();
     if (m_ready != ready) {
         m_ready = ready;
         Q_EMIT readyForCaptureChanged(m_ready);
     }
 }
 
-bool AalImageCaptureControl::calculateReadyStatus()
+bool AalImageCaptureControl::isCaptureRunning() const
 {
-    if (!m_cameraControl->state() == QCamera::ActiveState)
-        return false;
-    if (!m_pendingCaptureFile.isNull())
-        return false;
-    if (m_service->focusControl()->isFocusBusy())
-        return false;
-    if (!m_service->videoOutputControl()->isViewfinderRunning())
-        return false;
-
-    return true;
+    return !m_pendingCaptureFile.isNull();
 }
 
 void AalImageCaptureControl::shutter()
@@ -160,7 +145,7 @@ void AalImageCaptureControl::saveJpeg(void *data, uint32_t data_size)
         emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
                    QString("Could not open temprary file %1").arg(file.fileName()));
         m_pendingCaptureFile.clear();
-        updateReady();
+        m_service->updateCaptureReady();
         return;
     }
 
@@ -170,7 +155,7 @@ void AalImageCaptureControl::saveJpeg(void *data, uint32_t data_size)
         emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
                    QString("Could not write file %1").arg(file.fileName()));
         m_pendingCaptureFile.clear();
-        updateReady();
+        m_service->updateCaptureReady();
         return;
     }
 
@@ -180,7 +165,7 @@ void AalImageCaptureControl::saveJpeg(void *data, uint32_t data_size)
         emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
                    QString("Could not save image to %1").arg(m_pendingCaptureFile));
         m_pendingCaptureFile.clear();
-        updateReady();
+        m_service->updateCaptureReady();
         return;
     }
 
@@ -188,5 +173,5 @@ void AalImageCaptureControl::saveJpeg(void *data, uint32_t data_size)
     m_pendingCaptureFile.clear();
 
     android_camera_start_preview(m_service->androidControl());
-    updateReady();
+    m_service->updateCaptureReady();
 }
