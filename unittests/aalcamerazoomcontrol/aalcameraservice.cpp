@@ -72,3 +72,7 @@ void AalCameraService::initControls(CameraControl *camControl, CameraControlList
 {
     m_zoomControl->init(camControl, listener);
 }
+
+void AalCameraService::updateCaptureReady()
+{
+}

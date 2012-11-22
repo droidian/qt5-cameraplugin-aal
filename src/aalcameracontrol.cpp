@@ -57,6 +57,7 @@ void AalCameraControl::setState(QCamera::State state)
 
     m_state = state;
     Q_EMIT stateChanged(m_state);
+    m_service->updateCaptureReady();
 }
 
 QCamera::Status AalCameraControl::status() const

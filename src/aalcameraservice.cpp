@@ -117,7 +117,7 @@ bool AalCameraService::connectCamera()
     m_oldAndroidControl = m_androidControl;
 
     CameraType device = BACK_FACING_CAMERA_TYPE;
-    if (m_deviceSelectControl->selectedDevice() == 1)
+    if (!isBackCameraUsed())
         device = FRONT_FACING_CAMERA_TYPE;
 
     m_androidListener = new CameraControlListener;
@@ -156,6 +156,27 @@ void AalCameraService::disconnectCamera()
 bool AalCameraService::isCameraActive() const
 {
     return m_cameraControl->state() == QCamera::ActiveState;
+}
+
+bool AalCameraService::isBackCameraUsed() const
+{
+    return m_deviceSelectControl->selectedDevice() == 0;
+}
+
+void AalCameraService::updateCaptureReady()
+{
+    bool ready = true;
+
+    if (!m_cameraControl->state() == QCamera::ActiveState)
+        ready = false;
+    if (m_imageCaptureControl->isCaptureRunning())
+        ready = false;
+    if (m_focusControl->isFocusBusy())
+        ready = false;
+    if (!m_videoOutput->isViewfinderRunning())
+        ready = false;
+
+    m_imageCaptureControl->setReady(ready);
 }
 
 void AalCameraService::initControls(CameraControl *camControl, CameraControlListener *listener)

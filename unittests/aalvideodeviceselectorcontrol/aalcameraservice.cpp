@@ -67,3 +67,7 @@ void AalCameraService::initControls(CameraControl *camControl, CameraControlList
     Q_UNUSED(camControl);
     Q_UNUSED(listener);
 }
+
+void AalCameraService::updateCaptureReady()
+{
+}

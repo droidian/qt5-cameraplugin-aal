@@ -18,7 +18,6 @@
  */
 
 #include "aalcameraservice.h"
-#include <aalvideodeviceselectorcontrol.h>
 
 AalCameraService *AalCameraService::m_service = 0;
 
@@ -27,12 +26,10 @@ AalCameraService::AalCameraService(QObject *parent) :
     m_androidControl(0),
     m_androidListener(0)
 {
-    m_deviceSelectControl = new AalVideoDeviceSelectorControl(this);
 }
 
 AalCameraService::~AalCameraService()
 {
-    delete m_deviceSelectControl;
 }
 
 QMediaControl *AalCameraService::requestControl(const char *name)
@@ -64,4 +61,18 @@ void AalCameraService::initControls(CameraControl *camControl, CameraControlList
 {
     Q_UNUSED(camControl);
     Q_UNUSED(listener);
+}
+
+bool AalCameraService::isCameraActive() const
+{
+    return true;
+}
+
+bool AalCameraService::isBackCameraUsed() const
+{
+    return true;
+}
+
+void AalCameraService::updateCaptureReady()
+{
 }

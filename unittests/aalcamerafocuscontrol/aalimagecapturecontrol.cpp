@@ -57,8 +57,9 @@ void AalImageCaptureControl::init(CameraControl *control, CameraControlListener 
     Q_UNUSED(listener);
 }
 
-void AalImageCaptureControl::updateReady()
+void AalImageCaptureControl::setReady(bool ready)
 {
+    Q_UNUSED(ready);
 }
 
 void AalImageCaptureControl::shutter()

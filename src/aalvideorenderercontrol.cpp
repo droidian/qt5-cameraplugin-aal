@@ -18,10 +18,7 @@
  */
 
 #include "aalvideorenderercontrol.h"
-#include "aalcameracontrol.h"
 #include "aalcameraservice.h"
-#include "aalimagecapturecontrol.h"
-#include "aalvideodeviceselectorcontrol.h"
 #include "snapshotgenerator.h"
 
 #include "camera_compatibility_layer.h"
@@ -108,7 +105,7 @@ void AalVideoRendererControl::init(CameraControl *control, CameraControlListener
 {
     listener->on_preview_texture_needs_update_cb = &AalVideoRendererControl::updateViewfinderFrameCB;
 
-    if (m_service->deviceSelector()->selectedDevice() == 0) {
+    if (m_service->isBackCameraUsed()) {
         m_viewFinderWidth = 1280;
         m_viewFinderHeight = 720;
     } else {
@@ -149,7 +146,7 @@ void AalVideoRendererControl::stopPreview()
 
     m_viewFinderRunning = false;
 
-    m_service->imageCaptureControl()->updateReady();
+    m_service->updateCaptureReady();
 }
 
 void AalVideoRendererControl::updateViewfinderFrame()
@@ -194,7 +191,7 @@ void AalVideoRendererControl::doStartPreview()
         android_camera_start_preview(cc);
         m_viewFinderRunning = true;
     }
-    m_service->imageCaptureControl()->updateReady();
+    m_service->updateCaptureReady();
 }
 
 void AalVideoRendererControl::updateViewfinderFrameCB(void* context)

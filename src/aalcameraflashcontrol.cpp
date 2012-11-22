@@ -19,7 +19,6 @@
 
 #include "aalcameraflashcontrol.h"
 #include "aalcameraservice.h"
-#include "aalvideodeviceselectorcontrol.h"
 
 #include <QDebug>
 
@@ -41,7 +40,7 @@ QCameraExposure::FlashModes AalCameraFlashControl::flashMode() const
 
 bool AalCameraFlashControl::isFlashModeSupported(QCameraExposure::FlashModes mode) const
 {
-    if (m_service->deviceSelector()->selectedDevice() == 0) {
+    if (m_service->isBackCameraUsed()) {
         if (mode==QCameraExposure::FlashAuto || mode==QCameraExposure::FlashOff ||
                 mode==QCameraExposure::FlashOn || mode==QCameraExposure::FlashVideoLight) {
             return true;
