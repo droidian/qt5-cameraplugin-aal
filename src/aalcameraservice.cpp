@@ -167,7 +167,7 @@ void AalCameraService::updateCaptureReady()
 {
     bool ready = true;
 
-    if (!m_cameraControl->state() == QCamera::ActiveState)
+    if (!(m_cameraControl->state() == QCamera::ActiveState))
         ready = false;
     if (m_imageCaptureControl->isCaptureRunning())
         ready = false;
