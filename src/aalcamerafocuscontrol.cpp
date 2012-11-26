@@ -33,10 +33,16 @@ const int focusRegionSize = 100;
 AalCameraFocusControl::AalCameraFocusControl(AalCameraService *service, QObject *parent)
     : QCameraFocusControl(parent),
       m_service(service),
+      m_focusMode(QCameraFocus::AutoFocus),
+      m_focusPointMode(QCameraFocus::FocusPointAuto),
       m_focusPoint(0.0, 0.0),
       setOnInit(false),
       m_focusRunning(false)
 {
+    m_focusRegion.left = 0.0;
+    m_focusRegion.right = 0.0;
+    m_focusRegion.top = 0.0;
+    m_focusRegion.bottom = 0.0;
     m_focusRegion.weight = -9.9;
 }
 
