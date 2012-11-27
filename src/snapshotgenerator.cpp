@@ -26,6 +26,13 @@
 #include <cstdio>
 
 SnapshotGenerator::SnapshotGenerator()
+    : m_width(0),
+      m_height(0),
+      position_loc(0),
+      v_matrix_loc(0),
+      tex_coord_loc(0),
+      sampler_loc(0),
+      tex_matrix_loc(0)
 {
 }
 

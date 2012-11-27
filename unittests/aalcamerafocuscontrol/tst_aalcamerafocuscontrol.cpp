@@ -70,7 +70,7 @@ void tst_AalCameraFocusControl::focusMode()
 {
     QSignalSpy spy(m_focusControl, SIGNAL(focusModeChanged(QCameraFocus::FocusModes)));
 
-    QCameraFocus::FocusModes mode = QCameraFocus::AutoFocus;
+    QCameraFocus::FocusModes mode = QCameraFocus::InfinityFocus;
     m_focusControl->setFocusMode(mode);
 
     QCOMPARE(m_focusControl->focusMode(), mode);
