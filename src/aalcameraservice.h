@@ -29,6 +29,7 @@ class AalCameraZoomControl;
 class AalImageCaptureControl;
 class AalVideoDeviceSelectorControl;
 class AalVideoRendererControl;
+class AalViewfinderSettingsControl;
 class QCameraControl;
 
 struct CameraControl;
@@ -51,6 +52,7 @@ public:
     AalImageCaptureControl *imageCaptureControl() const { return m_imageCaptureControl; }
     AalVideoDeviceSelectorControl *deviceSelector() const { return m_deviceSelectControl; }
     AalVideoRendererControl *videoOutputControl() const { return m_videoOutput; }
+    AalViewfinderSettingsControl *viewfinderControl() const { return m_viewfinderControl; }
 
     CameraControl *androidControl();
 
@@ -77,6 +79,7 @@ private:
     AalImageCaptureControl *m_imageCaptureControl;
     AalVideoDeviceSelectorControl *m_deviceSelectControl;
     AalVideoRendererControl *m_videoOutput;
+    AalViewfinderSettingsControl *m_viewfinderControl;
     CameraControl *m_androidControl;
     CameraControlListener *m_androidListener;
     CameraControl *m_oldAndroidControl;

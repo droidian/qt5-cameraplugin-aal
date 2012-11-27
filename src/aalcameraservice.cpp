@@ -25,6 +25,7 @@
 #include "aalimagecapturecontrol.h"
 #include "aalvideodeviceselectorcontrol.h"
 #include "aalvideorenderercontrol.h"
+#include "aalviewfindersettingscontrol.h"
 
 #include "camera_compatibility_layer.h"
 
@@ -47,6 +48,7 @@ AalCameraService::AalCameraService(QObject *parent):
     m_imageCaptureControl = new AalImageCaptureControl(this);
     m_deviceSelectControl = new AalVideoDeviceSelectorControl(this);
     m_videoOutput = new AalVideoRendererControl(this);
+    m_viewfinderControl = new AalViewfinderSettingsControl(this);
 }
 
 AalCameraService::~AalCameraService()
@@ -60,6 +62,7 @@ AalCameraService::~AalCameraService()
     delete m_imageCaptureControl;
     delete m_deviceSelectControl;
     delete m_videoOutput;
+    delete m_viewfinderControl;
     if (m_oldAndroidControl)
         android_camera_delete(m_oldAndroidControl);
     if (m_androidControl)
@@ -88,6 +91,9 @@ QMediaControl *AalCameraService::requestControl(const char *name)
 
     if (qstrcmp(name, QVideoRendererControl_iid) == 0)
         return m_videoOutput;
+
+    if (qstrcmp(name, QCameraViewfinderSettingsControl_iid) == 0)
+        return m_viewfinderControl;
 
     return 0;
 }
@@ -186,5 +192,6 @@ void AalCameraService::initControls(CameraControl *camControl, CameraControlList
     m_flashControl->init(camControl);
     m_focusControl->init(camControl, listener);
     m_zoomControl->init(camControl, listener);
+    m_viewfinderControl->init(camControl, listener);
     m_videoOutput->init(camControl, listener);
 }

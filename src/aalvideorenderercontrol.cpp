@@ -19,6 +19,7 @@
 
 #include "aalvideorenderercontrol.h"
 #include "aalcameraservice.h"
+#include "aalviewfindersettingscontrol.h"
 #include "snapshotgenerator.h"
 
 #include "camera_compatibility_layer.h"
@@ -71,8 +72,6 @@ AalVideoRendererControl::AalVideoRendererControl(AalCameraService *service, QObj
    : QVideoRendererControl(parent)
    , m_surface(0),
      m_service(service),
-     m_viewFinderWidth(320),
-     m_viewFinderHeight(240),
      m_viewFinderRunning(false),
      m_textureId(0)
 {
@@ -103,19 +102,8 @@ void AalVideoRendererControl::setSurface(QAbstractVideoSurface *surface)
 
 void AalVideoRendererControl::init(CameraControl *control, CameraControlListener *listener)
 {
+    Q_UNUSED(control);
     listener->on_preview_texture_needs_update_cb = &AalVideoRendererControl::updateViewfinderFrameCB;
-
-    if (m_service->isBackCameraUsed()) {
-        m_viewFinderWidth = 1280;
-        m_viewFinderHeight = 720;
-    } else {
-        m_viewFinderWidth = 960;
-        m_viewFinderHeight = 720;
-    }
-
-    m_snapshotGenerator->setSize(m_viewFinderWidth, m_viewFinderHeight);
-    android_camera_set_preview_size(control, m_viewFinderWidth, m_viewFinderHeight);
-    android_camera_set_preview_fps(control, 30);
 }
 
 void AalVideoRendererControl::startPreview()
@@ -154,9 +142,8 @@ void AalVideoRendererControl::updateViewfinderFrame()
     if (!m_surface || !m_textureId || !m_service->androidControl())
         return;
 
-    QVideoFrame frame(new AalGLTextureBuffer(m_textureId),
-                         QSize(m_viewFinderWidth,m_viewFinderHeight),
-                         QVideoFrame::Format_RGB32);
+    QSize vfSize = m_service->viewfinderControl()->currentSize();
+    QVideoFrame frame(new AalGLTextureBuffer(m_textureId), vfSize, QVideoFrame::Format_RGB32);
 
     if (!frame.isValid())
         return;
@@ -213,6 +200,8 @@ void AalVideoRendererControl::createPreview()
 
     GLfloat textureMatrix[16];
     android_camera_get_preview_texture_transformation(m_service->androidControl(), textureMatrix);
+    QSize vfSize = m_service->viewfinderControl()->currentSize();
+    m_snapshotGenerator->setSize(vfSize.width(), vfSize.height());
     m_preview = m_snapshotGenerator->snapshot(m_textureId, textureMatrix);
 }
 

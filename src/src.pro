@@ -23,6 +23,7 @@ HEADERS += \
     aalimagecapturecontrol.h \
     aalvideodeviceselectorcontrol.h \
     aalvideorenderercontrol.h \
+    aalviewfindersettingscontrol.h \
     snapshotgenerator.h \
     storagemanager.h
 
@@ -36,5 +37,6 @@ SOURCES += \
     aalimagecapturecontrol.cpp \
     aalvideodeviceselectorcontrol.cpp \
     aalvideorenderercontrol.cpp \
+    aalviewfindersettingscontrol.cpp \
     snapshotgenerator.cpp \
     storagemanager.cpp

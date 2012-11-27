@@ -19,6 +19,7 @@
 
 #include "aalvideodeviceselectorcontrol.h"
 #include "aalcameraservice.h"
+#include "aalviewfindersettingscontrol.h"
 
 #include <QDebug>
 
@@ -79,6 +80,7 @@ void AalVideoDeviceSelectorControl::setSelectedDevice(int index)
     }
 
     m_service->disconnectCamera();
+    m_service->viewfinderControl()->resetAllSettings();
     m_currentDevice = index;
     if (m_service->isCameraActive())
         m_service->connectCamera();
