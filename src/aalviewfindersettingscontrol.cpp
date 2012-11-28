@@ -140,6 +140,8 @@ void AalViewfinderSettingsControl::init(CameraControl *control, CameraControlLis
     android_camera_set_preview_size(control, m_currentSize.width(), m_currentSize.height());
 
     android_camera_get_preview_fps_range(control, &m_minFPS, &m_maxFPS);
+    m_minFPS /= 1000;
+    m_maxFPS /= 1000;
     m_currentFPS = m_maxFPS;
     android_camera_set_preview_fps(control, m_currentFPS);
 }
