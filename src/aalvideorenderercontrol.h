@@ -63,8 +63,6 @@ private:
     QAbstractVideoSurface *m_surface;
     AalCameraService *m_service;
 
-    int m_viewFinderWidth;
-    int m_viewFinderHeight;
     bool m_viewFinderRunning;
     GLuint m_textureId;
     QImage m_preview;
