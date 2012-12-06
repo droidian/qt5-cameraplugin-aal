@@ -80,6 +80,10 @@ int AalImageCaptureControl::capture(const QString &fileName)
     android_camera_take_snapshot(m_service->androidControl());
 
     m_service->updateCaptureReady();
+
+    m_service->videoOutputControl()->createPreview();
+    Q_EMIT imageCaptured(m_lastRequestId, m_service->videoOutputControl()->preview());
+
     return m_lastRequestId;
 }
 
@@ -131,8 +135,6 @@ bool AalImageCaptureControl::isCaptureRunning() const
 void AalImageCaptureControl::shutter()
 {
     Q_EMIT imageExposed(m_lastRequestId);
-    m_service->videoOutputControl()->createPreview();
-    Q_EMIT imageCaptured(m_lastRequestId, m_service->videoOutputControl()->preview());
 }
 
 void AalImageCaptureControl::saveJpeg(void *data, uint32_t data_size)
