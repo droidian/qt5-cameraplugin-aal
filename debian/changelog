@@ -1,6 +1,7 @@
-cameraplugin-aal (0.1.8) UNRELEASED; urgency=low
+cameraplugin-aal (0.1.8) quantal; urgency=low
 
   * Add control, so apps can change viewfinder properties like resolution
+  * Return preview directly after capture
 
  -- Guenter Schwann <guenter.schwann@canonical.com>  Tue, 27 Nov 2012 15:59:59 +0100
 
