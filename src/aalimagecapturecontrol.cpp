@@ -25,9 +25,18 @@
 #include <camera_compatibility_layer.h>
 #include <camera_compatibility_layer_capabilities.h>
 
+#include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QStandardPaths>
 #include <QTemporaryFile>
+
+const int PREVIEW_WIDTH_MAX = 360;
+const int PREVIEW_HEIGHT_MAX = 360;
+const int PREVIEW_QUALITY = 70;
+const char* PREVIEW_FILE_FORMAT = "JPEG";
+const QLatin1String PREVIEW_FILE_EXT = QLatin1String("JPG");
+const QLatin1String PREVIEW_DIR = QLatin1String(".thumbs");
 
 AalImageCaptureControl::AalImageCaptureControl(AalCameraService *service, QObject *parent)
    : QCameraImageCaptureControl(parent),
@@ -39,6 +48,7 @@ AalImageCaptureControl::AalImageCaptureControl(AalCameraService *service, QObjec
     m_photoWidth(320),
     m_photoHeight(240)
 {
+    m_galleryPath = QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
 }
 
 AalImageCaptureControl::~AalImageCaptureControl()
@@ -137,7 +147,7 @@ void AalImageCaptureControl::shutter()
     Q_EMIT imageExposed(m_lastRequestId);
 }
 
-void AalImageCaptureControl::saveJpeg(void *data, uint32_t data_size)
+void AalImageCaptureControl::saveJpeg(void *data, uint32_t dataSize)
 {
     if (m_pendingCaptureFile.isNull() || !m_service->androidControl())
         return;
@@ -151,15 +161,18 @@ void AalImageCaptureControl::saveJpeg(void *data, uint32_t data_size)
         return;
     }
 
-    qint64 writtenSize = file.write((const char*)data, data_size);
+    qint64 writtenSize = file.write((const char*)data, dataSize);
     file.close();
-    if (writtenSize != data_size) {
+    if (writtenSize != dataSize) {
         emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
                    QString("Could not write file %1").arg(file.fileName()));
         m_pendingCaptureFile.clear();
         m_service->updateCaptureReady();
         return;
     }
+
+    if (imageIsInGallery(m_pendingCaptureFile))
+        saveThumbnail((const uchar*)data, dataSize);
 
     QFile finalFile(file.fileName());
     bool ok = finalFile.rename(m_pendingCaptureFile);
@@ -176,4 +189,39 @@ void AalImageCaptureControl::saveJpeg(void *data, uint32_t data_size)
 
     android_camera_start_preview(m_service->androidControl());
     m_service->updateCaptureReady();
+}
+
+bool AalImageCaptureControl::imageIsInGallery(const QString &fileName) const
+{
+    QFileInfo fi(fileName);
+    return fi.absolutePath() == m_galleryPath;
+}
+
+bool AalImageCaptureControl::saveThumbnail(const uchar *data, int dataSize)
+{
+    QString thumbnailDir = m_galleryPath + "/" + PREVIEW_DIR;
+    QDir tdir(thumbnailDir);
+    if (!tdir.exists()) {
+        tdir.mkpath(thumbnailDir);
+        if (!tdir.exists()) {
+            qWarning() << "Can't create directory for the gallery thumbnail " << thumbnailDir;
+            return false;
+        }
+    }
+
+    QImage fullsized;
+    fullsized.loadFromData(data, dataSize);
+    if (fullsized.isNull()) {
+        qWarning() << "Can't load the full sized image for thumbnail generation";
+        return false;
+    }
+
+    QImage scaled = (fullsized.height() > fullsized.width())
+      ? fullsized.scaledToWidth(PREVIEW_WIDTH_MAX, Qt::SmoothTransformation)
+      : fullsized.scaledToHeight(PREVIEW_HEIGHT_MAX, Qt::SmoothTransformation);
+
+    QFileInfo fi(m_pendingCaptureFile);
+    QString thumbnailName =  thumbnailDir + "/" + fi.completeBaseName() + "_th." + PREVIEW_FILE_EXT;
+
+    return scaled.save(thumbnailName, PREVIEW_FILE_FORMAT, PREVIEW_QUALITY);
 }
