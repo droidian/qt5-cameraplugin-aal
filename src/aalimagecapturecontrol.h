@@ -60,7 +60,9 @@ private Q_SLOTS:
     void shutter();
 
 private:
-    void saveJpeg(void* data, uint32_t data_size);
+    void saveJpeg(void* data, uint32_t dataSize);
+    bool imageIsInGallery(const QString &fileName) const;
+    bool saveThumbnail(const uchar *data, int dataSize);
 
     AalCameraService *m_service;
     AalCameraControl *m_cameraControl;
@@ -70,6 +72,7 @@ private:
     QString m_pendingCaptureFile;
     int m_photoWidth;
     int m_photoHeight;
+    QString m_galleryPath;
 };
 
 #endif
