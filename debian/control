@@ -8,16 +8,15 @@ Build-Depends: debhelper (>= 8.0.0),
                libgles2-mesa-dev,
                libhybris-dev,
                libpulse-dev,
-               qtmultimedia,
+               qt5multimedia5-dev,
                pkg-config
 Standards-Version: 3.9.3
 Vcs-Bzr: https://code.launchpad.net/~amanzi-team/barrydale/cameraPlugin-aal
 
 Package: cameraplugin-aal
-Architecture: i386 armel armhf
+Architecture: armel armhf
 Depends: ${shlibs:Depends},
          ${misc:Depends},
-         qtmultimedia,
          qtvideonode-plugin
 Conflicts: cameraplugin-fake
 Replaces: cameraplugin-fake
