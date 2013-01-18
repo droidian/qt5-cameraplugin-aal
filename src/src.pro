@@ -1,10 +1,11 @@
 include(../coverage.pri)
 TARGET = aalcamera
+TEMPLATE = lib
+CONFIG += plugin
 QT += multimedia-private opengl
 
 PLUGIN_TYPE = mediaservice
 
-load(qt_plugin)
 target.path += $$[QT_INSTALL_PLUGINS]/$${PLUGIN_TYPE}
 INSTALLS = target
 
