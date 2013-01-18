@@ -8,6 +8,7 @@ Build-Depends: debhelper (>= 8.0.0),
                libgles2-mesa-dev,
                libhybris-dev,
                libpulse-dev,
+               qt5-default,
                qt5multimedia5-dev,
                pkg-config
 Standards-Version: 3.9.3
