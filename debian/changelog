@@ -4,6 +4,13 @@ cameraplugin-aal (0.2.0) UNRELEASED; urgency=low
 
  -- Guenter Schwann <guenter.schwann@canonical.com>  Thu, 31 Jan 2013 10:22:59 +0000
 
+cameraplugin-aal (0.1.13) quantal; urgency=low
+
+  * Add a 1 second delay before calling doStartPreview() as a temporary fix
+    for the threaded rendering issue.
+
+ -- Jim Hodapp <jim.hodapp@canonical.com>  Tue, 29 Jan 2013 17:08:47 -0500
+
 cameraplugin-aal (0.1.9) quantal; urgency=low
 
   * Create the thumbnail for the gallery
