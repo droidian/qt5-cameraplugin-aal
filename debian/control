@@ -16,7 +16,7 @@ Standards-Version: 3.9.3
 Vcs-Bzr: https://code.launchpad.net/~amanzi-team/barrydale/cameraPlugin-aal
 
 Package: cameraplugin-aal
-Architecture: armel armhf
+Architecture: i386 armel armhf
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          qtvideonode-plugin
