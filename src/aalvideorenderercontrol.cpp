@@ -112,7 +112,8 @@ void AalVideoRendererControl::startPreview()
         return;
 
     // to make sure it's started in the main thread only, and the GL context exists
-    QTimer::singleShot(1, this, SLOT(doStartPreview()));
+    // FIXME: once multithreaded rendering is in place, this hack can be removed
+    QTimer::singleShot(1000, this, SLOT(doStartPreview()));
 }
 
 void AalVideoRendererControl::stopPreview()
