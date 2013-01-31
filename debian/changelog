@@ -1,8 +1,9 @@
-cameraplugin-aal (0.2.0) UNRELEASED; urgency=low
+cameraplugin-aal (0.2.0) quantal; urgency=low
 
+  [ Guenter Schwann ]
   * Fixes for Qt5 final release packages
 
- -- Guenter Schwann <guenter.schwann@canonical.com>  Thu, 31 Jan 2013 10:22:59 +0000
+ -- Bill Filler <bill.filler@canonical.com>  Thu, 31 Jan 2013 11:29:07 -0500
 
 cameraplugin-aal (0.1.13) quantal; urgency=low
 
