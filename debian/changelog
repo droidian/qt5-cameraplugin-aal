@@ -1,3 +1,10 @@
+cameraplugin-aal (0.2.1) quantal; urgency=low
+
+  * debian/control: updating metadata to reflect the right vcs and package
+    maintainer
+
+ -- Ricardo Salveti de Araujo <ricardo.salveti@canonical.com>  Wed, 06 Feb 2013 21:58:47 -0200
+
 cameraplugin-aal (0.2.0) quantal; urgency=low
 
   [ Guenter Schwann ]
