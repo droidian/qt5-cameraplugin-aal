@@ -18,6 +18,7 @@
  */
 
 #include "aalimagecapturecontrol.h"
+#include "aalimageencodercontrol.h"
 #include "aalcameraservice.h"
 #include "aalvideorenderercontrol.h"
 #include "storagemanager.h"
@@ -53,6 +54,9 @@ AalImageCaptureControl::AalImageCaptureControl(AalCameraService *service, QObjec
 
 AalImageCaptureControl::~AalImageCaptureControl()
 {
+    if (m_imageEncoderControl) {
+        delete m_imageEncoderControl;
+    }
 }
 
 bool AalImageCaptureControl::isReadyForCapture() const
@@ -116,14 +120,15 @@ void AalImageCaptureControl::saveJpegCB(void *data, uint32_t data_size, void *co
 
 void AalImageCaptureControl::init(CameraControl *control, CameraControlListener *listener)
 {
-    if (m_service->isBackCameraUsed()) {
-        m_photoWidth = 2592;
-        m_photoHeight = 1458;
-    } else {
-        m_photoWidth = 1280;
-        m_photoHeight = 960;
+    m_imageEncoderControl = new AalImageEncoderControl(m_service, this);
+    m_imageEncoderControl->init(control);
+
+    // Set the optimal image resolution that will be used by the camera
+    QImageEncoderSettings settings;
+    if (!m_imageEncoderControl->supportedResolutions(settings).empty()) {
+        m_imageEncoderControl->setSize(
+                chooseOptimalSize(m_imageEncoderControl->supportedResolutions(settings)));
     }
-    android_camera_set_picture_size(control, m_photoWidth, m_photoHeight);
 
     listener->on_msg_shutter_cb = &AalImageCaptureControl::shutterCB;
     listener->on_data_compressed_image_cb = &AalImageCaptureControl::saveJpegCB;
@@ -145,6 +150,24 @@ bool AalImageCaptureControl::isCaptureRunning() const
 void AalImageCaptureControl::shutter()
 {
     Q_EMIT imageExposed(m_lastRequestId);
+}
+
+QSize AalImageCaptureControl::chooseOptimalSize(const QList<QSize> &sizes)
+{
+    // Find the highest 16:9 resolution:
+    if (!sizes.empty()) {
+        const float sixteenByNine = (float)16 / (float)9;
+        QList<QSize>::const_iterator it = sizes.begin();
+        while (it != sizes.end()) {
+            const float ratio = (float)(*it).width() / (float)(*it).height();
+            if (ratio == sixteenByNine) {
+                return *it;
+            }
+            ++it;
+        }
+    }
+
+    return QSize();
 }
 
 void AalImageCaptureControl::saveJpeg(void *data, uint32_t dataSize)

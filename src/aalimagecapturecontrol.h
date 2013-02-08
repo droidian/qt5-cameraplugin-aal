@@ -28,6 +28,7 @@
 
 class AalCameraService;
 class AalCameraControl;
+class AalImageEncoderControl;
 class CameraControl;
 class CameraControlListener;
 
@@ -60,12 +61,14 @@ private Q_SLOTS:
     void shutter();
 
 private:
+    QSize chooseOptimalSize(const QList<QSize> &sizes);
     void saveJpeg(void* data, uint32_t dataSize);
     bool imageIsInGallery(const QString &fileName) const;
     bool saveThumbnail(const uchar *data, int dataSize);
 
     AalCameraService *m_service;
     AalCameraControl *m_cameraControl;
+    AalImageEncoderControl *m_imageEncoderControl;
     int m_lastRequestId;
     StorageManager m_storageManager;
     bool m_ready;
