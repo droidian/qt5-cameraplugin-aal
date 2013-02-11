@@ -22,6 +22,7 @@ HEADERS += \
     aalcameraserviceplugin.h \
     aalcamerazoomcontrol.h \
     aalimagecapturecontrol.h \
+    aalimageencodercontrol.h \
     aalvideodeviceselectorcontrol.h \
     aalvideorenderercontrol.h \
     aalviewfindersettingscontrol.h \
@@ -36,6 +37,7 @@ SOURCES += \
     aalcameraserviceplugin.cpp \
     aalcamerazoomcontrol.cpp \
     aalimagecapturecontrol.cpp \
+    aalimageencodercontrol.cpp \
     aalvideodeviceselectorcontrol.cpp \
     aalvideorenderercontrol.cpp \
     aalviewfindersettingscontrol.cpp \

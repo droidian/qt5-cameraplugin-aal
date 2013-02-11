@@ -1,3 +1,10 @@
+cameraplugin-aal (0.2.2) quantal; urgency=low
+
+  * Dynamically select and set the highest 16:9 resolution for the camera
+    image size.
+
+ -- Jim Hodapp <jim.hodapp@canonical.com>  Fri, 08 Feb 2013 17:50:10 -0500
+
 cameraplugin-aal (0.2.1) quantal; urgency=low
 
   * debian/control: updating metadata to reflect the right vcs and package
