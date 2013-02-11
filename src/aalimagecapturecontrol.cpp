@@ -51,9 +51,6 @@ AalImageCaptureControl::AalImageCaptureControl(AalCameraService *service, QObjec
 
 AalImageCaptureControl::~AalImageCaptureControl()
 {
-    if (m_imageEncoderControl) {
-        delete m_imageEncoderControl;
-    }
 }
 
 bool AalImageCaptureControl::isReadyForCapture() const
@@ -117,14 +114,14 @@ void AalImageCaptureControl::saveJpegCB(void *data, uint32_t data_size, void *co
 
 void AalImageCaptureControl::init(CameraControl *control, CameraControlListener *listener)
 {
-    m_imageEncoderControl = new AalImageEncoderControl(m_service, this);
-    m_imageEncoderControl->init(control);
+    Q_UNUSED(control);
 
     // Set the optimal image resolution that will be used by the camera
     QImageEncoderSettings settings;
-    if (!m_imageEncoderControl->supportedResolutions(settings).empty()) {
-        m_imageEncoderControl->setSize(
-                chooseOptimalSize(m_imageEncoderControl->supportedResolutions(settings)));
+    AalImageEncoderControl *imageEncoderControl = AalCameraService::instance()->imageEncoderControl();
+    if (!imageEncoderControl->supportedResolutions(settings).empty()) {
+        imageEncoderControl->setSize(
+                chooseOptimalSize(imageEncoderControl->supportedResolutions(settings)));
     }
 
     listener->on_msg_shutter_cb = &AalImageCaptureControl::shutterCB;

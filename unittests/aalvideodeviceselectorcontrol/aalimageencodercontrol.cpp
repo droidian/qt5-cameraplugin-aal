@@ -17,12 +17,6 @@
 #include "aalimageencodercontrol.h"
 #include "aalcameraservice.h"
 
-#include "camera_compatibility_layer_capabilities.h"
-
-#include <unistd.h>
-
-#include <QDebug>
-
 AalImageEncoderControl::AalImageEncoderControl(AalCameraService *service, QObject *parent)
     : QImageEncoderControl(parent),
       m_service(service),
@@ -57,55 +51,32 @@ QStringList AalImageEncoderControl::supportedImageCodecs() const
 QList<QSize> AalImageEncoderControl::supportedResolutions(const QImageEncoderSettings &settings, bool *continuous) const
 {
     Q_UNUSED(settings);
-
-    return m_availableSizes;
+    return QList<QSize>();
 }
 
 void AalImageEncoderControl::init(CameraControl *control)
 {
-    Q_ASSERT(control != NULL);
-
-    if (m_availableSizes.isEmpty()) {
-        android_camera_enumerate_supported_picture_sizes(control, &AalImageEncoderControl::setPictureSizeCb, this);
-    }
+    Q_UNUSED(control);
 }
 
 void AalImageEncoderControl::setSize(const QSize &size)
 {
-    CameraControl *cc = m_service->androidControl();
-    if (!cc) {
-        m_currentSize = size;
-        return;
-    }
-
-    if (!m_availableSizes.contains(size)) {
-        qWarning() << "Size " << size << "is not supported by the camera";
-        qWarning() << "Supported sizes are: " << m_availableSizes;
-        return;
-    }
-
-    m_currentSize = size;
-
-    android_camera_set_picture_size(cc, size.width(), size.height());
+    Q_UNUSED(size);
 }
 
 void AalImageEncoderControl::resetAllSettings()
 {
-    m_currentSize = QSize();
 }
 
 void AalImageEncoderControl::setPictureSizeCb(void *ctx, int width, int height)
 {
-    if (ctx != NULL)
-    {
-        AalImageEncoderControl *self = static_cast<AalImageEncoderControl *>(ctx);
-        self->setPictureSize(width, height);
-    }
-    else
-        qWarning() << "ctx is NULL, cannot set supported camera resolutions." << endl;
+    Q_UNUSED(ctx);
+    Q_UNUSED(width);
+    Q_UNUSED(height);
 }
 
 void AalImageEncoderControl::setPictureSize(int width, int height)
 {
-    m_availableSizes.append(QSize(width, height));
+    Q_UNUSED(width);
+    Q_UNUSED(height);
 }

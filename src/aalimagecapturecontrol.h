@@ -25,7 +25,6 @@
 
 class AalCameraService;
 class AalCameraControl;
-class AalImageEncoderControl;
 class CameraControl;
 class CameraControlListener;
 
@@ -65,7 +64,6 @@ private:
 
     AalCameraService *m_service;
     AalCameraControl *m_cameraControl;
-    AalImageEncoderControl *m_imageEncoderControl;
     int m_lastRequestId;
     StorageManager m_storageManager;
     bool m_ready;
