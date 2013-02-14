@@ -16,24 +16,22 @@
 
 #include "ubuntu_application_ui.h"
 
-#include <iostream>
+#define UNUSED __attribute__((unused))
 
-using namespace std;
-
-void ubuntu_application_ui_create_display_info(__attribute__((unused))ubuntu_application_ui_physical_display_info *info, __attribute__((unused))size_t index)
+void ubuntu_application_ui_create_display_info(UNUSED ubuntu_application_ui_physical_display_info *info, UNUSED size_t index)
 {
 }
 
-void ubuntu_application_ui_destroy_display_info(__attribute__((unused))ubuntu_application_ui_physical_display_info info)
+void ubuntu_application_ui_destroy_display_info(UNUSED ubuntu_application_ui_physical_display_info info)
 {
 }
 
-int32_t ubuntu_application_ui_query_horizontal_resolution(__attribute__((unused))ubuntu_application_ui_physical_display_info info)
+int32_t ubuntu_application_ui_query_horizontal_resolution(UNUSED ubuntu_application_ui_physical_display_info info)
 {
     return 1920;
 }
 
-int32_t ubuntu_application_ui_query_vertical_resolution(__attribute__((unused))ubuntu_application_ui_physical_display_info info)
+int32_t ubuntu_application_ui_query_vertical_resolution(UNUSED ubuntu_application_ui_physical_display_info info)
 {
     return 1080;
 }
