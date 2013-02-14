@@ -10,7 +10,7 @@ target.path += $$[QT_INSTALL_PLUGINS]/$${PLUGIN_TYPE}
 INSTALLS = target
 
 INCLUDEPATH += /usr/include/hybris/camera
-LIBS += -L/usr/lib/arm-linux-gnueabi -lcamera
+LIBS += -L/usr/lib/arm-linux-gnueabi -lcamera -lubuntu_application_api
 
 OTHER_FILES += aalcamera.json
 

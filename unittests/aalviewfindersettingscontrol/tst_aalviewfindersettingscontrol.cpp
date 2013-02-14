@@ -31,9 +31,17 @@ private slots:
     void setSize();
     void resetAllSettings();
 
+    void chooseOptimalSize16by9();
+    void chooseOptimalSize4by3();
+    void chooseOptimalSizeEmpty();
+    void chooseOptimalSize0AspectRatio();
+    void chooseOptimalSize0AspectRatioEmpty();
+
 private:
     AalViewfinderSettingsControl *m_vfControl;
     AalCameraService *m_service;
+
+    friend class AalViewfinderSettingsControl;
 };
 
 void tst_AalViewfinderSettingsControl::initTestCase()
@@ -65,6 +73,55 @@ void tst_AalViewfinderSettingsControl::resetAllSettings()
     m_vfControl->m_currentSize = QSize(123, 234);
     m_vfControl->resetAllSettings();
     QCOMPARE(m_vfControl->currentSize(), QSize());
+}
+
+void tst_AalViewfinderSettingsControl::chooseOptimalSize16by9()
+{
+    m_vfControl->m_aspectRatio = (float)16 / (float)9;
+    QList<QSize> resolutions;
+    resolutions.append(QSize(1920, 1080));
+    resolutions.append(QSize(1280, 720));
+    resolutions.append(QSize(960, 720));
+
+    QCOMPARE(m_vfControl->chooseOptimalSize(resolutions), QSize(1920, 1080));
+}
+
+void tst_AalViewfinderSettingsControl::chooseOptimalSize4by3()
+{
+    m_vfControl->m_aspectRatio = (float)4 / (float)3;
+    QList<QSize> resolutions;
+    resolutions.append(QSize(1920, 1080));
+    resolutions.append(QSize(1280, 720));
+    resolutions.append(QSize(960, 720));
+
+    QCOMPARE(m_vfControl->chooseOptimalSize(resolutions), QSize(960, 720));
+}
+
+void tst_AalViewfinderSettingsControl::chooseOptimalSizeEmpty()
+{
+    m_vfControl->m_aspectRatio = (float)4 / (float)3;
+    QList<QSize> resolutions;
+
+    QCOMPARE(m_vfControl->chooseOptimalSize(resolutions), QSize());
+}
+
+void tst_AalViewfinderSettingsControl::chooseOptimalSize0AspectRatio()
+{
+    m_vfControl->m_aspectRatio = 0;
+    QList<QSize> resolutions;
+    resolutions.append(QSize(1920, 1080));
+    resolutions.append(QSize(1280, 720));
+    resolutions.append(QSize(960, 720));
+
+    QCOMPARE(m_vfControl->chooseOptimalSize(resolutions), QSize(1280, 720));
+}
+
+void tst_AalViewfinderSettingsControl::chooseOptimalSize0AspectRatioEmpty()
+{
+    m_vfControl->m_aspectRatio = 0;
+    QList<QSize> resolutions;
+
+    QCOMPARE(m_vfControl->chooseOptimalSize(resolutions), QSize());
 }
 
 QTEST_MAIN(tst_AalViewfinderSettingsControl)

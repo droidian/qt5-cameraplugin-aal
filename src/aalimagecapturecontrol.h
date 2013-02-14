@@ -50,6 +50,9 @@ public:
 
     bool isCaptureRunning() const;
 
+    // Get the current aspect ratio for the selected camera.
+    float getAspectRatio() const;
+
 public Q_SLOTS:
     void init(CameraControl *control, CameraControlListener *listener);
 
@@ -58,6 +61,7 @@ private Q_SLOTS:
 
 private:
     QSize chooseOptimalSize(const QList<QSize> &sizes);
+    float getScreenAspectRatio() const;
     void saveJpeg(void* data, uint32_t dataSize);
     bool imageIsInGallery(const QString &fileName) const;
     bool saveThumbnail(const uchar *data, int dataSize);
@@ -70,6 +74,7 @@ private:
     QString m_pendingCaptureFile;
     int m_photoWidth;
     int m_photoHeight;
+    float m_aspectRatio;
     QString m_galleryPath;
 };
 

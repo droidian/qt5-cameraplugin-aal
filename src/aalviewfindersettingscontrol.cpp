@@ -26,6 +26,7 @@ AalViewfinderSettingsControl::AalViewfinderSettingsControl(AalCameraService *ser
     :QCameraViewfinderSettingsControl(parent),
       m_service(service),
       m_currentSize(),
+      m_aspectRatio(0.0),
       m_currentFPS(30),
       m_minFPS(10),
       m_maxFPS(30)
@@ -121,6 +122,11 @@ QSize AalViewfinderSettingsControl::currentSize() const
     return m_currentSize;
 }
 
+void AalViewfinderSettingsControl::setAspectRatio(float ratio)
+{
+    m_aspectRatio = ratio;
+}
+
 void AalViewfinderSettingsControl::init(CameraControl *control, CameraControlListener *listener)
 {
     Q_UNUSED(listener);
@@ -128,12 +134,9 @@ void AalViewfinderSettingsControl::init(CameraControl *control, CameraControlLis
     if (m_availableSizes.isEmpty()) {
         android_camera_enumerate_supported_preview_sizes(control, &AalViewfinderSettingsControl::sizeCB, this);
     }
-    if (m_currentSize.isEmpty()) {
-        m_currentSize = m_availableSizes[1];
-    } else {
-        if (!m_availableSizes.contains(m_currentSize))
-            m_currentSize = m_availableSizes[1];
-    }
+
+    // Choose optimal resolution based on the current camera's aspect ratio
+    m_currentSize = chooseOptimalSize(m_availableSizes);
     android_camera_set_preview_size(control, m_currentSize.width(), m_currentSize.height());
 
     android_camera_get_preview_fps_range(control, &m_minFPS, &m_maxFPS);
@@ -164,4 +167,25 @@ void AalViewfinderSettingsControl::sizeCB(void *ctx, int width, int height)
 {
     AalViewfinderSettingsControl *self = (AalViewfinderSettingsControl*)ctx;
     self->m_availableSizes.append(QSize(width, height));
+}
+
+QSize AalViewfinderSettingsControl::chooseOptimalSize(const QList<QSize> &sizes) const
+{
+    if (!sizes.empty()) {
+        if (m_aspectRatio == 0) {
+            // There are resolutions supported, choose one non-optimal one):
+            return sizes[1];
+        }
+
+        QList<QSize>::const_iterator it = sizes.begin();
+        while (it != sizes.end()) {
+            const float ratio = (float)(*it).width() / (float)(*it).height();
+            if (ratio == m_aspectRatio) {
+                return *it;
+            }
+            ++it;
+        }
+    }
+
+    return QSize();
 }

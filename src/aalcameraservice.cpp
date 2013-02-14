@@ -191,11 +191,12 @@ void AalCameraService::updateCaptureReady()
 void AalCameraService::initControls(CameraControl *camControl, CameraControlListener *listener)
 {
     m_cameraControl->init(camControl, listener);
-    m_imageCaptureControl->init(camControl, listener);
     m_imageEncoderControl->init(camControl);
+    m_imageCaptureControl->init(camControl, listener);
     m_flashControl->init(camControl);
     m_focusControl->init(camControl, listener);
     m_zoomControl->init(camControl, listener);
+    m_viewfinderControl->setAspectRatio(m_imageCaptureControl->getAspectRatio());
     m_viewfinderControl->init(camControl, listener);
     m_videoOutput->init(camControl, listener);
 }
