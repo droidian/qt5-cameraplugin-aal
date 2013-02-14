@@ -11,6 +11,7 @@ Build-Depends: debhelper (>= 8.0.0),
                qt5-default,
                qtmultimedia5-dev,
                libqt5opengl5-dev,
+               libubuntu-platform-api1-dev
                pkg-config
 Standards-Version: 3.9.3
 Vcs-Bzr: lp:qtubuntu-camera

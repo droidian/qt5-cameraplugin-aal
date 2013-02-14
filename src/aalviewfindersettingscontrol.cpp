@@ -20,6 +20,8 @@
 
 #include <QDebug>
 
+#include <cmath>
+
 #include "camera_compatibility_layer_capabilities.h"
 
 AalViewfinderSettingsControl::AalViewfinderSettingsControl(AalCameraService *service, QObject *parent)
@@ -180,7 +182,8 @@ QSize AalViewfinderSettingsControl::chooseOptimalSize(const QList<QSize> &sizes)
         QList<QSize>::const_iterator it = sizes.begin();
         while (it != sizes.end()) {
             const float ratio = (float)(*it).width() / (float)(*it).height();
-            if (ratio == m_aspectRatio) {
+            const float EPSILON = 10e-6;
+            if (fabs(ratio - m_aspectRatio) < EPSILON) {
                 return *it;
             }
             ++it;

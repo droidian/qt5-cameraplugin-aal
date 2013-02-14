@@ -50,7 +50,8 @@ public:
 
     bool isCaptureRunning() const;
 
-    // Get the current aspect ratio for the selected camera.
+    /// Find the highest optimal aspect ratio resolution, which depends
+    /// on the type of camera currently selected:
     float getAspectRatio() const;
 
 public Q_SLOTS:
@@ -61,7 +62,7 @@ private Q_SLOTS:
 
 private:
     QSize chooseOptimalSize(const QList<QSize> &sizes);
-    float getScreenAspectRatio() const;
+    float getScreenAspectRatio();
     void saveJpeg(void* data, uint32_t dataSize);
     bool imageIsInGallery(const QString &fileName) const;
     bool saveThumbnail(const uchar *data, int dataSize);
@@ -75,6 +76,7 @@ private:
     int m_photoWidth;
     int m_photoHeight;
     float m_aspectRatio;
+    float m_screenAspectRatio;
     QString m_galleryPath;
 };
 
