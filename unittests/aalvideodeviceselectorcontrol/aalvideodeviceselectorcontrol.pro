@@ -16,4 +16,5 @@ HEADERS += ../../src/aalvideodeviceselectorcontrol.h \
 SOURCES += tst_aalvideodeviceselectorcontrol.cpp \
     ../../src/aalvideodeviceselectorcontrol.cpp \
     aalcameraservice.cpp \
+    aalimageencodercontrol.cpp \
     aalviewfindersettingscontrol.cpp

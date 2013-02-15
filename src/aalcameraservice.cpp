@@ -20,6 +20,7 @@
 #include "aalcameraservice.h"
 #include "aalcamerazoomcontrol.h"
 #include "aalimagecapturecontrol.h"
+#include "aalimageencodercontrol.h"
 #include "aalvideodeviceselectorcontrol.h"
 #include "aalvideorenderercontrol.h"
 #include "aalviewfindersettingscontrol.h"
@@ -43,6 +44,7 @@ AalCameraService::AalCameraService(QObject *parent):
     m_focusControl = new AalCameraFocusControl(this);
     m_zoomControl = new AalCameraZoomControl(this);
     m_imageCaptureControl = new AalImageCaptureControl(this);
+    m_imageEncoderControl = new AalImageEncoderControl(this);
     m_deviceSelectControl = new AalVideoDeviceSelectorControl(this);
     m_videoOutput = new AalVideoRendererControl(this);
     m_viewfinderControl = new AalViewfinderSettingsControl(this);
@@ -56,6 +58,7 @@ AalCameraService::~AalCameraService()
     delete m_flashControl;
     delete m_focusControl;
     delete m_zoomControl;
+    delete m_imageEncoderControl;
     delete m_imageCaptureControl;
     delete m_deviceSelectControl;
     delete m_videoOutput;
@@ -79,6 +82,9 @@ QMediaControl *AalCameraService::requestControl(const char *name)
 
     if (qstrcmp(name, QCameraImageCaptureControl_iid) == 0)
         return m_imageCaptureControl;
+
+    if (qstrcmp(name, QImageEncoderControl_iid) == 0)
+        return m_imageEncoderControl;
 
     if (qstrcmp(name, QCameraZoomControl_iid) == 0)
         return m_zoomControl;
@@ -185,10 +191,12 @@ void AalCameraService::updateCaptureReady()
 void AalCameraService::initControls(CameraControl *camControl, CameraControlListener *listener)
 {
     m_cameraControl->init(camControl, listener);
+    m_imageEncoderControl->init(camControl);
     m_imageCaptureControl->init(camControl, listener);
     m_flashControl->init(camControl);
     m_focusControl->init(camControl, listener);
     m_zoomControl->init(camControl, listener);
+    m_viewfinderControl->setAspectRatio(m_imageCaptureControl->getAspectRatio());
     m_viewfinderControl->init(camControl, listener);
     m_videoOutput->init(camControl, listener);
 }

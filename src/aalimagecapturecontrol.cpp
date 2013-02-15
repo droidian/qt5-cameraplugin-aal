@@ -29,6 +29,10 @@
 #include <QStandardPaths>
 #include <QTemporaryFile>
 
+#include <cmath>
+
+#include <ubuntu/application/ui/ubuntu_application_ui.h>
+
 const int PREVIEW_WIDTH_MAX = 360;
 const int PREVIEW_HEIGHT_MAX = 360;
 const int PREVIEW_QUALITY = 70;
@@ -44,16 +48,15 @@ AalImageCaptureControl::AalImageCaptureControl(AalCameraService *service, QObjec
     m_ready(false),
     m_pendingCaptureFile(),
     m_photoWidth(320),
-    m_photoHeight(240)
+    m_photoHeight(240),
+    m_aspectRatio(0.0),
+    m_screenAspectRatio(0.0)
 {
     m_galleryPath = QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
 }
 
 AalImageCaptureControl::~AalImageCaptureControl()
 {
-    if (m_imageEncoderControl) {
-        delete m_imageEncoderControl;
-    }
 }
 
 bool AalImageCaptureControl::isReadyForCapture() const
@@ -117,15 +120,17 @@ void AalImageCaptureControl::saveJpegCB(void *data, uint32_t data_size, void *co
 
 void AalImageCaptureControl::init(CameraControl *control, CameraControlListener *listener)
 {
-    m_imageEncoderControl = new AalImageEncoderControl(m_service, this);
-    m_imageEncoderControl->init(control);
+    Q_UNUSED(control);
 
     // Set the optimal image resolution that will be used by the camera
     QImageEncoderSettings settings;
-    if (!m_imageEncoderControl->supportedResolutions(settings).empty()) {
-        m_imageEncoderControl->setSize(
-                chooseOptimalSize(m_imageEncoderControl->supportedResolutions(settings)));
+    AalImageEncoderControl *imageEncoderControl = AalCameraService::instance()->imageEncoderControl();
+    if (!imageEncoderControl->supportedResolutions(settings).empty()) {
+        imageEncoderControl->setSize(
+                chooseOptimalSize(imageEncoderControl->supportedResolutions(settings)));
     }
+    else
+        qWarning() << "No supported resolutions detected for currently selected camera device." << endl;
 
     listener->on_msg_shutter_cb = &AalImageCaptureControl::shutterCB;
     listener->on_data_compressed_image_cb = &AalImageCaptureControl::saveJpegCB;
@@ -144,6 +149,11 @@ bool AalImageCaptureControl::isCaptureRunning() const
     return !m_pendingCaptureFile.isNull();
 }
 
+float AalImageCaptureControl::getAspectRatio() const
+{
+    return m_aspectRatio;
+}
+
 void AalImageCaptureControl::shutter()
 {
     Q_EMIT imageExposed(m_lastRequestId);
@@ -151,20 +161,80 @@ void AalImageCaptureControl::shutter()
 
 QSize AalImageCaptureControl::chooseOptimalSize(const QList<QSize> &sizes)
 {
-    // Find the highest 16:9 resolution:
+    QSize optimalSize;
+
     if (!sizes.empty()) {
-        const float sixteenByNine = (float)16 / (float)9;
-        QList<QSize>::const_iterator it = sizes.begin();
-        while (it != sizes.end()) {
-            const float ratio = (float)(*it).width() / (float)(*it).height();
-            if (ratio == sixteenByNine) {
-                return *it;
+        getPriorityAspectRatios();
+        m_aspectRatio = m_prioritizedAspectRatios.front();
+
+        // Loop over all reported camera resolutions until we find the highest
+        // one that matches the current prioritized aspect ratio. If it doesn't
+        // find one on the current aspect ration, it selects the next ratio and
+        // tries again.
+        QList<float>::const_iterator ratioIt = m_prioritizedAspectRatios.begin();
+        while (ratioIt != m_prioritizedAspectRatios.end() && optimalSize.isEmpty()) {
+            m_aspectRatio = (*ratioIt);
+
+            QList<QSize>::const_iterator it = sizes.begin();
+            while (it != sizes.end()) {
+                const float ratio = (float)(*it).width() / (float)(*it).height();
+                const float EPSILON = 10e-3;
+                if (fabs(ratio - m_aspectRatio) < EPSILON) {
+                    optimalSize = *it;
+                    break;
+                }
+                ++it;
             }
-            ++it;
+            ++ratioIt;
         }
     }
 
-    return QSize();
+    return optimalSize;
+}
+
+float AalImageCaptureControl::getScreenAspectRatio()
+{
+    // Only get the screen aspect ratio once, otherwise use the cached copy
+    if (m_screenAspectRatio == 0.0) {
+        // Get screen resolution.
+        ubuntu_application_ui_physical_display_info info;
+        ubuntu_application_ui_create_display_info(&info, 0);
+
+        const int kScreenWidth = ubuntu_application_ui_query_horizontal_resolution(info);
+        const int kScreenHeight = ubuntu_application_ui_query_vertical_resolution(info);
+        Q_ASSERT(kScreenWidth > 0 && kScreenHeight > 0);
+
+        ubuntu_application_ui_destroy_display_info(info);
+
+        m_screenAspectRatio = (kScreenWidth > kScreenHeight) ?
+            ((float)kScreenWidth / (float)kScreenHeight) : ((float)kScreenHeight / (float)kScreenWidth);
+    }
+
+    return m_screenAspectRatio;
+}
+
+void AalImageCaptureControl::getPriorityAspectRatios()
+{
+    m_prioritizedAspectRatios.clear();
+
+    if (m_service->isBackCameraUsed()) {
+        if (m_screenAspectRatio > 0.0f) {
+            m_prioritizedAspectRatios.append(getScreenAspectRatio());
+        }
+        // Prioritized list of aspect ratios for the back camera
+        const float backAspectRatios[4] = { 16.0f/9.0f, 3.0f/2.0f, 4.0f/3.0f, 5.0f/4.0f };
+        for (uint8_t i=0; i<4; ++i) {
+            if (!m_prioritizedAspectRatios.contains(backAspectRatios[i])) {
+                m_prioritizedAspectRatios.append(backAspectRatios[i]);
+            }
+        }
+    } else {
+        // Prioritized list of aspect ratios for the front camera
+        const float frontAspectRatios[4] = { 4.0f/3.0f, 5.0f/4.0f, 16.0f/9.0f, 3.0f/2.0f };
+        for (uint8_t i=0; i<4; ++i) {
+            m_prioritizedAspectRatios.append(frontAspectRatios[i]);
+        }
+    }
 }
 
 void AalImageCaptureControl::saveJpeg(void *data, uint32_t dataSize)

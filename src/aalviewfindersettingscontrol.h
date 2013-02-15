@@ -38,14 +38,19 @@ public:
     void setSize(const QSize &size);
     QSize currentSize() const;
 
+    void setAspectRatio(float ratio);
+
     void init(CameraControl *control, CameraControlListener *listener);
     void resetAllSettings();
 
     static void sizeCB(void* ctx, int width, int height);
 
 private:
+    QSize chooseOptimalSize(const QList<QSize> &sizes) const;
+
     AalCameraService *m_service;
     QSize m_currentSize;
+    float m_aspectRatio;
     int m_currentFPS;
     QList<QSize> m_availableSizes;
     int m_minFPS;

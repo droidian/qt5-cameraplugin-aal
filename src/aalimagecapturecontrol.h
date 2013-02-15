@@ -25,7 +25,6 @@
 
 class AalCameraService;
 class AalCameraControl;
-class AalImageEncoderControl;
 class CameraControl;
 class CameraControlListener;
 
@@ -51,6 +50,10 @@ public:
 
     bool isCaptureRunning() const;
 
+    /// Find the highest optimal aspect ratio resolution, which depends
+    /// on the type of camera currently selected:
+    float getAspectRatio() const;
+
 public Q_SLOTS:
     void init(CameraControl *control, CameraControlListener *listener);
 
@@ -59,19 +62,25 @@ private Q_SLOTS:
 
 private:
     QSize chooseOptimalSize(const QList<QSize> &sizes);
+    float getScreenAspectRatio();
+    void getPriorityAspectRatios();
     void saveJpeg(void* data, uint32_t dataSize);
     bool imageIsInGallery(const QString &fileName) const;
     bool saveThumbnail(const uchar *data, int dataSize);
 
     AalCameraService *m_service;
     AalCameraControl *m_cameraControl;
-    AalImageEncoderControl *m_imageEncoderControl;
     int m_lastRequestId;
     StorageManager m_storageManager;
     bool m_ready;
     QString m_pendingCaptureFile;
     int m_photoWidth;
     int m_photoHeight;
+    float m_aspectRatio;
+    float m_screenAspectRatio;
+    /// Maintains a list of highest priority aspect ratio to lowest, for the
+    /// currently selected camera
+    QList<float> m_prioritizedAspectRatios;
     QString m_galleryPath;
 };
 

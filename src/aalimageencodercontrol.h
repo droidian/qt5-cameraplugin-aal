@@ -39,6 +39,7 @@ public:
 
     void init(CameraControl *control);
     void setSize(const QSize &size);
+    void resetAllSettings();
 
     static void setPictureSizeCb(void *ctx, int width, int height);
 
