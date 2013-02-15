@@ -165,6 +165,7 @@ QSize AalImageCaptureControl::chooseOptimalSize(const QList<QSize> &sizes)
 
     if (!sizes.empty()) {
         getPriorityAspectRatios();
+        m_aspectRatio = m_prioritizedAspectRatios.front();
 
         // Loop over all reported camera resolutions until we find the highest
         // one that matches the current prioritized aspect ratio. If it doesn't
@@ -172,7 +173,7 @@ QSize AalImageCaptureControl::chooseOptimalSize(const QList<QSize> &sizes)
         // tries again.
         QList<float>::const_iterator ratioIt = m_prioritizedAspectRatios.begin();
         while (ratioIt != m_prioritizedAspectRatios.end() && optimalSize.isEmpty()) {
-            m_aspectRatio = m_prioritizedAspectRatios.front();
+            m_aspectRatio = (*ratioIt);
 
             QList<QSize>::const_iterator it = sizes.begin();
             while (it != sizes.end()) {
