@@ -15,6 +15,7 @@
  */
 
 #include <QtTest/QtTest>
+#include <cmath>
 
 #include "aalcameraservice.h"
 
@@ -30,6 +31,8 @@ private slots:
 
     void chooseOptimalSize16by9();
     void chooseOptimalSizeEmpty();
+
+    void priorityAspectRatio();
 
 private:
     AalImageCaptureControl *m_icControl;
@@ -54,7 +57,7 @@ void tst_AalImageCaptureControl::chooseOptimalSize16by9()
 {
     Q_ASSERT(m_service->isBackCameraUsed());
 
-    m_icControl->m_aspectRatio = (float)16 / (float)9;
+    m_icControl->m_aspectRatio = 16.0f / 9.0f;
     QList<QSize> resolutions;
     resolutions.append(QSize(1920, 1080));
     resolutions.append(QSize(1280, 720));
@@ -65,10 +68,28 @@ void tst_AalImageCaptureControl::chooseOptimalSize16by9()
 
 void tst_AalImageCaptureControl::chooseOptimalSizeEmpty()
 {
-    m_icControl->m_aspectRatio = (float)4 / (float)3;
+    m_icControl->m_aspectRatio = 4.0f / 3.0f;
     QList<QSize> resolutions;
 
     QCOMPARE(m_icControl->chooseOptimalSize(resolutions), QSize());
+}
+
+void tst_AalImageCaptureControl::priorityAspectRatio()
+{
+    Q_ASSERT(m_service->isBackCameraUsed());
+
+    QList<float> backAspectRatios;
+    backAspectRatios.append(16.0f / 9.0f);
+    backAspectRatios.append(15.0f / 10.0f);
+    backAspectRatios.append(4.0f / 3.0f);
+    backAspectRatios.append(5.0f / 4.0f);
+    m_icControl->getPriorityAspectRatios();
+    for (uint8_t i=0; i<4; ++i) {
+        const float EPSILON = 10e-2;
+        qDebug() << "m_icControl->m_prioritizedAspectRatios[i]: " << m_icControl->m_prioritizedAspectRatios[i] << endl;
+        qDebug() << "backAspectRatios[i]: " << backAspectRatios[i] << endl;
+        Q_ASSERT(fabs(m_icControl->m_prioritizedAspectRatios[i] - backAspectRatios[i]) < EPSILON);
+    }
 }
 
 QTEST_MAIN(tst_AalImageCaptureControl)

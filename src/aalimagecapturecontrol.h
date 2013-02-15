@@ -63,6 +63,7 @@ private Q_SLOTS:
 private:
     QSize chooseOptimalSize(const QList<QSize> &sizes);
     float getScreenAspectRatio();
+    void getPriorityAspectRatios();
     void saveJpeg(void* data, uint32_t dataSize);
     bool imageIsInGallery(const QString &fileName) const;
     bool saveThumbnail(const uchar *data, int dataSize);
@@ -77,6 +78,9 @@ private:
     int m_photoHeight;
     float m_aspectRatio;
     float m_screenAspectRatio;
+    /// Maintains a list of highest priority aspect ratio to lowest, for the
+    /// currently selected camera
+    QList<float> m_prioritizedAspectRatios;
     QString m_galleryPath;
 };
 

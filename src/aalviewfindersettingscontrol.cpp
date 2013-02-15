@@ -182,7 +182,7 @@ QSize AalViewfinderSettingsControl::chooseOptimalSize(const QList<QSize> &sizes)
         QList<QSize>::const_iterator it = sizes.begin();
         while (it != sizes.end()) {
             const float ratio = (float)(*it).width() / (float)(*it).height();
-            const float EPSILON = 10e-6;
+            const float EPSILON = 10e-3;
             if (fabs(ratio - m_aspectRatio) < EPSILON) {
                 return *it;
             }
