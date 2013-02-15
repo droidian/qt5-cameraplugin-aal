@@ -222,7 +222,7 @@ void AalImageCaptureControl::getPriorityAspectRatios()
             m_prioritizedAspectRatios.append(getScreenAspectRatio());
         }
         // Prioritized list of aspect ratios for the back camera
-        const float backAspectRatios[4] = { 16.0f/9.0f, 15.0f/10.0f, 4.0f/3.0f, 5.0f/4.0f };
+        const float backAspectRatios[4] = { 16.0f/9.0f, 3.0f/2.0f, 4.0f/3.0f, 5.0f/4.0f };
         for (uint8_t i=0; i<4; ++i) {
             if (!m_prioritizedAspectRatios.contains(backAspectRatios[i])) {
                 m_prioritizedAspectRatios.append(backAspectRatios[i]);
@@ -230,7 +230,7 @@ void AalImageCaptureControl::getPriorityAspectRatios()
         }
     } else {
         // Prioritized list of aspect ratios for the front camera
-        const float frontAspectRatios[4] = { 4.0f/3.0f, 5.0f/4.0f, 16.0f/9.0f, 15.0f/10.0f };
+        const float frontAspectRatios[4] = { 4.0f/3.0f, 5.0f/4.0f, 16.0f/9.0f, 3.0f/2.0f };
         for (uint8_t i=0; i<4; ++i) {
             m_prioritizedAspectRatios.append(frontAspectRatios[i]);
         }
