@@ -25,6 +25,7 @@ class AalCameraFocusControl;
 class AalCameraZoomControl;
 class AalImageCaptureControl;
 class AalImageEncoderControl;
+class AalMetaDataWriterControl;
 class AalVideoDeviceSelectorControl;
 class AalVideoRendererControl;
 class AalViewfinderSettingsControl;
@@ -49,6 +50,7 @@ public:
     AalCameraZoomControl *zoomControl() const { return m_zoomControl; }
     AalImageCaptureControl *imageCaptureControl() const { return m_imageCaptureControl; }
     AalImageEncoderControl *imageEncoderControl() const { return m_imageEncoderControl; }
+    AalMetaDataWriterControl *metadataWriterControl() const { return m_metadataWriter; }
     AalVideoDeviceSelectorControl *deviceSelector() const { return m_deviceSelectControl; }
     AalVideoRendererControl *videoOutputControl() const { return m_videoOutput; }
     AalViewfinderSettingsControl *viewfinderControl() const { return m_viewfinderControl; }
@@ -77,6 +79,7 @@ private:
     AalCameraZoomControl *m_zoomControl;
     AalImageCaptureControl *m_imageCaptureControl;
     AalImageEncoderControl *m_imageEncoderControl;
+    AalMetaDataWriterControl *m_metadataWriter;
     AalVideoDeviceSelectorControl *m_deviceSelectControl;
     AalVideoRendererControl *m_videoOutput;
     AalViewfinderSettingsControl *m_viewfinderControl;

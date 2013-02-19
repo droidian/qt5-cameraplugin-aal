@@ -21,6 +21,7 @@
 #include "aalcamerazoomcontrol.h"
 #include "aalimagecapturecontrol.h"
 #include "aalimageencodercontrol.h"
+#include "aalmetadatawritercontrol.h"
 #include "aalvideodeviceselectorcontrol.h"
 #include "aalvideorenderercontrol.h"
 #include "aalviewfindersettingscontrol.h"
@@ -45,6 +46,7 @@ AalCameraService::AalCameraService(QObject *parent):
     m_zoomControl = new AalCameraZoomControl(this);
     m_imageCaptureControl = new AalImageCaptureControl(this);
     m_imageEncoderControl = new AalImageEncoderControl(this);
+    m_metadataWriter = new AalMetaDataWriterControl(this);
     m_deviceSelectControl = new AalVideoDeviceSelectorControl(this);
     m_videoOutput = new AalVideoRendererControl(this);
     m_viewfinderControl = new AalViewfinderSettingsControl(this);
@@ -60,6 +62,7 @@ AalCameraService::~AalCameraService()
     delete m_zoomControl;
     delete m_imageEncoderControl;
     delete m_imageCaptureControl;
+    delete m_metadataWriter;
     delete m_deviceSelectControl;
     delete m_videoOutput;
     delete m_viewfinderControl;
@@ -85,6 +88,9 @@ QMediaControl *AalCameraService::requestControl(const char *name)
 
     if (qstrcmp(name, QImageEncoderControl_iid) == 0)
         return m_imageEncoderControl;
+
+    if (qstrcmp(name, QMetaDataWriterControl_iid) == 0)
+        return m_metadataWriter;
 
     if (qstrcmp(name, QCameraZoomControl_iid) == 0)
         return m_zoomControl;

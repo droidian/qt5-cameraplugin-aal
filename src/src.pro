@@ -23,6 +23,7 @@ HEADERS += \
     aalcamerazoomcontrol.h \
     aalimagecapturecontrol.h \
     aalimageencodercontrol.h \
+    aalmetadatawritercontrol.h \
     aalvideodeviceselectorcontrol.h \
     aalvideorenderercontrol.h \
     aalviewfindersettingscontrol.h \
@@ -38,6 +39,7 @@ SOURCES += \
     aalcamerazoomcontrol.cpp \
     aalimagecapturecontrol.cpp \
     aalimageencodercontrol.cpp \
+    aalmetadatawritercontrol.cpp \
     aalvideodeviceselectorcontrol.cpp \
     aalvideorenderercontrol.cpp \
     aalviewfindersettingscontrol.cpp \
