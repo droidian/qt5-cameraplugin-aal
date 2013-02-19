@@ -1,3 +1,10 @@
+cameraplugin-aal (0.3.1) quantal; urgency=low
+
+  * Reconnect to the camera, if the backend reports an error (LP: #1104407)
+  * Save photos in correct orientation (LP: #1104407)
+
+ -- Guenter Schwann <guenter.schwann@canonical.com>  Tue, 19 Jan 2013 21:59:25 +0100
+
 cameraplugin-aal (0.3.0-0ubuntu1) quantal; urgency=low
 
   * Bumping package version number for a release.
