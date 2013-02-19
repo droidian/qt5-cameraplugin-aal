@@ -99,6 +99,7 @@ void AalCameraControl::handleError()
 {
     setState(QCamera::LoadedState);
     Q_EMIT error(QCamera::CameraError, QLatin1String("Unknown error in camera"));
+    setState(QCamera::ActiveState);
 }
 
 void AalCameraControl::errorCB(void *context)
