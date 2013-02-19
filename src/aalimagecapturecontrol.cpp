@@ -14,9 +14,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "aalcameraservice.h"
 #include "aalimagecapturecontrol.h"
 #include "aalimageencodercontrol.h"
-#include "aalcameraservice.h"
+#include "aalmetadatawritercontrol.h"
 #include "aalvideorenderercontrol.h"
 #include "storagemanager.h"
 
@@ -86,9 +87,11 @@ int AalImageCaptureControl::capture(const QString &fileName)
         return m_lastRequestId;
     }
 
-    int rotation = 90;
+    int rotation = m_service->metadataWriterControl()->orientation();
+    rotation = rotation % 360;
+    // the front camera rotates the other way round
     if (!m_service->isBackCameraUsed())
-        rotation = 270;
+        rotation = (360 - rotation) % 360;
     android_camera_set_rotation(m_service->androidControl(), rotation);
 
     android_camera_take_snapshot(m_service->androidControl());
@@ -261,8 +264,9 @@ void AalImageCaptureControl::saveJpeg(void *data, uint32_t dataSize)
         return;
     }
 
-    if (imageIsInGallery(m_pendingCaptureFile))
-        saveThumbnail((const uchar*)data, dataSize);
+// disabled, as it curently can't hande the case, when android uses the exif data for the rotation
+//    if (imageIsInGallery(m_pendingCaptureFile))
+//        saveThumbnail((const uchar*)data, dataSize);
 
     QFile finalFile(file.fileName());
     bool ok = finalFile.rename(m_pendingCaptureFile);
