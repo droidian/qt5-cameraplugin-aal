@@ -90,7 +90,7 @@ void AalMetaDataWriterControl::setMetaData(const QString &key, const QVariant &v
 
 /*!
  * \brief AalMetaDataWriterControl::orientation returns the orientation of the device, as set by the
- * app ind degree.
+ * app in degrees.
  * \return orientation, set by the app. Defaults is 0
  */
 int AalMetaDataWriterControl::orientation() const
