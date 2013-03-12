@@ -21,6 +21,7 @@
 
 #include "camera_compatibility_layer.h"
 #include "camera_compatibility_layer_capabilities.h"
+#include <qtubuntu_media_signals.h>
 
 #include <QAbstractVideoBuffer>
 #include <QAbstractVideoSurface>
@@ -70,15 +71,16 @@ AalVideoRendererControl::AalVideoRendererControl(AalCameraService *service, QObj
    , m_surface(0),
      m_service(service),
      m_viewFinderRunning(false),
-     m_textureId(0)
+     m_textureId(0),
+     m_firstFrame(true)
 {
-    m_snapshotGenerator = new SnapshotGenerator;
+    // Get notified when qtvideo-node creates a GL texture
+    connect(SharedSignal::instance(), SIGNAL(textureCreated(unsigned int)), this, SLOT(onTextureCreated(unsigned int)));
+    connect(SharedSignal::instance(), SIGNAL(snapshotTaken(QImage)), this, SLOT(onSnapshotTaken(QImage)));
 }
 
 AalVideoRendererControl::~AalVideoRendererControl()
 {
-    delete m_snapshotGenerator;
-
     if (m_textureId) {
         glDeleteTextures(1, &m_textureId);
     }
@@ -108,8 +110,7 @@ void AalVideoRendererControl::startPreview()
     if (m_viewFinderRunning)
         return;
 
-    // to make sure it's started in the main thread only, and the GL context exists
-    QTimer::singleShot(1000, this, SLOT(doStartPreview()));
+    doStartPreview();
 }
 
 void AalVideoRendererControl::stopPreview()
@@ -136,7 +137,10 @@ void AalVideoRendererControl::stopPreview()
 
 void AalVideoRendererControl::updateViewfinderFrame()
 {
-    if (!m_surface || !m_textureId || !m_service->androidControl())
+    // m_textureId can be (and will be) 0 if this is the first video frame since this
+    // is how a ShaderVideoNode instance gets created and ultimately how m_textureId
+    // get set.
+    if (!m_surface || (!m_textureId && !m_firstFrame) || !m_service->androidControl())
         return;
 
     QSize vfSize = m_service->viewfinderControl()->currentSize();
@@ -159,16 +163,13 @@ void AalVideoRendererControl::updateViewfinderFrame()
     if (m_surface->isActive()) {
         m_surface->present(frame);
     }
+
+    if (m_firstFrame)
+        m_firstFrame = false;
 }
 
 void AalVideoRendererControl::doStartPreview()
 {
-    glGenTextures(1, &m_textureId);
-    if (m_textureId == 0) {
-        qWarning() << "unanble to get texture ID";
-        return;
-    }
-
     CameraControl *cc = m_service->androidControl();
     if (cc) {
         android_camera_set_preview_texture(cc, m_textureId);
@@ -176,6 +177,18 @@ void AalVideoRendererControl::doStartPreview()
         m_viewFinderRunning = true;
     }
     m_service->updateCaptureReady();
+}
+
+void AalVideoRendererControl::onTextureCreated(GLuint textureID)
+{
+    qDebug() << "textureID: " << textureID << endl;
+    m_textureId = textureID;
+}
+
+void AalVideoRendererControl::onSnapshotTaken(QImage snapshotImage)
+{
+    m_preview = snapshotImage;
+    Q_EMIT previewReady();
 }
 
 void AalVideoRendererControl::updateViewfinderFrameCB(void* context)
@@ -195,11 +208,9 @@ void AalVideoRendererControl::createPreview()
     if (!m_textureId || !m_service->androidControl())
         return;
 
-    GLfloat textureMatrix[16];
-    android_camera_get_preview_texture_transformation(m_service->androidControl(), textureMatrix);
     QSize vfSize = m_service->viewfinderControl()->currentSize();
-    m_snapshotGenerator->setSize(vfSize.width(), vfSize.height());
-    m_preview = m_snapshotGenerator->snapshot(m_textureId, textureMatrix);
+    SharedSignal::instance()->setSnapshotSize(vfSize);
+    SharedSignal::instance()->takeSnapshot(m_service->androidControl());
 }
 
 bool AalVideoRendererControl::isViewfinderRunning() const

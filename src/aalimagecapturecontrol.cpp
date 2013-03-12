@@ -99,7 +99,6 @@ int AalImageCaptureControl::capture(const QString &fileName)
     m_service->updateCaptureReady();
 
     m_service->videoOutputControl()->createPreview();
-    Q_EMIT imageCaptured(m_lastRequestId, m_service->videoOutputControl()->preview());
 
     return m_lastRequestId;
 }
@@ -137,6 +136,14 @@ void AalImageCaptureControl::init(CameraControl *control, CameraControlListener 
 
     listener->on_msg_shutter_cb = &AalImageCaptureControl::shutterCB;
     listener->on_data_compressed_image_cb = &AalImageCaptureControl::saveJpegCB;
+
+    connect(m_service->videoOutputControl(), SIGNAL(previewReady()), this, SLOT(onPreviewReady()));
+}
+
+void AalImageCaptureControl::onPreviewReady()
+{
+    // The preview image was fully captured, notify the UI layer
+    Q_EMIT imageCaptured(m_lastRequestId, m_service->videoOutputControl()->preview());
 }
 
 void AalImageCaptureControl::setReady(bool ready)

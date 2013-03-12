@@ -21,15 +21,13 @@
 #include <QVideoRendererControl>
 #include <qgl.h>
 
-
 class AalCameraService;
 struct CameraControl;
 struct CameraControlListener;
-class SnapshotGenerator;
 
 class AalVideoRendererControl : public QVideoRendererControl
 {
-Q_OBJECT
+    Q_OBJECT
 public:
     AalVideoRendererControl(AalCameraService *service, QObject *parent = 0);
     ~AalVideoRendererControl();
@@ -51,10 +49,13 @@ public Q_SLOTS:
 
 Q_SIGNALS:
     void surfaceChanged(QAbstractVideoSurface *surface);
+    void previewReady();
 
 private Q_SLOTS:
     void updateViewfinderFrame();
     void doStartPreview();
+    void onTextureCreated(unsigned int textureID);
+    void onSnapshotTaken(QImage snapshotImage);
 
 private:
     QAbstractVideoSurface *m_surface;
@@ -63,7 +64,8 @@ private:
     bool m_viewFinderRunning;
     GLuint m_textureId;
     QImage m_preview;
-    SnapshotGenerator *m_snapshotGenerator;
+
+    bool m_firstFrame;
 };
 
 #endif
