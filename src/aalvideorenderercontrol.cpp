@@ -17,7 +17,6 @@
 #include "aalvideorenderercontrol.h"
 #include "aalcameraservice.h"
 #include "aalviewfindersettingscontrol.h"
-#include "snapshotgenerator.h"
 
 #include "camera_compatibility_layer.h"
 #include "camera_compatibility_layer_capabilities.h"
