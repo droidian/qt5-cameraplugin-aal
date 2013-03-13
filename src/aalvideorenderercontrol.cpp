@@ -181,7 +181,6 @@ void AalVideoRendererControl::doStartPreview()
 
 void AalVideoRendererControl::onTextureCreated(GLuint textureID)
 {
-    qDebug() << "textureID: " << textureID << endl;
     m_textureId = textureID;
 }
 
