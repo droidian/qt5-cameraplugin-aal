@@ -67,3 +67,13 @@ void AalVideoRendererControl::updateViewfinderFrame()
 void AalVideoRendererControl::doStartPreview()
 {
 }
+
+void AalVideoRendererControl::onTextureCreated(unsigned int textureID)
+{
+    Q_UNUSED(textureID);
+}
+
+void AalVideoRendererControl::onSnapshotTaken(QImage snapshotImage)
+{
+    Q_UNUSED(snapshotImage);
+}

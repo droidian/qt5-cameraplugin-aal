@@ -18,6 +18,8 @@
 #include "aalcameraservice.h"
 
 #include <QDebug>
+#include <QMetaType>
+#include <qgl.h>
 
 AalServicePlugin::AalServicePlugin()
 {

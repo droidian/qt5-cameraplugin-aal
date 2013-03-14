@@ -56,6 +56,7 @@ public:
 
 public Q_SLOTS:
     void init(CameraControl *control, CameraControlListener *listener);
+    void onPreviewReady();
 
 private Q_SLOTS:
     void shutter();

@@ -1,3 +1,11 @@
+cameraplugin-aal (0.3.2) quantal; urgency=low
+
+  * Releasing multithreaded rendering enablement.
+  * Allow the camera-app to still render preview video with Qt multithreaded
+    rendering turned on.
+
+ -- Jim Hodapp <jim.hodapp@canonical.com>  Thu, 14 Mar 2013 12:51:56 -0400
+
 cameraplugin-aal (0.3.1) quantal; urgency=low
 
   * Reconnect to the camera, if the backend reports an error (LP: #1104407)
