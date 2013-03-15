@@ -1,3 +1,9 @@
+cameraplugin-aal (0.3.3) UNRELEASED; urgency=low
+
+  * Minor packaging fixups.
+
+ -- Robert Bruce Park <robert.park@canonical.com>  Thu, 14 Mar 2013 18:25:43 -0700
+
 cameraplugin-aal (0.3.2) quantal; urgency=low
 
   * Releasing multithreaded rendering enablement.

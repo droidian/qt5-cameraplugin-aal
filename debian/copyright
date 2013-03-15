@@ -6,10 +6,6 @@ Files: *
 Copyright: 2013 Canonical Ltd
 License: LGPL-3
 
-Files: debian/*
-Copyright: 2013 Canonical Ltd
-License: LGPL-3
-
 License: LGPL-3
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Lesser General Public License as published by

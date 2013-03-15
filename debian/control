@@ -3,26 +3,26 @@ Section: libs
 Priority: optional
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 XSBC-Original-Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
-Build-Depends: debhelper (>= 8.0.0),
+Build-Depends: debhelper (>= 9),
                libgl-dev,
                libgles2-mesa-dev,
                libhybris-dev,
                libpulse-dev,
+               libqt5opengl5-dev,
+               libqtubuntu-media-signals-dev,
+               libubuntu-platform-api1-dev,
+               pkg-config,
                qt5-default,
                qtmultimedia5-dev,
-               libqt5opengl5-dev,
-               libubuntu-platform-api1-dev,
-               libqtubuntu-media-signals-dev,
-               pkg-config
 Standards-Version: 3.9.3
-Vcs-Bzr: lp:qtubuntu-camera
-Vcs-Browser: https://code.launchpad.net/qtubuntu-camera
+Homepage: https://launchpad.net/qtubuntu-camera
+# If you aren't a member of ~phablet-team but need to upload packaging changes,
+# just go ahead.  ~phablet-team will notice and sync up the code again.
+Vcs-Bzr: https://code.launchpad.net/~phablet-team/qtubuntu-camera/trunk
 
 Package: cameraplugin-aal
-Architecture: i386 armel armhf
-Depends: ${shlibs:Depends},
-         ${misc:Depends},
-         qtvideonode-plugin
+Architecture: armel armhf i386
+Depends: qtvideonode-plugin, ${misc:Depends}, ${shlibs:Depends}
 Conflicts: cameraplugin-fake
 Replaces: cameraplugin-fake
 Provides: cameraplugin-fake

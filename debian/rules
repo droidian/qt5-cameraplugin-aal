@@ -4,6 +4,10 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 export QT_QPA_PLATFORM = minimal
+export DPKG_GENSYMBOLS_CHECK_LEVEL=4
 
 %:
 	dh $@ --parallel --buildsystem=qmake
+
+override_dh_install:
+	dh_install --fail-missing
