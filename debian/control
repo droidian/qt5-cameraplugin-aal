@@ -22,7 +22,9 @@ Vcs-Bzr: https://code.launchpad.net/~phablet-team/qtubuntu-camera/trunk
 
 Package: cameraplugin-aal
 Architecture: armel amrhf
-Depends: qtvideonode-plugin, ${misc:Depends}, ${shlibs:Depends}
+Depends: qtvideonode-plugin,
+         ${misc:Depends},
+         ${shlibs:Depends},
 Conflicts: cameraplugin-fake
 Replaces: cameraplugin-fake
 Provides: cameraplugin-fake
