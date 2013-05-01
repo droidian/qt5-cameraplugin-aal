@@ -149,7 +149,7 @@ void AalVideoRendererControl::updateViewfinderFrame()
         return;
 
     CameraControl *cc = m_service->androidControl();
-    frame.setMetaData("CamControl", (int)cc);
+    frame.setMetaData("CamControl", QVariant::fromValue((void*)cc));
 
     if (!m_surface->isActive()) {
         QVideoSurfaceFormat format(frame.size(), frame.pixelFormat(), frame.handleType());

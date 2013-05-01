@@ -2,9 +2,8 @@ Source: qtubuntu-camera
 Section: libs
 Priority: optional
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
-XSBC-Original-Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 Build-Depends: debhelper (>= 9),
-               libgl-dev,
+               libgl1-mesa-dev | libgl-dev,
                libgles2-mesa-dev,
                libhybris-dev,
                libpulse-dev,
@@ -21,12 +20,12 @@ Homepage: https://launchpad.net/qtubuntu-camera
 Vcs-Bzr: https://code.launchpad.net/~phablet-team/qtubuntu-camera/trunk
 
 Package: cameraplugin-aal
-Architecture: armel armhf
-Depends: qtvideonode-plugin,
-         ${misc:Depends},
+Architecture: amd64 armhf i386
+Depends: ${misc:Depends},
          ${shlibs:Depends},
+         qtvideonode-plugin,
 Conflicts: cameraplugin-fake
 Replaces: cameraplugin-fake
 Provides: cameraplugin-fake
-Description: A camera plugin that talks to Android by using Aal+
-  A QtMultimedia camera plugin that talks to Android by using Aal+
+Description: Camera plugin that talks to Android by using Aal+
+ A QtMultimedia camera plugin that talks to Android by using Aal+
