@@ -1,4 +1,4 @@
-qtubuntu-camera (0.3.3-0ubuntu1) UNRELEASED; urgency=low
+qtubuntu-camera (0.3.3daily13.05.22ubuntu.unity.next-0ubuntu1) raring; urgency=low
 
   [ Robert Bruce Park ]
   * Minor packaging fixups.
@@ -8,7 +8,15 @@ qtubuntu-camera (0.3.3-0ubuntu1) UNRELEASED; urgency=low
     - Rename source package name to fit branch name
   * Automatic snapshot from revision 44 (bootstrap)
 
- -- Robert Bruce Park <robert.park@canonical.com>  Thu, 14 Mar 2013 18:25:43 -0700
+  [ Michael Terry ]
+  * Build qtubuntu-camera for all three major arches (amd64 armhf i386)
+    and fix its CamControl pointer to be what qtvideo-node expects. Plus
+    some packaging cleanup.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 46 (ubuntu-unity/next)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 22 May 2013 04:27:36 +0000
 
 cameraplugin-aal (0.3.2) quantal; urgency=low
 
