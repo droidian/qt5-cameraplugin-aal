@@ -2,7 +2,7 @@ include(../../coverage.pri)
 
 CONFIG += testcase
 CONFIG += no_private_qt_headers_warning
-TARGET = tst_aalcameracontrol
+TARGET = tst_aalmediarecordercontrol
 
 QT += testlib multimedia-private opengl
 
@@ -10,11 +10,11 @@ LIBS += -L../mocks/aal -laal
 INCLUDEPATH += ../../src
 INCLUDEPATH += ../mocks/aal
 
-HEADERS += ../../src/aalcameracontrol.h \
+HEADERS += ../../src/aalmediarecordercontrol.h \
     ../../src/aalcameraservice.h \
-    ../../src/aalmediarecordercontrol.h
+    ../../src/storagemanager.h
 
-SOURCES += tst_aalcameracontrol.cpp \
-    ../../src/aalcameracontrol.cpp \
+SOURCES += tst_aalmediarecordercontrol.cpp \
+    ../../src/aalmediarecordercontrol.cpp \
     aalcameraservice.cpp \
-    aalmediarecordercontrol.cpp
+    storagemanager.cpp

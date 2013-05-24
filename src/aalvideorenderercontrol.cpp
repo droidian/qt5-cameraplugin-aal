@@ -80,9 +80,6 @@ AalVideoRendererControl::AalVideoRendererControl(AalCameraService *service, QObj
 
 AalVideoRendererControl::~AalVideoRendererControl()
 {
-    if (m_textureId) {
-        glDeleteTextures(1, &m_textureId);
-    }
 }
 
 QAbstractVideoSurface *AalVideoRendererControl::surface() const
@@ -125,9 +122,6 @@ void AalVideoRendererControl::stopPreview()
 
     if (m_surface->isActive())
         m_surface->stop();
-
-    if (m_textureId)
-        glDeleteTextures(1, &m_textureId);
 
     m_viewFinderRunning = false;
 

@@ -9,8 +9,14 @@ PLUGIN_TYPE = mediaservice
 target.path += $$[QT_INSTALL_PLUGINS]/$${PLUGIN_TYPE}
 INSTALLS = target
 
-INCLUDEPATH += /usr/include/hybris/camera /usr/include/libqtubuntu-media-signals
-LIBS += -L/usr/lib/arm-linux-gnueabi -lcamera -lubuntu_application_api -lqtubuntu-media-signals
+INCLUDEPATH += /usr/include/hybris/camera \
+               /usr/include/hybris/media \
+               /usr/include/libqtubuntu-media-signals
+LIBS += -L/usr/lib/arm-linux-gnueabi \
+        -lcamera \
+        -lmediaplayer \
+        -lqtubuntu-media-signals \
+        -lubuntu_application_api
 
 OTHER_FILES += aalcamera.json
 
@@ -23,6 +29,7 @@ HEADERS += \
     aalcamerazoomcontrol.h \
     aalimagecapturecontrol.h \
     aalimageencodercontrol.h \
+    aalmediarecordercontrol.h \
     aalmetadatawritercontrol.h \
     aalvideodeviceselectorcontrol.h \
     aalvideorenderercontrol.h \
@@ -38,6 +45,7 @@ SOURCES += \
     aalcamerazoomcontrol.cpp \
     aalimagecapturecontrol.cpp \
     aalimageencodercontrol.cpp \
+    aalmediarecordercontrol.cpp \
     aalmetadatawritercontrol.cpp \
     aalvideodeviceselectorcontrol.cpp \
     aalvideorenderercontrol.cpp \

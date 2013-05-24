@@ -53,8 +53,11 @@ void tst_StorageManager::nextFileName()
 {
     StorageManager storage;
 
+    const QLatin1String photoBase("image");
+    const QLatin1String videoBase("video");
+
     QString fileName = storage.nextPhotoFileName(testPath);
-    QString compareFileName = storage.fileNameGenerator(1, "jpg");
+    QString compareFileName = storage.fileNameGenerator(1, photoBase,"jpg");
     QCOMPARE(fileName, compareFileName);
 
     QDir dir;
@@ -63,12 +66,12 @@ void tst_StorageManager::nextFileName()
     file.open(QIODevice::ReadWrite);
     file.close();
     fileName = storage.nextPhotoFileName(testPath);
-    compareFileName = storage.fileNameGenerator(2, "jpg");
+    compareFileName = storage.fileNameGenerator(2, photoBase, "jpg");
     QCOMPARE(fileName, compareFileName);
 
 
     fileName = storage.nextVideoFileName(testPath);
-    compareFileName = storage.fileNameGenerator(1, "mpg");
+    compareFileName = storage.fileNameGenerator(1, videoBase, "mp4");
     QCOMPARE(fileName, compareFileName);
 
     removeTestDirectory();
@@ -102,7 +105,7 @@ void tst_StorageManager::fileNameGenerator_data()
     QTest::addColumn<QString>("extension");
 
     QTest::newRow("1") << 1 << "0001" << "jpg";
-    QTest::newRow("12") << 12 << "0012" << "mpg";
+    QTest::newRow("12") << 12 << "0012" << "mp4";
     QTest::newRow("9999") << 9999 << "9999" << "jpg";
 }
 
@@ -114,10 +117,11 @@ void tst_StorageManager::fileNameGenerator()
 
     StorageManager storage;
     storage.m_directory = "/tmp";
+    const QLatin1String photoBase("image");
 
     QString date = QDate::currentDate().toString("yyyyMMdd");
     QString expected = QString("/tmp/image%1_%2.%3").arg(date).arg(idxString).arg(extension);
-    QString generated = storage.fileNameGenerator(index, extension);
+    QString generated = storage.fileNameGenerator(index, photoBase, extension);
     QCOMPARE(generated, expected);
 }
 
