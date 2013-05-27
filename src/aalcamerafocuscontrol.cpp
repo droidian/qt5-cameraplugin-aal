@@ -132,6 +132,33 @@ bool AalCameraFocusControl::isFocusBusy() const
     return m_focusRunning;
 }
 
+/*!
+ * \brief AalCameraFocusControl::enablePhotoMode resets the last focus mode for photos
+ */
+void AalCameraFocusControl::enablePhotoMode()
+{
+    CameraControl *cc = m_service->androidControl();
+    if (!cc)
+        return;
+
+    AutoFocusMode focusMode = qt2Android(m_focusMode);
+    if (cc) {
+        android_camera_set_auto_focus_mode(cc, focusMode);
+    }
+}
+
+/*!
+ * \brief AalCameraFocusControl::enableVideoMode stes the focus mode to continuous for video
+ */
+void AalCameraFocusControl::enableVideoMode()
+{
+    CameraControl *cc = m_service->androidControl();
+    if (!cc)
+        return;
+
+    android_camera_set_auto_focus_mode(cc, AUTO_FOCUS_MODE_CONTINUOUS_VIDEO);
+}
+
 void AalCameraFocusControl::init(CameraControl *control, CameraControlListener *listener)
 {
     listener->on_msg_focus_cb = &AalCameraFocusControl::focusCB;

@@ -192,6 +192,23 @@ bool AalCameraService::isBackCameraUsed() const
     return m_deviceSelectControl->selectedDevice() == 0;
 }
 
+/*!
+ * \brief AalCameraService::enablePhotoMode sets all controls into photo mode
+ */
+void AalCameraService::enablePhotoMode()
+{
+    m_imageEncoderControl->enablePhotoMode();
+    m_focusControl->enablePhotoMode();
+}
+
+/*!
+ * \brief AalCameraService::enableVideoMode sets all controls into video mode
+ */
+void AalCameraService::enableVideoMode()
+{
+    m_focusControl->enableVideoMode();
+}
+
 void AalCameraService::updateCaptureReady()
 {
     bool ready = true;

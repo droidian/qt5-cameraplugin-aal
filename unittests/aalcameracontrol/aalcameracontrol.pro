@@ -11,10 +11,8 @@ INCLUDEPATH += ../../src
 INCLUDEPATH += ../mocks/aal
 
 HEADERS += ../../src/aalcameracontrol.h \
-    ../../src/aalcameraservice.h \
-    ../../src/aalmediarecordercontrol.h
+    ../../src/aalcameraservice.h
 
 SOURCES += tst_aalcameracontrol.cpp \
     ../../src/aalcameracontrol.cpp \
-    aalcameraservice.cpp \
-    aalmediarecordercontrol.cpp
+    aalcameraservice.cpp

@@ -97,6 +97,18 @@ void AalImageEncoderControl::resetAllSettings()
     m_currentSize = QSize();
 }
 
+/*!
+ * \brief AalImageEncoderControl::enablePhotoMode prepares the camera to take photos
+ */
+void AalImageEncoderControl::enablePhotoMode()
+{
+    CameraControl *cc = m_service->androidControl();
+    if (!cc || !m_currentSize.isValid()) {
+        return;
+    }
+    android_camera_set_picture_size(cc, m_currentSize.width(), m_currentSize.height());
+}
+
 void AalImageEncoderControl::setPictureSizeCb(void *ctx, int width, int height)
 {
     if (ctx != NULL)

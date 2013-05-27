@@ -44,6 +44,9 @@ public:
 
     bool isFocusBusy() const;
 
+    void enablePhotoMode();
+    void enableVideoMode();
+
 public Q_SLOTS:
     void init(CameraControl *control, CameraControlListener *listener);
     void startFocus();

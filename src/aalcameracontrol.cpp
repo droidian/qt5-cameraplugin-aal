@@ -16,7 +16,6 @@
 
 #include "aalcameracontrol.h"
 #include "aalcameraservice.h"
-#include "aalmediarecordercontrol.h"
 
 #include "camera_compatibility_layer.h"
 
@@ -73,12 +72,13 @@ void AalCameraControl::setCaptureMode(QCamera::CaptureModes mode)
     if (m_captureMode == mode)
         return;
 
-    m_captureMode = mode;
-    if (m_captureMode == QCamera::CaptureVideo) {
-        m_service->mediaRecorderControl()->init();
+    if (m_service->isCameraActive() && mode == QCamera::CaptureStillImage) {
+        m_service->enablePhotoMode();
     } else {
-        m_service->mediaRecorderControl()->deleteRecorder();
+        m_service->enableVideoMode();
     }
+
+    m_captureMode = mode;
     Q_EMIT captureModeChanged(mode);
 }
 

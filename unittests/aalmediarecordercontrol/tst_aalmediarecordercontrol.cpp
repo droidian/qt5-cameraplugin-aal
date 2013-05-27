@@ -69,7 +69,7 @@ void tst_AalMediaRecorderControl::setState()
 
     m_recorderControl->setState(QMediaRecorder::StoppedState);
     QCOMPARE(m_recorderControl->state(), QMediaRecorder::StoppedState);
-    QCOMPARE(m_recorderControl->status(), QMediaRecorder::LoadedStatus);
+    QCOMPARE(m_recorderControl->status(), QMediaRecorder::UnloadedStatus);
 }
 
 QTEST_MAIN(tst_AalMediaRecorderControl)

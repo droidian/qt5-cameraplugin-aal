@@ -69,6 +69,9 @@ public:
     bool isCameraActive() const;
     bool isBackCameraUsed() const;
 
+    void enablePhotoMode();
+    void enableVideoMode();
+
     static AalCameraService *instance() { return m_service; }
 
 public Q_SLOTS:

@@ -54,6 +54,19 @@ void AalCameraService::disconnectCamera()
 {
 }
 
+bool AalCameraService::isCameraActive() const
+{
+    return true;
+}
+
+void AalCameraService::enablePhotoMode()
+{
+}
+
+void AalCameraService::enableVideoMode()
+{
+}
+
 void AalCameraService::initControls(CameraControl *camControl, CameraControlListener *listener)
 {
     Q_UNUSED(camControl);
