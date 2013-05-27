@@ -330,6 +330,7 @@ int AalMediaRecorderControl::startRecording()
         return -1;
     }
 
+    // FIXME check supported sizes via MediaProfiles
     ret = android_recorder_setVideoSize(m_mediaRecorder, 1280, 720);
     if (ret < 0) {
         deleteRecorder();
