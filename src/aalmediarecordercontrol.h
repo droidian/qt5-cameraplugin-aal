@@ -68,6 +68,10 @@ private:
     QMediaRecorder::State m_currentState;
     QMediaRecorder::Status m_currentStatus;
     QTimer *m_recordingTimer;
+
+    static const int RECORDER_GENERAL_ERROR = -1;
+    static const int RECORDER_NOT_AVAILABLE_ERROR = -2;
+    static const int RECORDER_INITIALIZATION_ERROR = -3;
 };
 
 #endif

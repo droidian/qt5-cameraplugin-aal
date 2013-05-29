@@ -29,6 +29,10 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+const int AalMediaRecorderControl::RECORDER_GENERAL_ERROR;
+const int AalMediaRecorderControl::RECORDER_NOT_AVAILABLE_ERROR;
+const int AalMediaRecorderControl::RECORDER_INITIALIZATION_ERROR;
+
 /*!
  * \brief AalMediaRecorderControl::AalMediaRecorderControl
  * \param service
@@ -235,7 +239,7 @@ void AalMediaRecorderControl::updateDuration()
  */
 void AalMediaRecorderControl::handleError()
 {
-    Q_EMIT error(-1, "Error on recording video");
+    Q_EMIT error(RECORDER_GENERAL_ERROR, "Error on recording video");
 }
 
 /*!
@@ -267,7 +271,7 @@ int AalMediaRecorderControl::startRecording()
     init();
     if (m_mediaRecorder == 0) {
         deleteRecorder();
-        return -2;
+        return RECORDER_NOT_AVAILABLE_ERROR;
     }
 
     setStatus(QMediaRecorder::StartingStatus);
@@ -276,41 +280,41 @@ int AalMediaRecorderControl::startRecording()
     ret = android_recorder_setCamera(m_mediaRecorder, m_service->androidControl());
     if (ret < 0) {
         deleteRecorder();
-        Q_EMIT error(-1, "android_recorder_setCamera() failed\n");
-        return -1;
+        Q_EMIT error(RECORDER_INITIALIZATION_ERROR, "android_recorder_setCamera() failed\n");
+        return RECORDER_INITIALIZATION_ERROR;
     }
     //state initial / idle
     ret = android_recorder_setAudioSource(m_mediaRecorder, ANDROID_AUDIO_SOURCE_CAMCORDER);
     if (ret < 0) {
         deleteRecorder();
-        Q_EMIT error(-1, "android_recorder_setAudioSource() failed");
-        return -1;
+        Q_EMIT error(RECORDER_INITIALIZATION_ERROR, "android_recorder_setAudioSource() failed");
+        return RECORDER_INITIALIZATION_ERROR;
     }
     ret = android_recorder_setVideoSource(m_mediaRecorder, ANDROID_VIDEO_SOURCE_CAMERA);
     if (ret < 0) {
         deleteRecorder();
-        Q_EMIT error(-1, "android_recorder_setVideoSource() failed");
-        return -1;
+        Q_EMIT error(RECORDER_INITIALIZATION_ERROR, "android_recorder_setVideoSource() failed");
+        return RECORDER_INITIALIZATION_ERROR;
     }
     //state initialized
     ret = android_recorder_setOutputFormat(m_mediaRecorder, ANDROID_OUTPUT_FORMAT_MPEG_4);
     if (ret < 0) {
         deleteRecorder();
-        Q_EMIT error(-1, "android_recorder_setOutputFormat() failed");
-        return -1;
+        Q_EMIT error(RECORDER_INITIALIZATION_ERROR, "android_recorder_setOutputFormat() failed");
+        return RECORDER_INITIALIZATION_ERROR;
     }
     //state DataSourceConfigured
     ret = android_recorder_setAudioEncoder(m_mediaRecorder, ANDROID_AUDIO_ENCODER_AAC);
     if (ret < 0) {
         deleteRecorder();
-        Q_EMIT error(-1, "android_recorder_setAudioEncoder() failed");
-        return -1;
+        Q_EMIT error(RECORDER_INITIALIZATION_ERROR, "android_recorder_setAudioEncoder() failed");
+        return RECORDER_INITIALIZATION_ERROR;
     }
     ret = android_recorder_setVideoEncoder(m_mediaRecorder, ANDROID_VIDEO_ENCODER_H264);
     if (ret < 0) {
         deleteRecorder();
-        Q_EMIT error(-1, "android_recorder_setVideoEncoder() failed");
-        return -1;
+        Q_EMIT error(RECORDER_INITIALIZATION_ERROR, "android_recorder_setVideoEncoder() failed");
+        return RECORDER_INITIALIZATION_ERROR;
     }
 
     QString fileName = m_outputLocation.path();
@@ -322,28 +326,28 @@ int AalMediaRecorderControl::startRecording()
               S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     if (fd < 0) {
         deleteRecorder();
-        Q_EMIT error(-1, "Could not open file for video recording");
-        return -1;
+        Q_EMIT error(RECORDER_INITIALIZATION_ERROR, "Could not open file for video recording");
+        return RECORDER_INITIALIZATION_ERROR;
     }
     ret = android_recorder_setOutputFile(m_mediaRecorder, fd);
     if (ret < 0) {
         deleteRecorder();
-        Q_EMIT error(-1, "android_recorder_setOutputFile() failed");
-        return -1;
+        Q_EMIT error(RECORDER_INITIALIZATION_ERROR, "android_recorder_setOutputFile() failed");
+        return RECORDER_INITIALIZATION_ERROR;
     }
 
     // FIXME check supported sizes via MediaProfiles
     ret = android_recorder_setVideoSize(m_mediaRecorder, 1280, 720);
     if (ret < 0) {
         deleteRecorder();
-        Q_EMIT error(-1, "android_recorder_setVideoSize() failed");
-        return -1;
+        Q_EMIT error(RECORDER_INITIALIZATION_ERROR, "android_recorder_setVideoSize() failed");
+        return RECORDER_INITIALIZATION_ERROR;
     }
     ret = android_recorder_setVideoFrameRate(m_mediaRecorder, 30);
     if (ret < 0) {
         deleteRecorder();
-        Q_EMIT error(-1, "android_recorder_setVideoFrameRate() failed");
-        return -1;
+        Q_EMIT error(RECORDER_INITIALIZATION_ERROR, "android_recorder_setVideoFrameRate() failed");
+        return RECORDER_INITIALIZATION_ERROR;
     }
 
     // FIXME the quality parameters should be checked from the MediaProfiles
@@ -354,14 +358,14 @@ int AalMediaRecorderControl::startRecording()
     ret = android_recorder_prepare(m_mediaRecorder);
     if (ret < 0) {
         deleteRecorder();
-        Q_EMIT error(-1, "android_recorder_prepare() failed");
-        return -1;
+        Q_EMIT error(RECORDER_INITIALIZATION_ERROR, "android_recorder_prepare() failed");
+        return RECORDER_INITIALIZATION_ERROR;
     }
     //state prepared
     ret = android_recorder_start(m_mediaRecorder);
     if (ret < 0) {
-        Q_EMIT error(-1, "android_recorder_start() failed");
-        return -1;
+        Q_EMIT error(RECORDER_INITIALIZATION_ERROR, "android_recorder_start() failed");
+        return RECORDER_INITIALIZATION_ERROR;
     }
 
     m_currentState = QMediaRecorder::RecordingState;
@@ -388,7 +392,7 @@ void AalMediaRecorderControl::stopRecording()
 
     int result = android_recorder_stop(m_mediaRecorder);
     if (result < 0) {
-        Q_EMIT error(-1, "Cannot stop video recording");
+        Q_EMIT error(RECORDER_GENERAL_ERROR, "Cannot stop video recording");
         return;
     }
 
