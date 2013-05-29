@@ -25,6 +25,8 @@
 #include <camera_compatibility_layer.h>
 #include <recorder_compatibility_layer.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <fcntl.h>
 
 /*!
@@ -259,6 +261,9 @@ int AalMediaRecorderControl::startRecording()
         return -2;
     }
 
+    m_duration = 0;
+    Q_EMIT durationChanged(m_duration);
+
     init();
     if (m_mediaRecorder == 0) {
         deleteRecorder();
@@ -266,8 +271,6 @@ int AalMediaRecorderControl::startRecording()
     }
 
     setStatus(QMediaRecorder::StartingStatus);
-
-    m_duration = 0;
 
     int ret;
     ret = android_recorder_setCamera(m_mediaRecorder, m_service->androidControl());
@@ -315,14 +318,13 @@ int AalMediaRecorderControl::startRecording()
         fileName = m_service->storageManager()->nextVideoFileName();
     }
     int fd;
-    fd = open(fileName.toLocal8Bit().data(), O_WRONLY | O_CREAT);
+    fd = open(fileName.toLocal8Bit().data(), O_WRONLY | O_CREAT,
+              S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     if (fd < 0) {
         deleteRecorder();
         Q_EMIT error(-1, "Could not open file for video recording");
         return -1;
     }
-    QFile::setPermissions(fileName, QFile::ReadOwner | QFile::WriteOwner |
-                               QFile::ReadGroup | QFile::ReadOther);
     ret = android_recorder_setOutputFile(m_mediaRecorder, fd);
     if (ret < 0) {
         deleteRecorder();
