@@ -148,7 +148,7 @@ void AalCameraFocusControl::enablePhotoMode()
 }
 
 /*!
- * \brief AalCameraFocusControl::enableVideoMode stes the focus mode to continuous for video
+ * \brief AalCameraFocusControl::enableVideoMode sets the focus mode to continuous for video
  */
 void AalCameraFocusControl::enableVideoMode()
 {

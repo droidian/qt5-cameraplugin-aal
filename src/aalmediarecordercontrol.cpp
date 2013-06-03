@@ -33,6 +33,8 @@ const int AalMediaRecorderControl::RECORDER_GENERAL_ERROR;
 const int AalMediaRecorderControl::RECORDER_NOT_AVAILABLE_ERROR;
 const int AalMediaRecorderControl::RECORDER_INITIALIZATION_ERROR;
 
+const int AalMediaRecorderControl::DURATION_UPDATE_INTERVALL;
+
 /*!
  * \brief AalMediaRecorderControl::AalMediaRecorderControl
  * \param service
@@ -130,7 +132,7 @@ qreal AalMediaRecorderControl::volume() const
 }
 
 /*!
- * \brief AalMediaRecorderControl::init makes sure the mediearecoder is
+ * \brief AalMediaRecorderControl::init makes sure the mediarecorder is
  * initialized
  */
 void AalMediaRecorderControl::init()
@@ -139,8 +141,8 @@ void AalMediaRecorderControl::init()
         m_mediaRecorder = android_media_new_recorder();
 
         if (m_mediaRecorder == 0) {
-            qWarning() << "Unanble to create new media recorder";
-            Q_EMIT error(-1, "Unanble to create new media recorder");
+            qWarning() << "Unable to create new media recorder";
+            Q_EMIT error(RECORDER_INITIALIZATION_ERROR, "Unable to create new media recorder");
         } else {
             setStatus(QMediaRecorder::LoadedStatus);
             android_recorder_set_error_cb(m_mediaRecorder, &AalMediaRecorderControl::errorCB, this);
@@ -150,7 +152,7 @@ void AalMediaRecorderControl::init()
 
     if (m_recordingTimer == 0) {
         m_recordingTimer = new QTimer(this);
-        m_recordingTimer->setInterval(1000);
+        m_recordingTimer->setInterval(DURATION_UPDATE_INTERVALL);
         m_recordingTimer->setSingleShot(false);
         QObject::connect(m_recordingTimer, SIGNAL(timeout()),
                          this, SLOT(updateDuration()));
@@ -230,7 +232,7 @@ void AalMediaRecorderControl::setVolume(qreal gain)
 
 void AalMediaRecorderControl::updateDuration()
 {
-    m_duration += 1000;
+    m_duration += DURATION_UPDATE_INTERVALL;
     Q_EMIT durationChanged(m_duration);
 }
 
