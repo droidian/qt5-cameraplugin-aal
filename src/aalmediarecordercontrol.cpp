@@ -263,8 +263,8 @@ void AalMediaRecorderControl::setStatus(QMediaRecorder::Status status)
 int AalMediaRecorderControl::startRecording()
 {    
     if (m_service->androidControl() == 0) {
-        Q_EMIT error(-1, "No camera connection");
-        return -2;
+        Q_EMIT error(RECORDER_INITIALIZATION_ERROR, "No camera connection");
+        return RECORDER_INITIALIZATION_ERROR;
     }
 
     m_duration = 0;
