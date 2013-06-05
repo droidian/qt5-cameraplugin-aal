@@ -22,7 +22,7 @@
 
 #include <cmath>
 
-#include "camera_compatibility_layer_capabilities.h"
+#include <hybris/camera/camera_compatibility_layer_capabilities.h>
 
 AalViewfinderSettingsControl::AalViewfinderSettingsControl(AalCameraService *service, QObject *parent)
     :QCameraViewfinderSettingsControl(parent),

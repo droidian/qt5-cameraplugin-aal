@@ -21,7 +21,7 @@
 
 #include <QDebug>
 
-#include "camera_compatibility_layer_capabilities.h"
+#include <hybris/camera/camera_compatibility_layer_capabilities.h>
 
 AalVideoDeviceSelectorControl::AalVideoDeviceSelectorControl(AalCameraService *service, QObject *parent)
     :QVideoDeviceSelectorControl(parent),

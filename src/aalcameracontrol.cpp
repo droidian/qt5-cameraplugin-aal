@@ -17,7 +17,7 @@
 #include "aalcameracontrol.h"
 #include "aalcameraservice.h"
 
-#include "camera_compatibility_layer.h"
+#include <hybris/camera/camera_compatibility_layer.h>
 
 AalCameraControl::AalCameraControl(AalCameraService *service, QObject *parent)
    : QCameraControl(parent),
