@@ -32,7 +32,7 @@
 
 #include <cmath>
 
-#include <ubuntu/application/ui/ubuntu_application_ui.h>
+#include <ubuntu/application/ui/display.h>
 
 const int PREVIEW_WIDTH_MAX = 360;
 const int PREVIEW_HEIGHT_MAX = 360;
@@ -207,14 +207,12 @@ float AalImageCaptureControl::getScreenAspectRatio()
     // Only get the screen aspect ratio once, otherwise use the cached copy
     if (m_screenAspectRatio == 0.0) {
         // Get screen resolution.
-        ubuntu_application_ui_physical_display_info info;
-        ubuntu_application_ui_create_display_info(&info, 0);
-
-        const int kScreenWidth = ubuntu_application_ui_query_horizontal_resolution(info);
-        const int kScreenHeight = ubuntu_application_ui_query_vertical_resolution(info);
+        UAUiDisplay* display = ua_ui_display_new_with_index(0);
+        const int kScreenWidth = ua_ui_display_query_horizontal_res(display);
+        const int kScreenHeight = ua_ui_display_query_vertical_res(display);
         Q_ASSERT(kScreenWidth > 0 && kScreenHeight > 0);
 
-        ubuntu_application_ui_destroy_display_info(info);
+        ua_ui_display_destroy(display);
 
         m_screenAspectRatio = (kScreenWidth > kScreenHeight) ?
             ((float)kScreenWidth / (float)kScreenHeight) : ((float)kScreenHeight / (float)kScreenWidth);
