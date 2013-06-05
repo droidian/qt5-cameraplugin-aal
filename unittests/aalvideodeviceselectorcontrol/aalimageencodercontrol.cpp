@@ -30,6 +30,7 @@ AalImageEncoderControl::~AalImageEncoderControl()
 
 QString AalImageEncoderControl::imageCodecDescription(const QString &codec) const
 {
+    Q_UNUSED(codec);
     return QString();
 }
 
@@ -51,6 +52,7 @@ QStringList AalImageEncoderControl::supportedImageCodecs() const
 QList<QSize> AalImageEncoderControl::supportedResolutions(const QImageEncoderSettings &settings, bool *continuous) const
 {
     Q_UNUSED(settings);
+    Q_UNUSED(continuous);
     return QList<QSize>();
 }
 

@@ -21,8 +21,6 @@ SOURCES += tst_aalimagecapturecontrol.cpp \
     ../../src/aalimagecapturecontrol.cpp \
     aalcameraservice.cpp \
     aalimageencodercontrol.cpp \
+    aalmetadatawritercontrol.cpp \
     aalvideorenderercontrol.cpp \
     storagemanager.cpp
-
-SOURCES += \
-    aalmetadatawritercontrol.cpp
