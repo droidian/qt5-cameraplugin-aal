@@ -26,7 +26,7 @@
 #include "aalvideorenderercontrol.h"
 #include "aalviewfindersettingscontrol.h"
 
-#include "camera_compatibility_layer.h"
+#include <hybris/camera/camera_compatibility_layer.h>
 
 #include <QDebug>
 

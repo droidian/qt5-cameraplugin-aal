@@ -20,7 +20,7 @@
 #include <QCameraExposure>
 #include <QCameraFlashControl>
 
-#include "camera_compatibility_layer_capabilities.h"
+#include <hybris/camera/camera_compatibility_layer_capabilities.h>
 
 class AalCameraService;
 struct CameraControl;

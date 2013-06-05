@@ -21,8 +21,8 @@
 #include "aalvideorenderercontrol.h"
 #include "storagemanager.h"
 
-#include <camera_compatibility_layer.h>
-#include <camera_compatibility_layer_capabilities.h>
+#include <hybris/camera/camera_compatibility_layer.h>
+#include <hybris/camera/camera_compatibility_layer_capabilities.h>
 
 #include <QDir>
 #include <QFile>
