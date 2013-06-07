@@ -1,3 +1,21 @@
+qtubuntu-camera (0.3.3daily13.06.07-0ubuntu1) saucy; urgency=low
+
+  [ Michael Terry ]
+  * Build qtubuntu-camera for all three major arches (amd64 armhf i386)
+    and fix its CamControl pointer to be what qtvideo-node expects. Plus
+    some packaging cleanup.
+
+  [ Ricardo Salveti de Araujo ]
+  * Fixing hybris include paths and start depending on platform-api.
+
+  [ Guenter Schwann ]
+  * Compile fix for screen resolution API changes.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 49
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 07 Jun 2013 04:01:55 +0000
+
 qtubuntu-camera (0.3.3daily13.05.22ubuntu.unity.next-0ubuntu1) raring; urgency=low
 
   [ Robert Bruce Park ]
