@@ -7,6 +7,7 @@ SUBDIRS += \
     aalcamerafocuscontrol \
     aalcamerazoomcontrol \
     aalimagecapturecontrol \
+    aalmediarecordercontrol \
     aalvideodeviceselectorcontrol \
     aalviewfindersettingscontrol \
     storagemanager

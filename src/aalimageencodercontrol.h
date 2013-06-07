@@ -41,6 +41,8 @@ public:
     void setSize(const QSize &size);
     void resetAllSettings();
 
+    void enablePhotoMode();
+
     static void setPictureSizeCb(void *ctx, int width, int height);
 
 private:

@@ -21,10 +21,12 @@
 #include "aalcamerazoomcontrol.h"
 #include "aalimagecapturecontrol.h"
 #include "aalimageencodercontrol.h"
+#include "aalmediarecordercontrol.h"
 #include "aalmetadatawritercontrol.h"
 #include "aalvideodeviceselectorcontrol.h"
 #include "aalvideorenderercontrol.h"
 #include "aalviewfindersettingscontrol.h"
+#include <storagemanager.h>
 
 #include <hybris/camera/camera_compatibility_layer.h>
 
@@ -40,12 +42,14 @@ AalCameraService::AalCameraService(QObject *parent):
 {
     m_service = this;
 
+    m_storageManager = new StorageManager;
     m_cameraControl = new AalCameraControl(this);
     m_flashControl = new AalCameraFlashControl(this);
     m_focusControl = new AalCameraFocusControl(this);
     m_zoomControl = new AalCameraZoomControl(this);
     m_imageCaptureControl = new AalImageCaptureControl(this);
     m_imageEncoderControl = new AalImageEncoderControl(this);
+    m_mediaRecorderControl = new AalMediaRecorderControl(this);
     m_metadataWriter = new AalMetaDataWriterControl(this);
     m_deviceSelectControl = new AalVideoDeviceSelectorControl(this);
     m_videoOutput = new AalVideoRendererControl(this);
@@ -62,6 +66,7 @@ AalCameraService::~AalCameraService()
     delete m_zoomControl;
     delete m_imageEncoderControl;
     delete m_imageCaptureControl;
+    delete m_mediaRecorderControl;
     delete m_metadataWriter;
     delete m_deviceSelectControl;
     delete m_videoOutput;
@@ -70,6 +75,7 @@ AalCameraService::~AalCameraService()
         android_camera_delete(m_oldAndroidControl);
     if (m_androidControl)
         android_camera_delete(m_androidControl);
+    delete m_storageManager;
 }
 
 QMediaControl *AalCameraService::requestControl(const char *name)
@@ -88,6 +94,9 @@ QMediaControl *AalCameraService::requestControl(const char *name)
 
     if (qstrcmp(name, QImageEncoderControl_iid) == 0)
         return m_imageEncoderControl;
+
+    if (qstrcmp(name, QMediaRecorderControl_iid) == 0)
+        return m_mediaRecorderControl;
 
     if (qstrcmp(name, QMetaDataWriterControl_iid) == 0)
         return m_metadataWriter;
@@ -115,6 +124,11 @@ void AalCameraService::releaseControl(QMediaControl *control)
 CameraControl *AalCameraService::androidControl()
 {
     return m_androidControl;
+}
+
+StorageManager *AalCameraService::storageManager()
+{
+    return m_storageManager;
 }
 
 bool AalCameraService::connectCamera()
@@ -176,6 +190,23 @@ bool AalCameraService::isCameraActive() const
 bool AalCameraService::isBackCameraUsed() const
 {
     return m_deviceSelectControl->selectedDevice() == 0;
+}
+
+/*!
+ * \brief AalCameraService::enablePhotoMode sets all controls into photo mode
+ */
+void AalCameraService::enablePhotoMode()
+{
+    m_imageEncoderControl->enablePhotoMode();
+    m_focusControl->enablePhotoMode();
+}
+
+/*!
+ * \brief AalCameraService::enableVideoMode sets all controls into video mode
+ */
+void AalCameraService::enableVideoMode()
+{
+    m_focusControl->enableVideoMode();
 }
 
 void AalCameraService::updateCaptureReady()

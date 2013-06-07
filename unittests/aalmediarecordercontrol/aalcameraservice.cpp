@@ -15,6 +15,9 @@
  */
 
 #include "aalcameraservice.h"
+#include "storagemanager.h"
+
+#include "camera_control.h"
 
 AalCameraService *AalCameraService::m_service = 0;
 
@@ -23,10 +26,13 @@ AalCameraService::AalCameraService(QObject *parent) :
     m_androidControl(0),
     m_androidListener(0)
 {
+    m_storageManager = new StorageManager;
 }
 
 AalCameraService::~AalCameraService()
 {
+    delete m_storageManager;
+    delete m_androidControl;
 }
 
 QMediaControl *AalCameraService::requestControl(const char *name)
@@ -47,6 +53,7 @@ CameraControl *AalCameraService::androidControl()
 
 bool AalCameraService::connectCamera()
 {
+    m_androidControl = new CameraControl;
     return true;
 }
 
@@ -54,25 +61,29 @@ void AalCameraService::disconnectCamera()
 {
 }
 
+void AalCameraService::initControls(CameraControl *camControl, CameraControlListener *listener)
+{
+    delete m_androidControl;
+    m_androidControl = 0;
+    Q_UNUSED(camControl);
+    Q_UNUSED(listener);
+}
+
 bool AalCameraService::isCameraActive() const
 {
     return true;
 }
 
-void AalCameraService::enablePhotoMode()
+bool AalCameraService::isBackCameraUsed() const
 {
-}
-
-void AalCameraService::enableVideoMode()
-{
-}
-
-void AalCameraService::initControls(CameraControl *camControl, CameraControlListener *listener)
-{
-    Q_UNUSED(camControl);
-    Q_UNUSED(listener);
+    return true;
 }
 
 void AalCameraService::updateCaptureReady()
 {
+}
+
+StorageManager *AalCameraService::storageManager()
+{
+    return m_storageManager;
 }

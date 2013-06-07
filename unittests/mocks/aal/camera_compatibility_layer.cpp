@@ -19,14 +19,10 @@
 #include <hybris/camera/camera_compatibility_layer.h>
 #include <hybris/camera/camera_compatibility_layer_capabilities.h>
 
+#include "camera_control.h"
+
 #include <QtGlobal>
 #include <QDebug>
-
-struct CameraControl
-{
-    CameraControlListener* listener;
-};
-
 
 void crashTest(CameraControl* control)
 {
@@ -51,6 +47,18 @@ CameraControl* android_camera_connect_to(CameraType camera_type, CameraControlLi
 void android_camera_disconnect(CameraControl* control)
 {
     crashTest(control);
+}
+
+int android_camera_lock(CameraControl* control)
+{
+    Q_UNUSED(control);
+    return 0;
+}
+
+int android_camera_unlock(CameraControl* control)
+{
+    Q_UNUSED(control);
+    return 0;
 }
 
 void android_camera_delete(CameraControl* control)

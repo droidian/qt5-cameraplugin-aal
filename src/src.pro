@@ -10,7 +10,11 @@ target.path += $$[QT_INSTALL_PLUGINS]/$${PLUGIN_TYPE}
 INSTALLS = target
 
 INCLUDEPATH += /usr/include/libqtubuntu-media-signals
-LIBS += -L/usr/lib/arm-linux-gnueabi -lcamera -lubuntu_application_api -lqtubuntu-media-signals
+LIBS += -L/usr/lib/arm-linux-gnueabi
+        -lcamera
+        -lmedia
+        -lubuntu_application_api
+        -lqtubuntu-media-signals
 
 OTHER_FILES += aalcamera.json
 
@@ -23,6 +27,7 @@ HEADERS += \
     aalcamerazoomcontrol.h \
     aalimagecapturecontrol.h \
     aalimageencodercontrol.h \
+    aalmediarecordercontrol.h \
     aalmetadatawritercontrol.h \
     aalvideodeviceselectorcontrol.h \
     aalvideorenderercontrol.h \
@@ -38,6 +43,7 @@ SOURCES += \
     aalcamerazoomcontrol.cpp \
     aalimagecapturecontrol.cpp \
     aalimageencodercontrol.cpp \
+    aalmediarecordercontrol.cpp \
     aalmetadatawritercontrol.cpp \
     aalvideodeviceselectorcontrol.cpp \
     aalvideorenderercontrol.cpp \
