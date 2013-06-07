@@ -16,7 +16,7 @@
 
 #include "aalcameraservice.h"
 #include <aalcamerazoomcontrol.h>
-#include <camera_compatibility_layer.h>
+#include <hybris/camera/camera_compatibility_layer.h>
 
 AalCameraService *AalCameraService::m_service = 0;
 

@@ -28,7 +28,7 @@
 #include "aalviewfindersettingscontrol.h"
 #include <storagemanager.h>
 
-#include "camera_compatibility_layer.h"
+#include <hybris/camera/camera_compatibility_layer.h>
 
 #include <QDebug>
 

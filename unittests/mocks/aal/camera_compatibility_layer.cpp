@@ -16,8 +16,8 @@
  * Authored by: Thomas Voss <thomas.voss@canonical.com>
  */
 
-#include "camera_compatibility_layer.h"
-#include "camera_compatibility_layer_capabilities.h"
+#include <hybris/camera/camera_compatibility_layer.h>
+#include <hybris/camera/camera_compatibility_layer_capabilities.h>
 
 #include "camera_control.h"
 

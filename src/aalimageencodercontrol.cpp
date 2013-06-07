@@ -17,7 +17,7 @@
 #include "aalimageencodercontrol.h"
 #include "aalcameraservice.h"
 
-#include "camera_compatibility_layer_capabilities.h"
+#include <hybris/camera/camera_compatibility_layer_capabilities.h>
 
 #include <unistd.h>
 

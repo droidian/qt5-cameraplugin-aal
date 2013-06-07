@@ -22,8 +22,8 @@
 #include <QFile>
 #include <QTimer>
 
-#include <camera_compatibility_layer.h>
-#include <recorder_compatibility_layer.h>
+#include <hybris/camera/camera_compatibility_layer.h>
+#include <hybris/camera/recorder_compatibility_layer.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>

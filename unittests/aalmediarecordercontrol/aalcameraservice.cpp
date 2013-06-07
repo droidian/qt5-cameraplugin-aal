@@ -17,7 +17,7 @@
 #include "aalcameraservice.h"
 #include "storagemanager.h"
 
-#include "camera_control.h"
+#include <hybris/internal/camera_control.h>
 
 AalCameraService *AalCameraService::m_service = 0;
 
