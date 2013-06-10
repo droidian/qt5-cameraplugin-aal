@@ -39,7 +39,8 @@ bool AalCameraFlashControl::isFlashModeSupported(QCameraExposure::FlashModes mod
 {
     if (m_service->isBackCameraUsed()) {
         if (mode==QCameraExposure::FlashAuto || mode==QCameraExposure::FlashOff ||
-                mode==QCameraExposure::FlashOn || mode==QCameraExposure::FlashVideoLight) {
+                mode==QCameraExposure::FlashOn || mode==QCameraExposure::FlashVideoLight ||
+                mode==QCameraExposure::FlashTorch) {
             return true;
         }
     } else {
@@ -98,6 +99,7 @@ FlashMode AalCameraFlashControl::qt2Android(QCameraExposure::FlashModes mode)
     case QCameraExposure::FlashOn:
         return FLASH_MODE_ON;
     case QCameraExposure::FlashVideoLight:
+    case QCameraExposure::FlashTorch:
         return FLASH_MODE_TORCH;
     case QCameraExposure::FlashAuto:
     default:
@@ -113,7 +115,7 @@ QCameraExposure::FlashModes AalCameraFlashControl::android2Qt(FlashMode mode)
     case FLASH_MODE_ON:
         return QCameraExposure::FlashOn;
     case FLASH_MODE_TORCH:
-        return QCameraExposure::FlashVideoLight;
+        return QCameraExposure::FlashTorch;
     case FLASH_MODE_AUTO:
     default:
         return QCameraExposure::FlashAuto;
