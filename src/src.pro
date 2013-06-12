@@ -10,11 +10,11 @@ target.path += $$[QT_INSTALL_PLUGINS]/$${PLUGIN_TYPE}
 INSTALLS = target
 
 INCLUDEPATH += /usr/include/libqtubuntu-media-signals
-LIBS += -L/usr/lib/arm-linux-gnueabi
-        -lcamera
-        -lmedia
-        -lubuntu_application_api
-        -lqtubuntu-media-signals
+LIBS += \
+    -lcamera \
+    -lmedia \
+    -lubuntu_application_api \
+    -lqtubuntu-media-signals
 
 OTHER_FILES += aalcamera.json
 
