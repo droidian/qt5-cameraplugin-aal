@@ -1,6 +1,5 @@
 include(../../coverage.pri)
 
-CONFIG += testcase
 CONFIG += no_private_qt_headers_warning
 TARGET = tst_aalcameraflashcontrol
 
@@ -16,3 +15,7 @@ HEADERS += ../../src/aalcameraflashcontrol.h \
 SOURCES += tst_aalcameraflashcontrol.cpp \
     ../../src/aalcameraflashcontrol.cpp \
     aalcameraservice.cpp
+
+check.depends = $${TARGET}
+check.commands = ./$${TARGET}
+QMAKE_EXTRA_TARGETS += check

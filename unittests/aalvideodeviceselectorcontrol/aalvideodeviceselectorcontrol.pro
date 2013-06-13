@@ -1,6 +1,5 @@
 include(../../coverage.pri)
 
-CONFIG += testcase
 CONFIG += no_private_qt_headers_warning
 TARGET = tst_aalvideodeviceselectorcontrol
 
@@ -18,3 +17,7 @@ SOURCES += tst_aalvideodeviceselectorcontrol.cpp \
     aalcameraservice.cpp \
     aalimageencodercontrol.cpp \
     aalviewfindersettingscontrol.cpp
+
+check.depends = $${TARGET}
+check.commands = ./$${TARGET}
+QMAKE_EXTRA_TARGETS += check

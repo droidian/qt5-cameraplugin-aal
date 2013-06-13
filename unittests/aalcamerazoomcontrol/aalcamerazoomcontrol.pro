@@ -1,6 +1,5 @@
 include(../../coverage.pri)
 
-CONFIG += testcase
 CONFIG += no_private_qt_headers_warning
 TARGET = tst_aalcamerazoomcontrol
 
@@ -16,3 +15,7 @@ HEADERS += ../../src/aalcamerazoomcontrol.h \
 SOURCES += tst_aalcamerazoomcontrol.cpp \
     ../../src/aalcamerazoomcontrol.cpp \
     aalcameraservice.cpp
+
+check.depends = $${TARGET}
+check.commands = ./$${TARGET}
+QMAKE_EXTRA_TARGETS += check

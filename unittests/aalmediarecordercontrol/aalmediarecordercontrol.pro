@@ -1,6 +1,5 @@
 include(../../coverage.pri)
 
-CONFIG += testcase
 CONFIG += no_private_qt_headers_warning
 TARGET = tst_aalmediarecordercontrol
 
@@ -18,3 +17,7 @@ SOURCES += tst_aalmediarecordercontrol.cpp \
     ../../src/aalmediarecordercontrol.cpp \
     aalcameraservice.cpp \
     storagemanager.cpp
+
+check.depends = $${TARGET}
+check.commands = ./$${TARGET}
+QMAKE_EXTRA_TARGETS += check
