@@ -1,3 +1,23 @@
+qtubuntu-camera (0.3.3daily13.06.12-0ubuntu1) saucy; urgency=low
+
+  [ Guenter Schwann ]
+  * Fix crash on startup.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 53
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 12 Jun 2013 16:39:04 +0000
+
+qtubuntu-camera (0.3.3daily13.06.11-0ubuntu1) saucy; urgency=low
+
+  [ Guenter Schwann ]
+  * First version to support video recording.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 51
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 11 Jun 2013 04:05:18 +0000
+
 qtubuntu-camera (0.3.3daily13.06.07-0ubuntu1) saucy; urgency=low
 
   [ Michael Terry ]
