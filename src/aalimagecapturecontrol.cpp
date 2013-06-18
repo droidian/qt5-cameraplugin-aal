@@ -87,11 +87,7 @@ int AalImageCaptureControl::capture(const QString &fileName)
         return m_lastRequestId;
     }
 
-    int rotation = m_service->metadataWriterControl()->orientation();
-    rotation = rotation % 360;
-    // the front camera rotates the other way round
-    if (!m_service->isBackCameraUsed())
-        rotation = (360 - rotation) % 360;
+    int rotation = m_service->metadataWriterControl()->correctedOrientation();
     android_camera_set_rotation(m_service->androidControl(), rotation);
 
     android_camera_take_snapshot(m_service->androidControl());
@@ -99,6 +95,8 @@ int AalImageCaptureControl::capture(const QString &fileName)
     m_service->updateCaptureReady();
 
     m_service->videoOutputControl()->createPreview();
+
+    m_service->metadataWriterControl()->clearAllMetaData();
 
     return m_lastRequestId;
 }

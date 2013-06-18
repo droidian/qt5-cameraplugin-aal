@@ -14,8 +14,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "aalcameraservice.h"
 #include "aalmediarecordercontrol.h"
+#include "aalcameraservice.h"
+#include "aalmetadatawritercontrol.h"
 #include "storagemanager.h"
 
 #include <QDebug>
@@ -35,6 +36,13 @@ const int AalMediaRecorderControl::RECORDER_INITIALIZATION_ERROR;
 
 const int AalMediaRecorderControl::DURATION_UPDATE_INTERVALL;
 
+const QLatin1String AalMediaRecorderControl::PARAM_AUDIO_BITRATE = QLatin1String("audio-param-encoding-bitrate");
+const QLatin1String AalMediaRecorderControl::PARAM_AUDIO_CHANNELS = QLatin1String("audio-param-number-of-channels");
+const QLatin1String AalMediaRecorderControl::PARAM_AUTIO_SAMPLING = QLatin1String("audio-param-sampling-rate");
+const QLatin1String AalMediaRecorderControl::PARAM_LATITUDE = QLatin1String("param-geotag-latitude");
+const QLatin1String AalMediaRecorderControl::PARAM_LONGITUDE = QLatin1String("param-geotag-longitude");
+const QLatin1String AalMediaRecorderControl::PARAM_ORIENTATION = QLatin1String("video-param-rotation-angle-degrees");
+const QLatin1String AalMediaRecorderControl::PARAM_VIDEO_BITRATE = QLatin1String("video-param-encoding-bitrate");
 /*!
  * \brief AalMediaRecorderControl::AalMediaRecorderControl
  * \param service
@@ -353,9 +361,15 @@ int AalMediaRecorderControl::startRecording()
     }
 
     // FIXME the quality parameters should be checked from the MediaProfiles
-    QString parameters;
-    parameters.append("video-param-encoding-bitrate=6000000");
-    android_recorder_setParameters(m_mediaRecorder, parameters.toLocal8Bit().data());
+    setParameter(PARAM_VIDEO_BITRATE, 6000000);
+    setParameter(PARAM_AUDIO_BITRATE, 48000);
+    setParameter(PARAM_AUDIO_CHANNELS, 2);
+    setParameter(PARAM_AUTIO_SAMPLING, 96000);
+    if (m_service->metadataWriterControl()) {
+        int rotation = m_service->metadataWriterControl()->correctedOrientation();
+        setParameter(PARAM_ORIENTATION, rotation);
+        m_service->metadataWriterControl()->clearAllMetaData();
+    }
 
     ret = android_recorder_prepare(m_mediaRecorder);
     if (ret < 0) {
@@ -404,4 +418,16 @@ void AalMediaRecorderControl::stopRecording()
     Q_EMIT stateChanged(m_currentState);
 
     deleteRecorder();
+}
+
+/*!
+ * \brief AalMediaRecorderControl::setParameter convenient function to set parameters
+ * \param parameter Name of the parameter
+ * \param value value to set
+ */
+void AalMediaRecorderControl::setParameter(const QString &parameter, int value)
+{
+    Q_ASSERT(m_mediaRecorder);
+    QString param =  parameter + QChar('=') + QString::number(value);
+    android_recorder_setParameters(m_mediaRecorder, param.toLocal8Bit().data());
 }
