@@ -23,6 +23,7 @@ AalCameraService *AalCameraService::m_service = 0;
 
 AalCameraService::AalCameraService(QObject *parent) :
     QMediaService(parent),
+    m_metadataWriter(0),
     m_androidControl(0),
     m_androidListener(0)
 {

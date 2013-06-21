@@ -97,3 +97,26 @@ int AalMetaDataWriterControl::orientation() const
 {
     return m_orientation;
 }
+
+/*!
+ * \brief AalMetaDataWriterControl::correctedOrientation retusn the orientation
+ * depending on which camera is active, the value is adapted
+ * \return
+ */
+int AalMetaDataWriterControl::correctedOrientation() const
+{
+    int rotation = m_orientation % 360;
+    // the front camera rotates the other way round
+    if (!m_service->isBackCameraUsed())
+        rotation = (360 - rotation) % 360;
+    return rotation;
+}
+
+/*!
+ * \brief AalMetaDataWriterControl::clearMetaData removes all metadata
+ */
+void AalMetaDataWriterControl::clearAllMetaData()
+{
+    m_orientation = 0;
+    m_metaData.clear();
+}
