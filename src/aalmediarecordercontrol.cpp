@@ -16,6 +16,8 @@
 
 #include "aalcameraservice.h"
 #include "aalmediarecordercontrol.h"
+#include "aalvideoencodersettingscontrol.h"
+#include "aalviewfindersettingscontrol.h"
 #include "storagemanager.h"
 
 #include <QDebug>
@@ -23,6 +25,7 @@
 #include <QTimer>
 
 #include <hybris/camera/camera_compatibility_layer.h>
+#include <hybris/camera/camera_compatibility_layer_capabilities.h>
 #include <hybris/media/recorder_compatibility_layer.h>
 
 #include <sys/types.h>
@@ -44,7 +47,6 @@ AalMediaRecorderControl::AalMediaRecorderControl(AalCameraService *service, QObj
    : QMediaRecorderControl(parent),
     m_service(service),
     m_mediaRecorder(0),
-    m_frameSize(1280, 720),
     m_duration(0),
     m_currentState(QMediaRecorder::StoppedState),
     m_currentStatus(QMediaRecorder::UnloadedStatus),
@@ -136,7 +138,7 @@ qreal AalMediaRecorderControl::volume() const
  * \brief AalMediaRecorderControl::init makes sure the mediarecorder is
  * initialized
  */
-void AalMediaRecorderControl::init()
+void AalMediaRecorderControl::initRecorder()
 {
     if (m_mediaRecorder == 0) {
         m_mediaRecorder = android_media_new_recorder();
@@ -184,15 +186,6 @@ void AalMediaRecorderControl::errorCB(void *context)
     Q_UNUSED(context);
     QMetaObject::invokeMethod(AalCameraService::instance()->mediaRecorderControl(),
                               "handleError", Qt::QueuedConnection);
-}
-
-/*!
- * \brief AalMediaRecorderControl::getAspectRatio returns the curent used aspect ratio
- * \return
- */
-float AalMediaRecorderControl::getAspectRatio() const
-{
-    return (float)m_frameSize.width() / (float)m_frameSize.height();
 }
 
 /*!
@@ -280,7 +273,7 @@ int AalMediaRecorderControl::startRecording()
     m_duration = 0;
     Q_EMIT durationChanged(m_duration);
 
-    init();
+    initRecorder();
     if (m_mediaRecorder == 0) {
         deleteRecorder();
         return RECORDER_NOT_AVAILABLE_ERROR;
@@ -348,8 +341,10 @@ int AalMediaRecorderControl::startRecording()
         return RECORDER_INITIALIZATION_ERROR;
     }
 
-    // FIXME check supported sizes via MediaProfiles
-    ret = android_recorder_setVideoSize(m_mediaRecorder, m_frameSize.width(), m_frameSize.height());
+    QVideoEncoderSettings settings = m_service->videoEncoderControl()->videoSettings();
+    QSize resolution = settings.resolution();
+
+    ret = android_recorder_setVideoSize(m_mediaRecorder, resolution.width(), resolution.height());
     if (ret < 0) {
         deleteRecorder();
         Q_EMIT error(RECORDER_INITIALIZATION_ERROR, "android_recorder_setVideoSize() failed");

@@ -11,10 +11,12 @@ INCLUDEPATH += ../../src
 INCLUDEPATH += ../mocks/aal
 
 HEADERS += ../../src/aalvideodeviceselectorcontrol.h \
-    ../../src/aalcameraservice.h
+    ../../src/aalcameraservice.h \
+    ../../src/aalvideoencodersettingscontrol.h
 
 SOURCES += tst_aalvideodeviceselectorcontrol.cpp \
     ../../src/aalvideodeviceselectorcontrol.cpp \
     aalcameraservice.cpp \
     aalimageencodercontrol.cpp \
-    aalviewfindersettingscontrol.cpp
+    aalviewfindersettingscontrol.cpp \
+    aalvideoencodersettingscontrol_stub.cpp

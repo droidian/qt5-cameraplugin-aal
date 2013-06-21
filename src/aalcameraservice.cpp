@@ -24,6 +24,7 @@
 #include "aalmediarecordercontrol.h"
 #include "aalmetadatawritercontrol.h"
 #include "aalvideodeviceselectorcontrol.h"
+#include "aalvideoencodersettingscontrol.h"
 #include "aalvideorenderercontrol.h"
 #include "aalviewfindersettingscontrol.h"
 #include <storagemanager.h>
@@ -52,6 +53,7 @@ AalCameraService::AalCameraService(QObject *parent):
     m_mediaRecorderControl = new AalMediaRecorderControl(this);
     m_metadataWriter = new AalMetaDataWriterControl(this);
     m_deviceSelectControl = new AalVideoDeviceSelectorControl(this);
+    m_videoEncoderControl = new AalVideoEncoderSettingsControl(this);
     m_videoOutput = new AalVideoRendererControl(this);
     m_viewfinderControl = new AalViewfinderSettingsControl(this);
 }
@@ -69,6 +71,7 @@ AalCameraService::~AalCameraService()
     delete m_mediaRecorderControl;
     delete m_metadataWriter;
     delete m_deviceSelectControl;
+    delete m_videoEncoderControl;
     delete m_videoOutput;
     delete m_viewfinderControl;
     if (m_oldAndroidControl)
@@ -106,6 +109,9 @@ QMediaControl *AalCameraService::requestControl(const char *name)
 
     if (qstrcmp(name, QVideoDeviceSelectorControl_iid) == 0)
         return m_deviceSelectControl;
+
+    if (qstrcmp(name, QVideoEncoderSettingsControl_iid) == 0)
+        return m_videoEncoderControl;
 
     if (qstrcmp(name, QVideoRendererControl_iid) == 0)
         return m_videoOutput;
@@ -243,10 +249,11 @@ void AalCameraService::initControls(CameraControl *camControl, CameraControlList
     m_flashControl->init(camControl);
     m_focusControl->init(camControl, listener);
     m_zoomControl->init(camControl, listener);
+    m_videoEncoderControl->init(camControl, listener);
     if (m_cameraControl->captureMode() == QCamera::CaptureStillImage)
         m_viewfinderControl->setAspectRatio(m_imageCaptureControl->getAspectRatio());
     else
-        m_viewfinderControl->setAspectRatio(m_mediaRecorderControl->getAspectRatio());
+        m_viewfinderControl->setAspectRatio(m_videoEncoderControl->getAspectRatio());
     m_viewfinderControl->init(camControl, listener);
     m_videoOutput->init(camControl, listener);
 }

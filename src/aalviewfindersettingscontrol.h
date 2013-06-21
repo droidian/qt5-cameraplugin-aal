@@ -37,6 +37,7 @@ public:
 
     void setSize(const QSize &size);
     QSize currentSize() const;
+    const QList<QSize> &supportedSizes() const;
 
     void setAspectRatio(float ratio);
 
@@ -52,7 +53,7 @@ private:
     QSize m_currentSize;
     float m_aspectRatio;
     int m_currentFPS;
-    QList<QSize> m_availableSizes;
+    mutable QList<QSize> m_availableSizes;
     int m_minFPS;
     int m_maxFPS;
 };

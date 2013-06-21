@@ -128,6 +128,26 @@ QSize AalViewfinderSettingsControl::currentSize() const
 }
 
 /*!
+ * \brief AalViewfinderSettingsControl::supportedSizes returns the supported viewfinder
+ * sizes
+ * \return
+ */
+const QList<QSize> &AalViewfinderSettingsControl::supportedSizes() const
+{
+    if (m_availableSizes.isEmpty()) {
+        CameraControl *cc = m_service->androidControl();
+        if (cc) {
+            AalViewfinderSettingsControl *vfControl = const_cast<AalViewfinderSettingsControl*>(this);
+            android_camera_enumerate_supported_preview_sizes(cc,
+                                                             &AalViewfinderSettingsControl::sizeCB,
+                                                             vfControl);
+        }
+    }
+
+    return m_availableSizes;
+}
+
+/*!
  * \brief AalViewfinderSettingsControl::setAspectRatio sets the viewfinder's aspect ratio
  * \param ratio the aspect ratio that should be used
  */

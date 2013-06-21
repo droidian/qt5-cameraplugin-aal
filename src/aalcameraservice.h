@@ -28,6 +28,7 @@ class AalImageEncoderControl;
 class AalMediaRecorderControl;
 class AalMetaDataWriterControl;
 class AalVideoDeviceSelectorControl;
+class AalVideoEncoderSettingsControl;
 class AalVideoRendererControl;
 class AalViewfinderSettingsControl;
 class QCameraControl;
@@ -56,6 +57,7 @@ public:
     AalMediaRecorderControl *mediaRecorderControl() const { return m_mediaRecorderControl; }
     AalMetaDataWriterControl *metadataWriterControl() const { return m_metadataWriter; }
     AalVideoDeviceSelectorControl *deviceSelector() const { return m_deviceSelectControl; }
+    AalVideoEncoderSettingsControl *videoEncoderControl() const { return m_videoEncoderControl; };
     AalVideoRendererControl *videoOutputControl() const { return m_videoOutput; }
     AalViewfinderSettingsControl *viewfinderControl() const { return m_viewfinderControl; }
 
@@ -91,6 +93,7 @@ private:
     AalMediaRecorderControl *m_mediaRecorderControl;
     AalMetaDataWriterControl *m_metadataWriter;
     AalVideoDeviceSelectorControl *m_deviceSelectControl;
+    AalVideoEncoderSettingsControl *m_videoEncoderControl;
     AalVideoRendererControl *m_videoOutput;
     AalViewfinderSettingsControl *m_viewfinderControl;
 
