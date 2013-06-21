@@ -18,6 +18,7 @@
 #define AALMEDIARECORDERCONTROL_H
 
 #include <QMediaRecorderControl>
+#include <QSize>
 #include <QUrl>
 
 #include <stdint.h>
@@ -47,6 +48,8 @@ public:
 
     static void errorCB(void* context);
 
+    float getAspectRatio() const;
+
 public Q_SLOTS:
     virtual void setMuted(bool muted);
     virtual void setState(QMediaRecorder::State state);
@@ -64,6 +67,7 @@ private:
     AalCameraService *m_service;
     MediaRecorderWrapper *m_mediaRecorder;
     QUrl m_outputLocation;
+    QSize m_frameSize;
     qint64 m_duration;
     QMediaRecorder::State m_currentState;
     QMediaRecorder::Status m_currentStatus;

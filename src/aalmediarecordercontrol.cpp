@@ -44,6 +44,7 @@ AalMediaRecorderControl::AalMediaRecorderControl(AalCameraService *service, QObj
    : QMediaRecorderControl(parent),
     m_service(service),
     m_mediaRecorder(0),
+    m_frameSize(1280, 720),
     m_duration(0),
     m_currentState(QMediaRecorder::StoppedState),
     m_currentStatus(QMediaRecorder::UnloadedStatus),
@@ -183,6 +184,15 @@ void AalMediaRecorderControl::errorCB(void *context)
     Q_UNUSED(context);
     QMetaObject::invokeMethod(AalCameraService::instance()->mediaRecorderControl(),
                               "handleError", Qt::QueuedConnection);
+}
+
+/*!
+ * \brief AalMediaRecorderControl::getAspectRatio returns the curent used aspect ratio
+ * \return
+ */
+float AalMediaRecorderControl::getAspectRatio() const
+{
+    return (float)m_frameSize.width() / (float)m_frameSize.height();
 }
 
 /*!
@@ -339,7 +349,7 @@ int AalMediaRecorderControl::startRecording()
     }
 
     // FIXME check supported sizes via MediaProfiles
-    ret = android_recorder_setVideoSize(m_mediaRecorder, 1280, 720);
+    ret = android_recorder_setVideoSize(m_mediaRecorder, m_frameSize.width(), m_frameSize.height());
     if (ret < 0) {
         deleteRecorder();
         Q_EMIT error(RECORDER_INITIALIZATION_ERROR, "android_recorder_setVideoSize() failed");

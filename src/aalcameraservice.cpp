@@ -197,6 +197,11 @@ bool AalCameraService::isBackCameraUsed() const
  */
 void AalCameraService::enablePhotoMode()
 {
+    // FIXME change the viewfinder resolution without restarting the camera
+    m_service->disconnectCamera();
+    if (m_service->isCameraActive())
+        m_service->connectCamera();
+
     m_imageEncoderControl->enablePhotoMode();
     m_focusControl->enablePhotoMode();
 }
@@ -206,6 +211,11 @@ void AalCameraService::enablePhotoMode()
  */
 void AalCameraService::enableVideoMode()
 {
+    // FIXME change the viewfinder resolution without restarting the camera
+    m_service->disconnectCamera();
+    if (m_service->isCameraActive())
+        m_service->connectCamera();
+
     m_focusControl->enableVideoMode();
 }
 
@@ -233,7 +243,10 @@ void AalCameraService::initControls(CameraControl *camControl, CameraControlList
     m_flashControl->init(camControl);
     m_focusControl->init(camControl, listener);
     m_zoomControl->init(camControl, listener);
-    m_viewfinderControl->setAspectRatio(m_imageCaptureControl->getAspectRatio());
+    if (m_cameraControl->captureMode() == QCamera::CaptureStillImage)
+        m_viewfinderControl->setAspectRatio(m_imageCaptureControl->getAspectRatio());
+    else
+        m_viewfinderControl->setAspectRatio(m_mediaRecorderControl->getAspectRatio());
     m_viewfinderControl->init(camControl, listener);
     m_videoOutput->init(camControl, listener);
 }
