@@ -18,7 +18,7 @@ HEADERS += ../../src/aalmediarecordercontrol.h \
 
 SOURCES += tst_aalmediarecordercontrol.cpp \
     ../../src/aalmediarecordercontrol.cpp \
-    aalcameraservice.cpp \
-    aalvideoencodersettingscontrol_stub.cpp \
+    ../stubs/aalcameraservice_stub.cpp \
+    ../stubs/aalvideoencodersettingscontrol_stub.cpp \
     ../stubs/aalmetadatawritercontrol_stub.cpp \
-    storagemanager.cpp
+    ../stubs/storagemanager_stub.cpp

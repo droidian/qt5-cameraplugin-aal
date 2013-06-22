@@ -52,6 +52,7 @@ private:
 
     static const QSize DEFAULT_SIZE;
     static const int DEFAULT_FPS;
+    static const QString DEFAULT_CODEC;
 };
 
 #endif // AALVIDEOENCODERSETTINGSCONTROL_H

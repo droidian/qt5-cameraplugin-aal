@@ -22,6 +22,7 @@
 
 const QSize AalVideoEncoderSettingsControl::DEFAULT_SIZE = QSize(1280,720);
 const int AalVideoEncoderSettingsControl::DEFAULT_FPS = 30;
+const QString AalVideoEncoderSettingsControl::DEFAULT_CODEC = QString("H.264");
 
 /*!
  * \brief AalVideoEncoderSettingsControl::AalVideoEncoderSettingsControl
@@ -88,7 +89,7 @@ QStringList AalVideoEncoderSettingsControl::supportedVideoCodecs() const
 {
     // FIXME get data from android
     QStringList codecs;
-    codecs << QString("H.264");
+    codecs << DEFAULT_CODEC;
     return codecs;
 }
 
@@ -145,7 +146,7 @@ void AalVideoEncoderSettingsControl::resetAllSettings()
 
     int videoBitRate = 7 * DEFAULT_SIZE.width() * DEFAULT_SIZE.height();
     m_settings.setBitRate(videoBitRate);
-    m_settings.setCodec(QString("H.264"));
+    m_settings.setCodec(DEFAULT_CODEC);
     m_settings.setFrameRate(DEFAULT_FPS);
     m_settings.setResolution(DEFAULT_SIZE.width(), DEFAULT_SIZE.height());
 }

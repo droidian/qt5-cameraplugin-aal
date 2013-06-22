@@ -19,4 +19,4 @@ SOURCES += tst_aalvideodeviceselectorcontrol.cpp \
     aalcameraservice.cpp \
     aalimageencodercontrol.cpp \
     aalviewfindersettingscontrol.cpp \
-    aalvideoencodersettingscontrol_stub.cpp
+    ../stubs/aalvideoencodersettingscontrol_stub.cpp
