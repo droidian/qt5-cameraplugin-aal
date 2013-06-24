@@ -66,8 +66,6 @@ private:
     float getScreenAspectRatio();
     void getPriorityAspectRatios();
     void saveJpeg(void* data, uint32_t dataSize);
-    bool imageIsInGallery(const QString &fileName) const;
-    bool saveThumbnail(const uchar *data, int dataSize);
 
     AalCameraService *m_service;
     AalCameraControl *m_cameraControl;
