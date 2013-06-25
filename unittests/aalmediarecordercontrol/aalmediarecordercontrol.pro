@@ -20,9 +20,7 @@ SOURCES += tst_aalmediarecordercontrol.cpp \
     ../stubs/aalcameraservice_stub.cpp \
     ../stubs/aalvideoencodersettingscontrol_stub.cpp \
     ../stubs/aalmetadatawritercontrol_stub.cpp \
-    ../stubs/storagemanager_stub.cpp \
-    aalcameraservice.cpp \
-    storagemanager.cpp
+    ../stubs/storagemanager_stub.cpp 
 
 check.depends = $${TARGET}
 check.commands = ./$${TARGET}
