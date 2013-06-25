@@ -34,13 +34,6 @@
 
 #include <ubuntu/application/ui/display.h>
 
-const int PREVIEW_WIDTH_MAX = 360;
-const int PREVIEW_HEIGHT_MAX = 360;
-const int PREVIEW_QUALITY = 70;
-const char* PREVIEW_FILE_FORMAT = "JPEG";
-const QLatin1String PREVIEW_FILE_EXT = QLatin1String("JPG");
-const QLatin1String PREVIEW_DIR = QLatin1String(".thumbs");
-
 AalImageCaptureControl::AalImageCaptureControl(AalCameraService *service, QObject *parent)
    : QCameraImageCaptureControl(parent),
     m_service(service),
@@ -87,11 +80,7 @@ int AalImageCaptureControl::capture(const QString &fileName)
         return m_lastRequestId;
     }
 
-    int rotation = m_service->metadataWriterControl()->orientation();
-    rotation = rotation % 360;
-    // the front camera rotates the other way round
-    if (!m_service->isBackCameraUsed())
-        rotation = (360 - rotation) % 360;
+    int rotation = m_service->metadataWriterControl()->correctedOrientation();
     android_camera_set_rotation(m_service->androidControl(), rotation);
 
     android_camera_take_snapshot(m_service->androidControl());
@@ -99,6 +88,8 @@ int AalImageCaptureControl::capture(const QString &fileName)
     m_service->updateCaptureReady();
 
     m_service->videoOutputControl()->createPreview();
+
+    m_service->metadataWriterControl()->clearAllMetaData();
 
     return m_lastRequestId;
 }
@@ -269,10 +260,6 @@ void AalImageCaptureControl::saveJpeg(void *data, uint32_t dataSize)
         return;
     }
 
-// disabled, as it curently can't hande the case, when android uses the exif data for the rotation
-//    if (imageIsInGallery(m_pendingCaptureFile))
-//        saveThumbnail((const uchar*)data, dataSize);
-
     QFile finalFile(file.fileName());
     bool ok = finalFile.rename(m_pendingCaptureFile);
     if (!ok) {
@@ -288,39 +275,4 @@ void AalImageCaptureControl::saveJpeg(void *data, uint32_t dataSize)
 
     android_camera_start_preview(m_service->androidControl());
     m_service->updateCaptureReady();
-}
-
-bool AalImageCaptureControl::imageIsInGallery(const QString &fileName) const
-{
-    QFileInfo fi(fileName);
-    return fi.absolutePath() == m_galleryPath;
-}
-
-bool AalImageCaptureControl::saveThumbnail(const uchar *data, int dataSize)
-{
-    QString thumbnailDir = m_galleryPath + "/" + PREVIEW_DIR;
-    QDir tdir(thumbnailDir);
-    if (!tdir.exists()) {
-        tdir.mkpath(thumbnailDir);
-        if (!tdir.exists()) {
-            qWarning() << "Can't create directory for the gallery thumbnail " << thumbnailDir;
-            return false;
-        }
-    }
-
-    QImage fullsized;
-    fullsized.loadFromData(data, dataSize);
-    if (fullsized.isNull()) {
-        qWarning() << "Can't load the full sized image for thumbnail generation";
-        return false;
-    }
-
-    QImage scaled = (fullsized.height() > fullsized.width())
-      ? fullsized.scaledToWidth(PREVIEW_WIDTH_MAX, Qt::SmoothTransformation)
-      : fullsized.scaledToHeight(PREVIEW_HEIGHT_MAX, Qt::SmoothTransformation);
-
-    QFileInfo fi(m_pendingCaptureFile);
-    QString thumbnailName =  thumbnailDir + "/" + fi.completeBaseName() + "_th." + PREVIEW_FILE_EXT;
-
-    return scaled.save(thumbnailName, PREVIEW_FILE_FORMAT, PREVIEW_QUALITY);
 }

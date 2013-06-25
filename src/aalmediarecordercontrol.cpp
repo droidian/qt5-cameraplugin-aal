@@ -14,8 +14,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "aalcameraservice.h"
 #include "aalmediarecordercontrol.h"
+#include "aalcameraservice.h"
+#include "aalmetadatawritercontrol.h"
+#include "aalvideoencodersettingscontrol.h"
+#include "aalviewfindersettingscontrol.h"
 #include "storagemanager.h"
 
 #include <QDebug>
@@ -23,6 +26,7 @@
 #include <QTimer>
 
 #include <hybris/camera/camera_compatibility_layer.h>
+#include <hybris/camera/camera_compatibility_layer_capabilities.h>
 #include <hybris/media/recorder_compatibility_layer.h>
 
 #include <sys/types.h>
@@ -35,6 +39,13 @@ const int AalMediaRecorderControl::RECORDER_INITIALIZATION_ERROR;
 
 const int AalMediaRecorderControl::DURATION_UPDATE_INTERVALL;
 
+const QLatin1String AalMediaRecorderControl::PARAM_AUDIO_BITRATE = QLatin1String("audio-param-encoding-bitrate");
+const QLatin1String AalMediaRecorderControl::PARAM_AUDIO_CHANNELS = QLatin1String("audio-param-number-of-channels");
+const QLatin1String AalMediaRecorderControl::PARAM_AUTIO_SAMPLING = QLatin1String("audio-param-sampling-rate");
+const QLatin1String AalMediaRecorderControl::PARAM_LATITUDE = QLatin1String("param-geotag-latitude");
+const QLatin1String AalMediaRecorderControl::PARAM_LONGITUDE = QLatin1String("param-geotag-longitude");
+const QLatin1String AalMediaRecorderControl::PARAM_ORIENTATION = QLatin1String("video-param-rotation-angle-degrees");
+const QLatin1String AalMediaRecorderControl::PARAM_VIDEO_BITRATE = QLatin1String("video-param-encoding-bitrate");
 /*!
  * \brief AalMediaRecorderControl::AalMediaRecorderControl
  * \param service
@@ -135,7 +146,7 @@ qreal AalMediaRecorderControl::volume() const
  * \brief AalMediaRecorderControl::init makes sure the mediarecorder is
  * initialized
  */
-void AalMediaRecorderControl::init()
+void AalMediaRecorderControl::initRecorder()
 {
     if (m_mediaRecorder == 0) {
         m_mediaRecorder = android_media_new_recorder();
@@ -258,7 +269,8 @@ void AalMediaRecorderControl::setStatus(QMediaRecorder::Status status)
 }
 
 /*!
- * \brief AalMediaRecorderControl::startRecording
+ * \brief AalMediaRecorderControl::startRecording starts a video record.
+ * FIXME add support for recording audio only
  */
 int AalMediaRecorderControl::startRecording()
 {    
@@ -270,13 +282,15 @@ int AalMediaRecorderControl::startRecording()
     m_duration = 0;
     Q_EMIT durationChanged(m_duration);
 
-    init();
+    initRecorder();
     if (m_mediaRecorder == 0) {
         deleteRecorder();
         return RECORDER_NOT_AVAILABLE_ERROR;
     }
 
     setStatus(QMediaRecorder::StartingStatus);
+
+    QVideoEncoderSettings videoSettings = m_service->videoEncoderControl()->videoSettings();
 
     int ret;
     ret = android_recorder_setCamera(m_mediaRecorder, m_service->androidControl());
@@ -312,6 +326,7 @@ int AalMediaRecorderControl::startRecording()
         Q_EMIT error(RECORDER_INITIALIZATION_ERROR, "android_recorder_setAudioEncoder() failed");
         return RECORDER_INITIALIZATION_ERROR;
     }
+    // FIXME set codec from settings
     ret = android_recorder_setVideoEncoder(m_mediaRecorder, ANDROID_VIDEO_ENCODER_H264);
     if (ret < 0) {
         deleteRecorder();
@@ -338,24 +353,30 @@ int AalMediaRecorderControl::startRecording()
         return RECORDER_INITIALIZATION_ERROR;
     }
 
-    // FIXME check supported sizes via MediaProfiles
-    ret = android_recorder_setVideoSize(m_mediaRecorder, 1280, 720);
+    QSize resolution = videoSettings.resolution();
+    ret = android_recorder_setVideoSize(m_mediaRecorder, resolution.width(), resolution.height());
     if (ret < 0) {
         deleteRecorder();
         Q_EMIT error(RECORDER_INITIALIZATION_ERROR, "android_recorder_setVideoSize() failed");
         return RECORDER_INITIALIZATION_ERROR;
     }
-    ret = android_recorder_setVideoFrameRate(m_mediaRecorder, 30);
+    ret = android_recorder_setVideoFrameRate(m_mediaRecorder, videoSettings.frameRate());
     if (ret < 0) {
         deleteRecorder();
         Q_EMIT error(RECORDER_INITIALIZATION_ERROR, "android_recorder_setVideoFrameRate() failed");
         return RECORDER_INITIALIZATION_ERROR;
     }
 
-    // FIXME the quality parameters should be checked from the MediaProfiles
-    QString parameters;
-    parameters.append("video-param-encoding-bitrate=6000000");
-    android_recorder_setParameters(m_mediaRecorder, parameters.toLocal8Bit().data());
+    setParameter(PARAM_VIDEO_BITRATE, videoSettings.bitRate());
+    // FIXME get data from a new AalAudioEncoderSettingsControl
+    setParameter(PARAM_AUDIO_BITRATE, 48000);
+    setParameter(PARAM_AUDIO_CHANNELS, 2);
+    setParameter(PARAM_AUTIO_SAMPLING, 96000);
+    if (m_service->metadataWriterControl()) {
+        int rotation = m_service->metadataWriterControl()->correctedOrientation();
+        setParameter(PARAM_ORIENTATION, rotation);
+        m_service->metadataWriterControl()->clearAllMetaData();
+    }
 
     ret = android_recorder_prepare(m_mediaRecorder);
     if (ret < 0) {
@@ -404,4 +425,16 @@ void AalMediaRecorderControl::stopRecording()
     Q_EMIT stateChanged(m_currentState);
 
     deleteRecorder();
+}
+
+/*!
+ * \brief AalMediaRecorderControl::setParameter convenient function to set parameters
+ * \param parameter Name of the parameter
+ * \param value value to set
+ */
+void AalMediaRecorderControl::setParameter(const QString &parameter, int value)
+{
+    Q_ASSERT(m_mediaRecorder);
+    QString param =  parameter + QChar('=') + QString::number(value);
+    android_recorder_setParameters(m_mediaRecorder, param.toLocal8Bit().data());
 }

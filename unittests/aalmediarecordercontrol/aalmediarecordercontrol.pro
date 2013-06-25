@@ -11,10 +11,16 @@ INCLUDEPATH += ../mocks/aal
 
 HEADERS += ../../src/aalmediarecordercontrol.h \
     ../../src/aalcameraservice.h \
+    ../../src/aalvideoencodersettingscontrol.h \
+    ../../src/aalmetadatawritercontrol.h \
     ../../src/storagemanager.h
 
 SOURCES += tst_aalmediarecordercontrol.cpp \
     ../../src/aalmediarecordercontrol.cpp \
+    ../stubs/aalcameraservice_stub.cpp \
+    ../stubs/aalvideoencodersettingscontrol_stub.cpp \
+    ../stubs/aalmetadatawritercontrol_stub.cpp \
+    ../stubs/storagemanager_stub.cpp \
     aalcameraservice.cpp \
     storagemanager.cpp
 

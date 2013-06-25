@@ -10,13 +10,15 @@ INCLUDEPATH += ../../src
 INCLUDEPATH += ../mocks/aal
 
 HEADERS += ../../src/aalvideodeviceselectorcontrol.h \
-    ../../src/aalcameraservice.h
+    ../../src/aalcameraservice.h \
+    ../../src/aalvideoencodersettingscontrol.h
 
 SOURCES += tst_aalvideodeviceselectorcontrol.cpp \
     ../../src/aalvideodeviceselectorcontrol.cpp \
     aalcameraservice.cpp \
     aalimageencodercontrol.cpp \
-    aalviewfindersettingscontrol.cpp
+    aalviewfindersettingscontrol.cpp \
+    ../stubs/aalvideoencodersettingscontrol_stub.cpp
 
 check.depends = $${TARGET}
 check.commands = ./$${TARGET}
