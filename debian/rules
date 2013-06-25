@@ -10,5 +10,4 @@ export DPKG_GENSYMBOLS_CHECK_LEVEL=4
 	dh $@ --parallel --buildsystem=qmake
 
 override_dh_install:
-	rm -r debian/cameraplugin-aal/usr/tests
 	dh_install --fail-missing
