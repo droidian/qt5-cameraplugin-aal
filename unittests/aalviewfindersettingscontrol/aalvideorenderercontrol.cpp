@@ -64,10 +64,6 @@ void AalVideoRendererControl::updateViewfinderFrame()
 {
 }
 
-void AalVideoRendererControl::doStartPreview()
-{
-}
-
 void AalVideoRendererControl::onTextureCreated(unsigned int textureID)
 {
     Q_UNUSED(textureID);

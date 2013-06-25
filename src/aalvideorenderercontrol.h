@@ -53,7 +53,6 @@ Q_SIGNALS:
 
 private Q_SLOTS:
     void updateViewfinderFrame();
-    void doStartPreview();
     void onTextureCreated(unsigned int textureID);
     void onSnapshotTaken(QImage snapshotImage);
 

@@ -19,11 +19,14 @@
 
 #include <QLatin1String>
 #include <QMediaRecorderControl>
+#include <QSize>
 #include <QUrl>
 
 #include <stdint.h>
 
 class AalCameraService;
+struct CameraControl;
+struct CameraControlListener;
 struct MediaRecorderWrapper;
 class QTimer;
 
@@ -43,10 +46,9 @@ public:
     virtual QMediaRecorder::Status status() const;
     virtual qreal volume() const;
 
-    void init();
-    void deleteRecorder();
-
     static void errorCB(void* context);
+
+    void init(CameraControl *control, CameraControlListener *listener);
 
 public Q_SLOTS:
     virtual void setMuted(bool muted);
@@ -58,6 +60,8 @@ private Q_SLOTS:
     void handleError();
 
 private:
+    void initRecorder();
+    void deleteRecorder();
     void setStatus(QMediaRecorder::Status status);
     int startRecording();
     void stopRecording();

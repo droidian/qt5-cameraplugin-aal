@@ -72,13 +72,13 @@ void AalCameraControl::setCaptureMode(QCamera::CaptureModes mode)
     if (m_captureMode == mode)
         return;
 
+    m_captureMode = mode;
     if (m_service->isCameraActive() && mode == QCamera::CaptureStillImage) {
         m_service->enablePhotoMode();
     } else {
         m_service->enableVideoMode();
     }
 
-    m_captureMode = mode;
     Q_EMIT captureModeChanged(mode);
 }
 

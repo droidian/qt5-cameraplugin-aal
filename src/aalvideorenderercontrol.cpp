@@ -106,7 +106,13 @@ void AalVideoRendererControl::startPreview()
     if (m_viewFinderRunning)
         return;
 
-    doStartPreview();
+    CameraControl *cc = m_service->androidControl();
+    if (cc) {
+        android_camera_set_preview_texture(cc, m_textureId);
+        android_camera_start_preview(cc);
+        m_viewFinderRunning = true;
+    }
+    m_service->updateCaptureReady();
 }
 
 void AalVideoRendererControl::stopPreview()
@@ -159,17 +165,6 @@ void AalVideoRendererControl::updateViewfinderFrame()
 
     if (m_firstFrame)
         m_firstFrame = false;
-}
-
-void AalVideoRendererControl::doStartPreview()
-{
-    CameraControl *cc = m_service->androidControl();
-    if (cc) {
-        android_camera_set_preview_texture(cc, m_textureId);
-        android_camera_start_preview(cc);
-        m_viewFinderRunning = true;
-    }
-    m_service->updateCaptureReady();
 }
 
 void AalVideoRendererControl::onTextureCreated(GLuint textureID)
