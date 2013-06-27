@@ -1,3 +1,17 @@
+qtubuntu-camera (0.3.3+13.10.20130627-0ubuntu1) saucy; urgency=low
+
+  [ Ken VanDine ]
+  * don't install the unit tests .
+
+  [ Guenter Schwann ]
+  * Restart camera on capture mode change, to update viewfinder
+    resolution. (LP: #1191946)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 60
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 27 Jun 2013 04:40:04 +0000
+
 qtubuntu-camera (0.3.3daily13.06.25-0ubuntu1) saucy; urgency=low
 
   [ Guenter Schwann ]
