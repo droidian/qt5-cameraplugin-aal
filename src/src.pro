@@ -30,6 +30,7 @@ HEADERS += \
     aalmediarecordercontrol.h \
     aalmetadatawritercontrol.h \
     aalvideodeviceselectorcontrol.h \
+    aalvideoencodersettingscontrol.h \
     aalvideorenderercontrol.h \
     aalviewfindersettingscontrol.h \
     storagemanager.h
@@ -46,6 +47,7 @@ SOURCES += \
     aalmediarecordercontrol.cpp \
     aalmetadatawritercontrol.cpp \
     aalvideodeviceselectorcontrol.cpp \
+    aalvideoencodersettingscontrol.cpp \
     aalvideorenderercontrol.cpp \
     aalviewfindersettingscontrol.cpp \
     storagemanager.cpp

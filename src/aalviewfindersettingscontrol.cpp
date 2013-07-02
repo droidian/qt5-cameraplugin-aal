@@ -93,6 +93,9 @@ QVariant AalViewfinderSettingsControl::viewfinderParameter(ViewfinderParameter p
 
 void AalViewfinderSettingsControl::setSize(const QSize &size)
 {
+    if (size == m_currentSize)
+        return;
+
     CameraControl *cc = m_service->androidControl();
     if (!cc) {
         m_currentSize = size; // will be used on next call of init
@@ -124,9 +127,43 @@ QSize AalViewfinderSettingsControl::currentSize() const
     return m_currentSize;
 }
 
+/*!
+ * \brief AalViewfinderSettingsControl::supportedSizes returns the supported viewfinder
+ * sizes
+ * \return
+ */
+const QList<QSize> &AalViewfinderSettingsControl::supportedSizes() const
+{
+    if (m_availableSizes.isEmpty()) {
+        CameraControl *cc = m_service->androidControl();
+        if (cc) {
+            AalViewfinderSettingsControl *vfControl = const_cast<AalViewfinderSettingsControl*>(this);
+            android_camera_enumerate_supported_preview_sizes(cc,
+                                                             &AalViewfinderSettingsControl::sizeCB,
+                                                             vfControl);
+        }
+    }
+
+    return m_availableSizes;
+}
+
+/*!
+ * \brief AalViewfinderSettingsControl::setAspectRatio sets the viewfinder's aspect ratio
+ * \param ratio the aspect ratio that should be used
+ */
 void AalViewfinderSettingsControl::setAspectRatio(float ratio)
 {
+    if (ratio == m_aspectRatio)
+        return;
+
     m_aspectRatio = ratio;
+
+    // Choose optimal resolution based on the current camera's aspect ratio
+    QSize size = chooseOptimalSize(m_availableSizes);
+    // FIXME changeing the viewfinder resolution does not work for some reason
+    // therefore the size is set only directly, instead of using setSize()
+    //setSize(size);
+    m_currentSize = size;
 }
 
 void AalViewfinderSettingsControl::init(CameraControl *control, CameraControlListener *listener)

@@ -15,6 +15,7 @@
  */
 
 #include "aalcameraservice.h"
+#include "aalvideoencodersettingscontrol.h"
 #include "storagemanager.h"
 
 #include "camera_control.h"
@@ -23,16 +24,19 @@ AalCameraService *AalCameraService::m_service = 0;
 
 AalCameraService::AalCameraService(QObject *parent) :
     QMediaService(parent),
+    m_metadataWriter(0),
     m_androidControl(0),
     m_androidListener(0)
 {
     m_storageManager = new StorageManager;
+    m_videoEncoderControl = new AalVideoEncoderSettingsControl(this);
 }
 
 AalCameraService::~AalCameraService()
 {
     delete m_storageManager;
     delete m_androidControl;
+    delete m_videoEncoderControl;
 }
 
 QMediaControl *AalCameraService::requestControl(const char *name)

@@ -54,3 +54,12 @@ int AalMetaDataWriterControl::orientation() const
 {
     return m_orientation;
 }
+
+int AalMetaDataWriterControl::correctedOrientation() const
+{
+    return m_orientation;
+}
+
+void AalMetaDataWriterControl::clearAllMetaData()
+{
+}

@@ -17,12 +17,16 @@
 #ifndef AALMEDIARECORDERCONTROL_H
 #define AALMEDIARECORDERCONTROL_H
 
+#include <QLatin1String>
 #include <QMediaRecorderControl>
+#include <QSize>
 #include <QUrl>
 
 #include <stdint.h>
 
 class AalCameraService;
+struct CameraControl;
+struct CameraControlListener;
 struct MediaRecorderWrapper;
 class QTimer;
 
@@ -42,10 +46,9 @@ public:
     virtual QMediaRecorder::Status status() const;
     virtual qreal volume() const;
 
-    void init();
-    void deleteRecorder();
-
     static void errorCB(void* context);
+
+    void init(CameraControl *control, CameraControlListener *listener);
 
 public Q_SLOTS:
     virtual void setMuted(bool muted);
@@ -57,9 +60,12 @@ private Q_SLOTS:
     void handleError();
 
 private:
+    void initRecorder();
+    void deleteRecorder();
     void setStatus(QMediaRecorder::Status status);
     int startRecording();
     void stopRecording();
+    void setParameter(const QString &parameter, int value);
 
     AalCameraService *m_service;
     MediaRecorderWrapper *m_mediaRecorder;
@@ -74,6 +80,14 @@ private:
     static const int RECORDER_INITIALIZATION_ERROR = -3;
 
     static const int DURATION_UPDATE_INTERVALL = 1000; // update every second
+
+    static const QLatin1String PARAM_AUDIO_BITRATE;
+    static const QLatin1String PARAM_AUDIO_CHANNELS;
+    static const QLatin1String PARAM_AUTIO_SAMPLING;
+    static const QLatin1String PARAM_LATITUDE;
+    static const QLatin1String PARAM_LONGITUDE;
+    static const QLatin1String PARAM_ORIENTATION;
+    static const QLatin1String PARAM_VIDEO_BITRATE;
 };
 
 #endif
