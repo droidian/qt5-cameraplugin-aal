@@ -1,3 +1,13 @@
+qtubuntu-camera (0.3.3+13.10.20130705-0ubuntu1) saucy; urgency=low
+
+  [ Guenter Schwann ]
+  * Support FlashTorch.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 62
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 05 Jul 2013 04:35:06 +0000
+
 qtubuntu-camera (0.3.3+13.10.20130627-0ubuntu1) saucy; urgency=low
 
   [ Ken VanDine ]
