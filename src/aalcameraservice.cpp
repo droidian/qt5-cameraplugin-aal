@@ -203,13 +203,9 @@ bool AalCameraService::isBackCameraUsed() const
  */
 void AalCameraService::enablePhotoMode()
 {
-    // FIXME change the viewfinder resolution without restarting the camera
-    m_service->disconnectCamera();
-    if (m_service->isCameraActive())
-        m_service->connectCamera();
-
     m_imageEncoderControl->enablePhotoMode();
     m_focusControl->enablePhotoMode();
+    m_viewfinderControl->setAspectRatio(m_imageCaptureControl->getAspectRatio());
 }
 
 /*!
@@ -217,12 +213,8 @@ void AalCameraService::enablePhotoMode()
  */
 void AalCameraService::enableVideoMode()
 {
-    // FIXME change the viewfinder resolution without restarting the camera
-    m_service->disconnectCamera();
-    if (m_service->isCameraActive())
-        m_service->connectCamera();
-
     m_focusControl->enableVideoMode();
+    m_viewfinderControl->setAspectRatio(m_videoEncoderControl->getAspectRatio());
 }
 
 void AalCameraService::updateCaptureReady()
