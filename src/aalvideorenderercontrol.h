@@ -64,7 +64,7 @@ private:
     GLuint m_textureId;
     QImage m_preview;
 
-    bool m_firstFrame;
+    int m_frameCount;
 };
 
 #endif
