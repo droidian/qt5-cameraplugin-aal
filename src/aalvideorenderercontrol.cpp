@@ -29,6 +29,8 @@
 #include <QUrl>
 #include <QVideoSurfaceFormat>
 
+const int MIN_FRAME_COUNT = 8; // minimal number of frames to be ready for capture
+
 class AalGLTextureBuffer : public QAbstractVideoBuffer
 {
 public:
@@ -71,7 +73,7 @@ AalVideoRendererControl::AalVideoRendererControl(AalCameraService *service, QObj
      m_service(service),
      m_viewFinderRunning(false),
      m_textureId(0),
-     m_firstFrame(true)
+     m_frameCount(0)
 {
     // Get notified when qtvideo-node creates a GL texture
     connect(SharedSignal::instance(), SIGNAL(textureCreated(unsigned int)), this, SLOT(onTextureCreated(unsigned int)));
@@ -130,6 +132,7 @@ void AalVideoRendererControl::stopPreview()
         m_surface->stop();
 
     m_viewFinderRunning = false;
+    m_frameCount = 0;
 
     m_service->updateCaptureReady();
 }
@@ -139,7 +142,7 @@ void AalVideoRendererControl::updateViewfinderFrame()
     // m_textureId can be (and will be) 0 if this is the first video frame since this
     // is how a ShaderVideoNode instance gets created and ultimately how m_textureId
     // get set.
-    if (!m_surface || (!m_textureId && !m_firstFrame) || !m_service->androidControl())
+    if (!m_surface || (!m_textureId && !m_frameCount==0) || !m_service->androidControl())
         return;
 
     QSize vfSize = m_service->viewfinderControl()->currentSize();
@@ -163,8 +166,10 @@ void AalVideoRendererControl::updateViewfinderFrame()
         m_surface->present(frame);
     }
 
-    if (m_firstFrame)
-        m_firstFrame = false;
+    ++m_frameCount;
+    if (m_frameCount == MIN_FRAME_COUNT) {
+        m_service->updateCaptureReady();
+    }
 }
 
 void AalVideoRendererControl::onTextureCreated(GLuint textureID)
@@ -202,5 +207,5 @@ void AalVideoRendererControl::createPreview()
 
 bool AalVideoRendererControl::isViewfinderRunning() const
 {
-    return m_viewFinderRunning;
+    return m_viewFinderRunning && m_frameCount >= MIN_FRAME_COUNT;
 }
