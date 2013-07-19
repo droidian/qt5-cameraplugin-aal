@@ -160,10 +160,7 @@ void AalViewfinderSettingsControl::setAspectRatio(float ratio)
 
     // Choose optimal resolution based on the current camera's aspect ratio
     QSize size = chooseOptimalSize(m_availableSizes);
-    // FIXME changeing the viewfinder resolution does not work for some reason
-    // therefore the size is set only directly, instead of using setSize()
-    //setSize(size);
-    m_currentSize = size;
+    setSize(size);
 }
 
 void AalViewfinderSettingsControl::init(CameraControl *control, CameraControlListener *listener)

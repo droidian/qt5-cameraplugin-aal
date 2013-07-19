@@ -127,7 +127,6 @@ void AalVideoRendererControl::stopPreview()
     CameraControl *cc = m_service->androidControl();
     if (cc) {
         android_camera_stop_preview(cc);
-        android_camera_set_preview_texture(cc, 0);
     }
 
     if (m_surface->isActive())
