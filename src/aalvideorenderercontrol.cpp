@@ -101,6 +101,8 @@ void AalVideoRendererControl::init(CameraControl *control, CameraControlListener
 {
     Q_UNUSED(control);
     listener->on_preview_texture_needs_update_cb = &AalVideoRendererControl::updateViewfinderFrameCB;
+    m_textureId = 0;
+    m_frameCount = 0;
 }
 
 void AalVideoRendererControl::startPreview()
