@@ -1,3 +1,16 @@
+qtubuntu-camera (0.3.3+13.10.20130722-0ubuntu1) saucy; urgency=low
+
+  [ Guenter Schwann ]
+  * Avoid using old textures LP: #1170481. (LP: #1170481)
+  * Don't restart the camera when switching photo/video mode LP:
+    #1200390. (LP: #1200390)
+  * Fallback when connection to a device with only one camera.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 68
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 22 Jul 2013 04:59:52 +0000
+
 qtubuntu-camera (0.3.3+13.10.20130719-0ubuntu1) saucy; urgency=low
 
   [ Guenter Schwann ]
