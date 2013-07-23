@@ -15,6 +15,7 @@
  */
 
 #include "aalcameraservice.h"
+#include "aalcameracontrol.h"
 #include <aalcamerazoomcontrol.h>
 #include <hybris/camera/camera_compatibility_layer.h>
 
@@ -25,11 +26,13 @@ AalCameraService::AalCameraService(QObject *parent) :
     m_androidControl(0),
     m_androidListener(0)
 {
+    m_cameraControl = new AalCameraControl(this);
     m_zoomControl = new AalCameraZoomControl(this);
 }
 
 AalCameraService::~AalCameraService()
 {
+    delete m_cameraControl;
     delete m_zoomControl;
 }
 
