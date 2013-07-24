@@ -129,6 +129,8 @@ void AalVideoEncoderSettingsControl::init(CameraControl *control, CameraControlL
     Q_UNUSED(control);
     Q_UNUSED(listener);
 
+    resetAllSettings();
+
     if (m_availableSizes.isEmpty())
         querySupportedResolution();
 
