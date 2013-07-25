@@ -1,3 +1,14 @@
+qtubuntu-camera (0.3.3+13.10.20130725-0ubuntu1) saucy; urgency=low
+
+  [ Guenter Schwann ]
+  * Reset video encoding settings on camera initialization LP: #1200390
+    LP: #1204255. (LP: #1200390, #1204255)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 70
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 25 Jul 2013 06:40:00 +0000
+
 qtubuntu-camera (0.3.3+13.10.20130722-0ubuntu1) saucy; urgency=low
 
   [ Guenter Schwann ]
