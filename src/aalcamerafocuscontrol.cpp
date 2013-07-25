@@ -15,6 +15,7 @@
  */
 
 #include "aalcamerafocuscontrol.h"
+#include "aalcameracontrol.h"
 #include "aalcameraservice.h"
 
 #include <QDebug>
@@ -99,6 +100,7 @@ void AalCameraFocusControl::setFocusMode(QCameraFocus::FocusModes mode)
     if (m_focusMode == mode || !isFocusModeSupported(mode))
         return;
 
+
     AutoFocusMode focusMode = qt2Android(mode);
     m_focusMode = mode;
     if (m_service->androidControl()) {
@@ -137,14 +139,7 @@ bool AalCameraFocusControl::isFocusBusy() const
  */
 void AalCameraFocusControl::enablePhotoMode()
 {
-    CameraControl *cc = m_service->androidControl();
-    if (!cc)
-        return;
-
-    AutoFocusMode focusMode = qt2Android(m_focusMode);
-    if (cc) {
-        android_camera_set_auto_focus_mode(cc, focusMode);
-    }
+    setFocusMode(QCameraFocus::AutoFocus);
 }
 
 /*!
@@ -152,11 +147,7 @@ void AalCameraFocusControl::enablePhotoMode()
  */
 void AalCameraFocusControl::enableVideoMode()
 {
-    CameraControl *cc = m_service->androidControl();
-    if (!cc)
-        return;
-
-    android_camera_set_auto_focus_mode(cc, AUTO_FOCUS_MODE_CONTINUOUS_VIDEO);
+    setFocusMode(QCameraFocus::ContinuousFocus);
 }
 
 void AalCameraFocusControl::init(CameraControl *control, CameraControlListener *listener)
@@ -196,7 +187,10 @@ AutoFocusMode AalCameraFocusControl::qt2Android(QCameraFocus::FocusModes mode)
     case QCameraFocus::InfinityFocus:
         return AUTO_FOCUS_MODE_INFINITY;
     case QCameraFocus::ContinuousFocus:
-        return AUTO_FOCUS_MODE_CONTINUOUS_PICTURE;
+        if (m_service->cameraControl()->captureMode() == QCamera::CaptureStillImage)
+            return AUTO_FOCUS_MODE_CONTINUOUS_PICTURE;
+        else
+            return AUTO_FOCUS_MODE_CONTINUOUS_VIDEO;
     case QCameraFocus::MacroFocus:
         return AUTO_FOCUS_MODE_MACRO;
     case QCameraFocus::AutoFocus:
@@ -214,11 +208,11 @@ QCameraFocus::FocusModes AalCameraFocusControl::android2Qt(AutoFocusMode mode)
     case AUTO_FOCUS_MODE_INFINITY:
         return QCameraFocus::InfinityFocus;
     case AUTO_FOCUS_MODE_CONTINUOUS_PICTURE:
+    case AUTO_FOCUS_MODE_CONTINUOUS_VIDEO:
         return QCameraFocus::ContinuousFocus;
     case AUTO_FOCUS_MODE_MACRO:
         return QCameraFocus::MacroFocus;
     case AUTO_FOCUS_MODE_AUTO:
-    case AUTO_FOCUS_MODE_CONTINUOUS_VIDEO:
     default:
         return QCameraFocus::AutoFocus;
     }

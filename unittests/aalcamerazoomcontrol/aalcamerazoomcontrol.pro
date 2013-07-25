@@ -10,10 +10,12 @@ INCLUDEPATH += ../../src
 INCLUDEPATH += ../mocks/aal
 
 HEADERS += ../../src/aalcamerazoomcontrol.h \
+    ../../src/aalcameracontrol.h \
     ../../src/aalcameraservice.h
 
 SOURCES += tst_aalcamerazoomcontrol.cpp \
     ../../src/aalcamerazoomcontrol.cpp \
+    ../stubs/aalcameracontrol_stub.cpp \
     aalcameraservice.cpp
 
 check.depends = $${TARGET}
