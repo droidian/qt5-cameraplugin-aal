@@ -1,3 +1,13 @@
+qtubuntu-camera (0.3.3+13.10.20130726-0ubuntu1) saucy; urgency=low
+
+  [ Guenter Schwann ]
+  * Disable zooming in video mode LP: #1191088. (LP: #1191088)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 72
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 26 Jul 2013 07:33:05 +0000
+
 qtubuntu-camera (0.3.3+13.10.20130725-0ubuntu1) saucy; urgency=low
 
   [ Guenter Schwann ]
