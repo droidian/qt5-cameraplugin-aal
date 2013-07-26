@@ -72,6 +72,9 @@ void AalCameraControl::setCaptureMode(QCamera::CaptureModes mode)
     if (m_captureMode == mode)
         return;
 
+    if (m_service->isRecording())
+        return;
+
     m_captureMode = mode;
     if (m_service->isCameraActive() && mode == QCamera::CaptureStillImage) {
         m_service->enablePhotoMode();

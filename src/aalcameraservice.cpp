@@ -229,6 +229,16 @@ void AalCameraService::enableVideoMode()
     m_viewfinderControl->setAspectRatio(m_videoEncoderControl->getAspectRatio());
 }
 
+/*!
+ * \brief AalCameraService::isRecording returns true is a video recording is
+ * currently ongoing
+ * \return
+ */
+bool AalCameraService::isRecording() const
+{
+    return m_mediaRecorderControl->state() != QMediaRecorder::StoppedState;
+}
+
 void AalCameraService::updateCaptureReady()
 {
     bool ready = true;

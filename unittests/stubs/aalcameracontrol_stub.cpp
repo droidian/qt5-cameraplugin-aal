@@ -61,6 +61,7 @@ void AalCameraControl::setCaptureMode(QCamera::CaptureModes mode)
 
 bool AalCameraControl::isCaptureModeSupported(QCamera::CaptureModes mode) const
 {
+    Q_UNUSED(mode);
     return true;
 }
 
