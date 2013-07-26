@@ -78,6 +78,9 @@ void AalVideoDeviceSelectorControl::setSelectedDevice(int index)
         return;
     }
 
+    if (m_service->isRecording())
+        return;
+
     m_service->disconnectCamera();
     m_service->viewfinderControl()->resetAllSettings();
     m_service->imageEncoderControl()->resetAllSettings();

@@ -57,7 +57,7 @@ public:
     AalMediaRecorderControl *mediaRecorderControl() const { return m_mediaRecorderControl; }
     AalMetaDataWriterControl *metadataWriterControl() const { return m_metadataWriter; }
     AalVideoDeviceSelectorControl *deviceSelector() const { return m_deviceSelectControl; }
-    AalVideoEncoderSettingsControl *videoEncoderControl() const { return m_videoEncoderControl; };
+    AalVideoEncoderSettingsControl *videoEncoderControl() const { return m_videoEncoderControl; }
     AalVideoRendererControl *videoOutputControl() const { return m_videoOutput; }
     AalViewfinderSettingsControl *viewfinderControl() const { return m_viewfinderControl; }
 
@@ -73,6 +73,8 @@ public:
 
     void enablePhotoMode();
     void enableVideoMode();
+
+    bool isRecording() const;
 
     static AalCameraService *instance() { return m_service; }
 
