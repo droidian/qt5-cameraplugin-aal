@@ -107,14 +107,21 @@ void AalVideoRendererControl::init(CameraControl *control, CameraControlListener
 
 void AalVideoRendererControl::startPreview()
 {
+    if (m_frameCount > 0)
+        return;
     if (m_viewFinderRunning)
         return;
 
-    CameraControl *cc = m_service->androidControl();
-    if (cc) {
-        android_camera_set_preview_texture(cc, m_textureId);
-        android_camera_start_preview(cc);
-        m_viewFinderRunning = true;
+    if (m_textureId) {
+        CameraControl *cc = m_service->androidControl();
+        if (cc) {
+            android_camera_set_preview_texture(cc, m_textureId);
+            android_camera_start_preview(cc);
+            m_viewFinderRunning = true;
+        }
+    } else {
+        // requests a new texture
+        updateViewfinderFrame();
     }
     m_service->updateCaptureReady();
 }
@@ -124,6 +131,8 @@ void AalVideoRendererControl::stopPreview()
     if (!m_viewFinderRunning || !m_surface)
         return;
 
+    m_viewFinderRunning = false;
+
     CameraControl *cc = m_service->androidControl();
     if (cc) {
         android_camera_stop_preview(cc);
@@ -132,7 +141,6 @@ void AalVideoRendererControl::stopPreview()
     if (m_surface->isActive())
         m_surface->stop();
 
-    m_viewFinderRunning = false;
     m_frameCount = 0;
 
     m_service->updateCaptureReady();
@@ -140,11 +148,20 @@ void AalVideoRendererControl::stopPreview()
 
 void AalVideoRendererControl::updateViewfinderFrame()
 {
-    // m_textureId can be (and will be) 0 if this is the first video frame since this
-    // is how a ShaderVideoNode instance gets created and ultimately how m_textureId
-    // get set.
-    if (!m_surface || (!m_textureId && !m_frameCount==0) || !m_service->androidControl())
+    if (!m_surface) {
+        qWarning() << "Can't draw video frame without surface";
         return;
+    }
+    if (!m_service->androidControl()) {
+        qWarning() << "Can't draw video frame without camera";
+        return;
+    }
+    // if framecount is 0, then m_textureId can be 0, as this will request the
+    // texture from the render thread. (see code in qtvideo-node).
+    if (!m_textureId && m_frameCount > 0) {
+        qWarning() << "Can't draw video frame without texture" << m_frameCount;
+        return;
+    }
 
     QSize vfSize = m_service->viewfinderControl()->currentSize();
     QVideoFrame frame(new AalGLTextureBuffer(m_textureId), vfSize, QVideoFrame::Format_RGB32);
@@ -176,6 +193,16 @@ void AalVideoRendererControl::updateViewfinderFrame()
 void AalVideoRendererControl::onTextureCreated(GLuint textureID)
 {
     m_textureId = textureID;
+    if (m_textureId) {
+        // as we got a new textureID
+        CameraControl *cc = m_service->androidControl();
+        if (cc) {
+            android_camera_set_preview_texture(cc, m_textureId);
+            android_camera_start_preview(cc);
+            m_viewFinderRunning = true;
+        }
+    }
+    m_service->updateCaptureReady();
 }
 
 void AalVideoRendererControl::onSnapshotTaken(QImage snapshotImage)
@@ -187,8 +214,9 @@ void AalVideoRendererControl::onSnapshotTaken(QImage snapshotImage)
 void AalVideoRendererControl::updateViewfinderFrameCB(void* context)
 {
     Q_UNUSED(context);
-    QMetaObject::invokeMethod(AalCameraService::instance()->videoOutputControl(),
-                              "updateViewfinderFrame", Qt::QueuedConnection);
+    AalVideoRendererControl *self = AalCameraService::instance()->videoOutputControl();
+    if (self->m_viewFinderRunning)
+        QMetaObject::invokeMethod(self, "updateViewfinderFrame", Qt::QueuedConnection);
 }
 
 const QImage &AalVideoRendererControl::preview() const
