@@ -1,3 +1,15 @@
+qtubuntu-camera (0.3.3+13.10.20130729-0ubuntu1) saucy; urgency=low
+
+  [ Guenter Schwann ]
+  * * reset focus status when switching cameras * prevent camera switch
+    and capture mode switch during video recording. (LP: #1204132,
+    #1204743)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 74
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 29 Jul 2013 07:46:05 +0000
+
 qtubuntu-camera (0.3.3+13.10.20130726-0ubuntu1) saucy; urgency=low
 
   [ Guenter Schwann ]
