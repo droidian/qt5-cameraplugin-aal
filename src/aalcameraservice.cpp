@@ -230,6 +230,15 @@ void AalCameraService::enableVideoMode()
 }
 
 /*!
+ * \brief AalCameraService::isReady return if the camera is ready for capturing
+ * \return
+ */
+bool AalCameraService::isReady() const
+{
+    return m_imageCaptureControl->isReadyForCapture();
+}
+
+/*!
  * \brief AalCameraService::isRecording returns true is a video recording is
  * currently ongoing
  * \return
@@ -255,6 +264,12 @@ void AalCameraService::updateCaptureReady()
     m_imageCaptureControl->setReady(ready);
 }
 
+/*!
+ * \brief AalCameraService::initControls initialize all the controls for a newly
+ * connected camera
+ * \param camControl
+ * \param listener
+ */
 void AalCameraService::initControls(CameraControl *camControl, CameraControlListener *listener)
 {
     m_cameraControl->init(camControl, listener);

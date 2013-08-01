@@ -74,6 +74,7 @@ public:
     void enablePhotoMode();
     void enableVideoMode();
 
+    bool isReady() const;
     bool isRecording() const;
 
     static AalCameraService *instance() { return m_service; }
