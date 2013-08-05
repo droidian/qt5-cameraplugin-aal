@@ -15,6 +15,7 @@
  */
 
 #include "aalcameraflashcontrol.h"
+#include "aalcameracontrol.h"
 #include "aalcameraservice.h"
 
 #include <QDebug>
@@ -38,10 +39,14 @@ QCameraExposure::FlashModes AalCameraFlashControl::flashMode() const
 bool AalCameraFlashControl::isFlashModeSupported(QCameraExposure::FlashModes mode) const
 {
     if (m_service->isBackCameraUsed()) {
-        if (mode==QCameraExposure::FlashAuto || mode==QCameraExposure::FlashOff ||
-                mode==QCameraExposure::FlashOn || mode==QCameraExposure::FlashVideoLight ||
-                mode==QCameraExposure::FlashTorch) {
-            return true;
+        if (m_service->cameraControl()->captureMode() == QCamera::CaptureStillImage) {
+            if (mode==QCameraExposure::FlashAuto || mode==QCameraExposure::FlashOff ||
+                    mode==QCameraExposure::FlashOn)
+                return true;
+        } else {
+            if (mode==QCameraExposure::FlashOff || mode==QCameraExposure::FlashVideoLight ||
+                    mode==QCameraExposure::FlashTorch)
+                return true;
         }
     } else {
         if (mode==QCameraExposure::FlashOff)
@@ -78,14 +83,6 @@ void AalCameraFlashControl::init(CameraControl *control)
         FlashMode mode = qt2Android(m_currentMode);
         android_camera_set_flash_mode(control, mode);
         setOnInit = false;
-    } else {
-        FlashMode mode;
-        android_camera_get_flash_mode(control, &mode);
-        m_currentMode = android2Qt(mode);
-    }
-
-    if (!isFlashModeSupported(m_currentMode)) {
-        setFlashMode(QCameraExposure::FlashOff);
     }
 
     Q_EMIT flashReady(true);
