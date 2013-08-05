@@ -15,6 +15,7 @@
  */
 
 #include "aalcameraservice.h"
+#include "aalcameracontrol.h"
 
 AalCameraService *AalCameraService::m_service = 0;
 
@@ -23,10 +24,12 @@ AalCameraService::AalCameraService(QObject *parent) :
     m_androidControl(0),
     m_androidListener(0)
 {
+    m_cameraControl = new AalCameraControl(this);
 }
 
 AalCameraService::~AalCameraService()
 {
+    delete m_cameraControl;
 }
 
 QMediaControl *AalCameraService::requestControl(const char *name)
