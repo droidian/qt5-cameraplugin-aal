@@ -1,3 +1,14 @@
+qtubuntu-camera (0.3.3+13.10.20130806-0ubuntu1) saucy; urgency=low
+
+  [ Guenter Schwann ]
+  * * differentiate video and phot mode for supported flashes * don't
+    mess up flash modes on camera init. (LP: #1105131)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 80
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 06 Aug 2013 08:16:07 +0000
+
 qtubuntu-camera (0.3.3+13.10.20130802-0ubuntu1) saucy; urgency=low
 
   [ Guenter Schwann ]
