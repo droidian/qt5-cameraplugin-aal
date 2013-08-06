@@ -19,6 +19,7 @@
 
 #include <QCameraExposure>
 #include <QCameraFlashControl>
+#include <QSet>
 
 #include <hybris/camera/camera_compatibility_layer_capabilities.h>
 
@@ -42,10 +43,12 @@ public Q_SLOTS:
 private:
     FlashMode qt2Android(QCameraExposure::FlashModes mode);
     QCameraExposure::FlashModes android2Qt(FlashMode mode);
+    void querySupportedFlashModes();
 
     AalCameraService *m_service;
     QCameraExposure::FlashModes m_currentMode;
     bool setOnInit;
+    QSet<QCameraExposure::FlashModes> m_supportedModes;
 };
 
 #endif // AALCAMERAFLASHCONTROL_H
