@@ -49,6 +49,8 @@ void tst_AalCameraFlashControl::cleanupTestCase()
 
 void tst_AalCameraFlashControl::flashMode()
 {
+    m_flashControl->m_supportedModes << QCameraExposure::FlashOff << QCameraExposure::FlashOn;
+
     QCameraExposure::FlashModes mode = QCameraExposure::FlashOn;
     m_flashControl->setFlashMode(mode);
 

@@ -38,22 +38,7 @@ QCameraExposure::FlashModes AalCameraFlashControl::flashMode() const
 
 bool AalCameraFlashControl::isFlashModeSupported(QCameraExposure::FlashModes mode) const
 {
-    if (m_service->isBackCameraUsed()) {
-        if (m_service->cameraControl()->captureMode() == QCamera::CaptureStillImage) {
-            if (mode==QCameraExposure::FlashAuto || mode==QCameraExposure::FlashOff ||
-                    mode==QCameraExposure::FlashOn)
-                return true;
-        } else {
-            if (mode==QCameraExposure::FlashOff || mode==QCameraExposure::FlashVideoLight ||
-                    mode==QCameraExposure::FlashTorch)
-                return true;
-        }
-    } else {
-        if (mode==QCameraExposure::FlashOff)
-            return true;
-    }
-
-    return false;
+    return m_supportedModes.contains(mode);
 }
 
 bool AalCameraFlashControl::isFlashReady() const
@@ -79,6 +64,8 @@ void AalCameraFlashControl::setFlashMode(QCameraExposure::FlashModes mode)
 
 void AalCameraFlashControl::init(CameraControl *control)
 {
+    querySupportedFlashModes();
+
     if (setOnInit) {
         FlashMode mode = qt2Android(m_currentMode);
         android_camera_set_flash_mode(control, mode);
@@ -116,5 +103,22 @@ QCameraExposure::FlashModes AalCameraFlashControl::android2Qt(FlashMode mode)
     case FLASH_MODE_AUTO:
     default:
         return QCameraExposure::FlashAuto;
+    }
+}
+
+/*!
+ * \brief AalCameraFlashControl::querySupportedFlashModes gets the supported
+ * flash modes for the current camera
+ * FIXME get the supported modes from libhybris
+ */
+void AalCameraFlashControl::querySupportedFlashModes()
+{
+    m_supportedModes.clear();
+    if (m_service->isBackCameraUsed()) {
+        m_supportedModes << QCameraExposure::FlashOff << QCameraExposure::FlashOn
+                            << QCameraExposure::FlashAuto << QCameraExposure::FlashVideoLight
+                               << QCameraExposure::FlashTorch;
+    } else {
+        m_supportedModes << QCameraExposure::FlashOff;
     }
 }
