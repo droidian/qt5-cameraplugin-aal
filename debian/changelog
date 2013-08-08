@@ -1,3 +1,14 @@
+qtubuntu-camera (0.3.3+13.10.20130808.1-0ubuntu1) saucy; urgency=low
+
+  [ Guenter Schwann ]
+  * * don't separate video and photo flash modes * prepare to query
+    flash modes from android.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 82
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 08 Aug 2013 06:03:41 +0000
+
 qtubuntu-camera (0.3.3+13.10.20130806-0ubuntu1) saucy; urgency=low
 
   [ Guenter Schwann ]
