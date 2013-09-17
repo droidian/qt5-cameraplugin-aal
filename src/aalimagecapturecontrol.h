@@ -27,6 +27,7 @@ class AalCameraService;
 class AalCameraControl;
 class CameraControl;
 class CameraControlListener;
+class QMediaPlayer;
 
 class AalImageCaptureControl : public QCameraImageCaptureControl
 {
@@ -81,6 +82,7 @@ private:
     /// currently selected camera
     QList<float> m_prioritizedAspectRatios;
     QString m_galleryPath;
+    QMediaPlayer *m_audioPlayer;
 };
 
 #endif
