@@ -54,6 +54,7 @@ AalImageCaptureControl::AalImageCaptureControl(AalCameraService *service, QObjec
 
 AalImageCaptureControl::~AalImageCaptureControl()
 {
+    delete(m_audioPlayer);
 }
 
 bool AalImageCaptureControl::isReadyForCapture() const
