@@ -27,6 +27,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QMediaPlayer>
 #include <QStandardPaths>
 #include <QTemporaryFile>
 
@@ -44,13 +45,16 @@ AalImageCaptureControl::AalImageCaptureControl(AalCameraService *service, QObjec
     m_photoWidth(320),
     m_photoHeight(240),
     m_aspectRatio(0.0),
-    m_screenAspectRatio(0.0)
+    m_screenAspectRatio(0.0),
+    m_audioPlayer(new QMediaPlayer(this))
 {
     m_galleryPath = QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
+    m_audioPlayer->setMedia(QUrl::fromLocalFile("/system/media/audio/ui/camera_click.ogg"));
 }
 
 AalImageCaptureControl::~AalImageCaptureControl()
 {
+    delete(m_audioPlayer);
 }
 
 bool AalImageCaptureControl::isReadyForCapture() const
@@ -157,6 +161,7 @@ float AalImageCaptureControl::getAspectRatio() const
 
 void AalImageCaptureControl::shutter()
 {
+    m_audioPlayer->play();
     Q_EMIT imageExposed(m_lastRequestId);
 }
 
