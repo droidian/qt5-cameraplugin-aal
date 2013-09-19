@@ -1,3 +1,13 @@
+qtubuntu-camera (0.3.3+13.10.20130919.2-0ubuntu1) saucy; urgency=low
+
+  [ Guenter Schwann ]
+  * Play sound when capturing a photo fixes LP: #1220736. (LP: #1220736)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 84
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 19 Sep 2013 09:01:47 +0000
+
 qtubuntu-camera (0.3.3+13.10.20130808.1-0ubuntu1) saucy; urgency=low
 
   [ Guenter Schwann ]
