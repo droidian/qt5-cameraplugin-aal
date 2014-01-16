@@ -1,9 +1,8 @@
 include(../../coverage.pri)
 
-CONFIG += no_private_qt_headers_warning
 TARGET = tst_aalcameraflashcontrol
 
-QT += testlib multimedia-private opengl
+QT += testlib multimedia opengl
 
 LIBS += -L../mocks/aal -laal
 INCLUDEPATH += ../../src
