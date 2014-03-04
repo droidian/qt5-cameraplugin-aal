@@ -1,3 +1,16 @@
+qtubuntu-camera (0.3.3+14.04.20140304-0ubuntu1) trusty; urgency=low
+
+  [ CI bot ]
+  * No change rebuild against Qt 5.2.1.
+
+  [ Albert Astals ]
+  * Don't ask for private headers since they are not used .
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 04 Mar 2014 13:46:57 +0000
+
 qtubuntu-camera (0.3.3+13.10.20130919.2-0ubuntu1) saucy; urgency=low
 
   [ Guenter Schwann ]
