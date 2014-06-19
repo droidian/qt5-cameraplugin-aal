@@ -27,7 +27,7 @@
 
 #include <hybris/camera/camera_compatibility_layer.h>
 #include <hybris/camera/camera_compatibility_layer_capabilities.h>
-#include <hybris/media/recorder_compatibility_layer.h>
+#include <hybris/media/media_recorder_layer.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
