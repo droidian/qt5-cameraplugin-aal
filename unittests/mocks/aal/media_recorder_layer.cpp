@@ -15,7 +15,7 @@
  *
  */
 
-#include <hybris/media/recorder_compatibility_layer.h>
+#include <hybris/media/media_recorder_layer.h>
 #include "camera_control.h"
 
 #include <qglobal.h>
