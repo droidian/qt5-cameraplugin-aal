@@ -33,6 +33,7 @@ HEADERS += \
     aalvideoencodersettingscontrol.h \
     aalvideorenderercontrol.h \
     aalviewfindersettingscontrol.h \
+    aalcameraexposurecontrol.h \
     storagemanager.h
 
 SOURCES += \
@@ -50,4 +51,5 @@ SOURCES += \
     aalvideoencodersettingscontrol.cpp \
     aalvideorenderercontrol.cpp \
     aalviewfindersettingscontrol.cpp \
+    aalcameraexposurecontrol.cpp \
     storagemanager.cpp
