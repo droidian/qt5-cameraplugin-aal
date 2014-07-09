@@ -53,7 +53,7 @@ void AalCameraExposureControl::init(CameraControl *control, CameraControlListene
 void AalCameraExposureControl::supportedSceneModesCallback(void *context, SceneMode sceneMode)
 {
     AalCameraExposureControl *self = (AalCameraExposureControl*)context;
-    self->m_supportedExposureModes << self->m_androidToQtExposureModes[sceneMode];
+    self->m_supportedExposureModes << QVariant::fromValue(self->m_androidToQtExposureModes[sceneMode]);
 }
 
 bool AalCameraExposureControl::setValue(ExposureParameter parameter, const QVariant& value)
@@ -66,7 +66,7 @@ bool AalCameraExposureControl::setValue(ExposureParameter parameter, const QVari
         m_requestedExposureMode = value.value<QCameraExposure::ExposureMode>();
         Q_EMIT requestedValueChanged(QCameraExposureControl::ExposureMode);
 
-        if (m_supportedExposureModes.contains(m_requestedExposureMode)) {
+        if (m_supportedExposureModes.contains(value)) {
             SceneMode sceneMode = m_androidToQtExposureModes.key(m_requestedExposureMode);
             android_camera_set_scene_mode(m_service->androidControl(), sceneMode);
             m_actualExposureMode = m_requestedExposureMode;
