@@ -32,7 +32,7 @@ AalCameraExposureControl::AalCameraExposureControl(AalCameraService *service, QO
     m_androidToQtExposureModes[SCENE_MODE_NIGHT] = QCameraExposure::ExposureNight;
     m_androidToQtExposureModes[SCENE_MODE_PARTY] = QCameraExposure::ExposureAuto; // FIXME: no correspondance
     m_androidToQtExposureModes[SCENE_MODE_SUNSET] = QCameraExposure::ExposureAuto; // FIXME: no correspondance
-    m_androidToQtExposureModes[/*SCENE_MODE_HDR*/(SceneMode)5] = QCameraExposure::ExposureModeVendor;
+    m_androidToQtExposureModes[SCENE_MODE_HDR] = QCameraExposure::ExposureModeVendor;
 }
 
 void AalCameraExposureControl::init(CameraControl *control, CameraControlListener *listener)
