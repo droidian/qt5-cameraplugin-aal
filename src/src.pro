@@ -14,7 +14,9 @@ LIBS += \
     -lcamera \
     -lmedia \
     -lubuntu_application_api \
-    -lqtubuntu-media-signals
+    -lqtubuntu-media-signals \
+    -lpulse \
+    -lpulse-simple
 
 OTHER_FILES += aalcamera.json
 
@@ -33,6 +35,7 @@ HEADERS += \
     aalvideoencodersettingscontrol.h \
     aalvideorenderercontrol.h \
     aalviewfindersettingscontrol.h \
+    audiocapture.h \
     storagemanager.h
 
 SOURCES += \
@@ -50,4 +53,5 @@ SOURCES += \
     aalvideoencodersettingscontrol.cpp \
     aalvideorenderercontrol.cpp \
     aalviewfindersettingscontrol.cpp \
+    audiocapture.cpp \
     storagemanager.cpp

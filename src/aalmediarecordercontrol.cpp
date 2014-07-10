@@ -19,6 +19,7 @@
 #include "aalmetadatawritercontrol.h"
 #include "aalvideoencodersettingscontrol.h"
 #include "aalviewfindersettingscontrol.h"
+#include "audiocapture.h"
 #include "storagemanager.h"
 
 #include <QDebug>
@@ -27,7 +28,7 @@
 
 #include <hybris/camera/camera_compatibility_layer.h>
 #include <hybris/camera/camera_compatibility_layer_capabilities.h>
-#include <hybris/media/recorder_compatibility_layer.h>
+#include <hybris/media/media_recorder_layer.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -55,6 +56,7 @@ AalMediaRecorderControl::AalMediaRecorderControl(AalCameraService *service, QObj
    : QMediaRecorderControl(parent),
     m_service(service),
     m_mediaRecorder(0),
+    m_audioCapture(0),
     m_duration(0),
     m_currentState(QMediaRecorder::StoppedState),
     m_currentStatus(QMediaRecorder::UnloadedStatus),
@@ -68,6 +70,7 @@ AalMediaRecorderControl::AalMediaRecorderControl(AalCameraService *service, QObj
 AalMediaRecorderControl::~AalMediaRecorderControl()
 {
     delete m_recordingTimer;
+    delete m_audioCapture;
     deleteRecorder();
 }
 
@@ -151,6 +154,15 @@ void AalMediaRecorderControl::initRecorder()
     if (m_mediaRecorder == 0) {
         m_mediaRecorder = android_media_new_recorder();
 
+        m_audioCapture = new AudioCapture(m_mediaRecorder);
+
+        if (m_audioCapture == 0) {
+            qWarning() << "Unable to create new audio capture, audio recording won't function";
+            Q_EMIT error(RECORDER_INITIALIZATION_ERROR, "Unable to create new audio capture, audio recording won't function");
+        }
+        else
+            m_audioCapture->init();
+
         if (m_mediaRecorder == 0) {
             qWarning() << "Unable to create new media recorder";
             Q_EMIT error(RECORDER_INITIALIZATION_ERROR, "Unable to create new media recorder");
@@ -194,6 +206,16 @@ void AalMediaRecorderControl::errorCB(void *context)
     Q_UNUSED(context);
     QMetaObject::invokeMethod(AalCameraService::instance()->mediaRecorderControl(),
                               "handleError", Qt::QueuedConnection);
+}
+
+MediaRecorderWrapper* AalMediaRecorderControl::mediaRecorder() const
+{
+    return m_mediaRecorder;
+}
+
+AudioCapture *AalMediaRecorderControl::audioCapture()
+{
+    return m_audioCapture;
 }
 
 /*!

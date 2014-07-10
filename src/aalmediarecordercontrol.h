@@ -28,6 +28,7 @@ class AalCameraService;
 struct CameraControl;
 struct CameraControlListener;
 struct MediaRecorderWrapper;
+class AudioCapture;
 class QTimer;
 
 class AalMediaRecorderControl : public QMediaRecorderControl
@@ -49,6 +50,8 @@ public:
     static void errorCB(void* context);
 
     void init(CameraControl *control, CameraControlListener *listener);
+    MediaRecorderWrapper* mediaRecorder() const;
+    AudioCapture *audioCapture();
 
 public Q_SLOTS:
     virtual void setMuted(bool muted);
@@ -69,6 +72,7 @@ private:
 
     AalCameraService *m_service;
     MediaRecorderWrapper *m_mediaRecorder;
+    AudioCapture *m_audioCapture;
     QUrl m_outputLocation;
     qint64 m_duration;
     QMediaRecorder::State m_currentState;

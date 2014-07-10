@@ -13,6 +13,7 @@ Build-Depends: debhelper (>= 9),
                pkg-config,
                qt5-default,
                qtmultimedia5-dev,
+               libpulse-dev
 Standards-Version: 3.9.4
 Homepage: https://launchpad.net/qtubuntu-camera
 # If you aren't a member of ~phablet-team but need to upload packaging changes,
