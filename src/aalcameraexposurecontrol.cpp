@@ -21,6 +21,9 @@
 #include <hybris/camera/camera_compatibility_layer.h>
 #include <hybris/camera/camera_compatibility_layer_capabilities.h>
 
+// Definition of this enum value is duplicated in camera-app
+static const QCameraExposure::ExposureMode ExposureHdr = static_cast<QCameraExposure::ExposureMode>(QCameraExposure::ExposureModeVendor + 1);
+
 AalCameraExposureControl::AalCameraExposureControl(AalCameraService *service, QObject *parent)
     : QCameraExposureControl(parent),
       m_service(service),
@@ -32,7 +35,7 @@ AalCameraExposureControl::AalCameraExposureControl(AalCameraService *service, QO
     m_androidToQtExposureModes[SCENE_MODE_NIGHT] = QCameraExposure::ExposureNight;
     m_androidToQtExposureModes[SCENE_MODE_PARTY] = QCameraExposure::ExposureAuto; // FIXME: no correspondance
     m_androidToQtExposureModes[SCENE_MODE_SUNSET] = QCameraExposure::ExposureAuto; // FIXME: no correspondance
-    m_androidToQtExposureModes[SCENE_MODE_HDR] = QCameraExposure::ExposureModeVendor;
+    m_androidToQtExposureModes[SCENE_MODE_HDR] = ExposureHdr;
 }
 
 void AalCameraExposureControl::init(CameraControl *control, CameraControlListener *listener)
