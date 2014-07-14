@@ -31,6 +31,7 @@ class AalVideoDeviceSelectorControl;
 class AalVideoEncoderSettingsControl;
 class AalVideoRendererControl;
 class AalViewfinderSettingsControl;
+class AalCameraExposureControl;
 class QCameraControl;
 
 struct CameraControl;
@@ -60,6 +61,7 @@ public:
     AalVideoEncoderSettingsControl *videoEncoderControl() const { return m_videoEncoderControl; }
     AalVideoRendererControl *videoOutputControl() const { return m_videoOutput; }
     AalViewfinderSettingsControl *viewfinderControl() const { return m_viewfinderControl; }
+    AalCameraExposureControl *exposureControl() const { return m_exposureControl; }
 
     CameraControl *androidControl();
 
@@ -99,6 +101,7 @@ private:
     AalVideoEncoderSettingsControl *m_videoEncoderControl;
     AalVideoRendererControl *m_videoOutput;
     AalViewfinderSettingsControl *m_viewfinderControl;
+    AalCameraExposureControl *m_exposureControl;
 
     CameraControl *m_androidControl;
     CameraControlListener *m_androidListener;
