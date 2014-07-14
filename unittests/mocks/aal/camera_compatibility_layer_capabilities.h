@@ -48,7 +48,8 @@ typedef enum
     SCENE_MODE_ACTION,
     SCENE_MODE_NIGHT,
     SCENE_MODE_PARTY,
-    SCENE_MODE_SUNSET
+    SCENE_MODE_SUNSET,
+    SCENE_MODE_HDR
 } SceneMode;
 
 typedef enum
@@ -95,6 +96,7 @@ typedef struct
 } FocusRegion;
 
 typedef void (*size_callback)(void* ctx, int width, int height);
+typedef void (*scene_mode_callback)(void* ctx, SceneMode mode);
 
 // Dumps the camera parameters to stdout.
 void android_camera_dump_parameters(CameraControl* control);
@@ -115,6 +117,7 @@ void android_camera_get_max_zoom(CameraControl* control, int* max_zoom);
 void android_camera_get_effect_mode(CameraControl* control, EffectMode* mode);
 void android_camera_get_flash_mode(CameraControl* control, FlashMode* mode);
 void android_camera_get_white_balance_mode(CameraControl* control, WhiteBalanceMode* mode);
+void android_camera_enumerate_supported_scene_modes(struct CameraControl* control, scene_mode_callback cb, void* ctx);
 void android_camera_get_scene_mode(CameraControl* control, SceneMode* mode);
 void android_camera_get_auto_focus_mode(CameraControl* control, AutoFocusMode* mode);
 void android_camera_get_preview_format(CameraControl* control, CameraPixelFormat* format);

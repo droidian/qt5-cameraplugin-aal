@@ -95,6 +95,14 @@ void android_camera_get_white_balance_mode(CameraControl* control, WhiteBalanceM
     crashTest(control);
 }
 
+void android_camera_enumerate_supported_scene_modes(struct CameraControl* control, scene_mode_callback cb, void* ctx)
+{
+    Q_UNUSED(cb);
+    Q_UNUSED(ctx);
+    crashTest(control);
+    cb(ctx, SCENE_MODE_ACTION);
+}
+
 void android_camera_set_scene_mode(CameraControl* control, SceneMode mode)
 {
     Q_UNUSED(mode);
