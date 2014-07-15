@@ -117,7 +117,7 @@ void android_camera_get_max_zoom(CameraControl* control, int* max_zoom);
 void android_camera_get_effect_mode(CameraControl* control, EffectMode* mode);
 void android_camera_get_flash_mode(CameraControl* control, FlashMode* mode);
 void android_camera_get_white_balance_mode(CameraControl* control, WhiteBalanceMode* mode);
-void android_camera_enumerate_supported_scene_modes(struct CameraControl* control, scene_mode_callback cb, void* ctx);
+void android_camera_enumerate_supported_scene_modes(CameraControl* control, scene_mode_callback cb, void* ctx);
 void android_camera_get_scene_mode(CameraControl* control, SceneMode* mode);
 void android_camera_get_auto_focus_mode(CameraControl* control, AutoFocusMode* mode);
 void android_camera_get_preview_format(CameraControl* control, CameraPixelFormat* format);

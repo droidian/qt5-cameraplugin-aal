@@ -15,6 +15,9 @@
  */
 
 #include "aalcameraservice.h"
+#include "aalcameraexposurecontrol.h"
+#include "camera_control.h"
+#include "camera_compatibility_layer.h"
 
 AalCameraService *AalCameraService::m_service = 0;
 
@@ -23,10 +26,12 @@ AalCameraService::AalCameraService(QObject *parent) :
     m_androidControl(0),
     m_androidListener(0)
 {
+    m_exposureControl = new AalCameraExposureControl(this);
 }
 
 AalCameraService::~AalCameraService()
 {
+    delete m_exposureControl;
 }
 
 QMediaControl *AalCameraService::requestControl(const char *name)
@@ -47,35 +52,23 @@ CameraControl *AalCameraService::androidControl()
 
 bool AalCameraService::connectCamera()
 {
+    m_androidListener = new CameraControlListener;
+    m_androidControl = android_camera_connect_to(BACK_FACING_CAMERA_TYPE, m_androidListener);
+
+    initControls(m_androidControl, m_androidListener);
+
     return true;
 }
 
 void AalCameraService::disconnectCamera()
 {
-}
-
-bool AalCameraService::isCameraActive() const
-{
-    return true;
-}
-
-void AalCameraService::enablePhotoMode()
-{
-}
-
-void AalCameraService::enableVideoMode()
-{
+    delete m_androidListener;
+    android_camera_disconnect(m_androidControl);
 }
 
 void AalCameraService::initControls(CameraControl *camControl, CameraControlListener *listener)
 {
-    Q_UNUSED(camControl);
-    Q_UNUSED(listener);
-}
-
-bool AalCameraService::isRecording() const
-{
-    return false;
+    m_exposureControl->init(camControl, listener);
 }
 
 void AalCameraService::updateCaptureReady()

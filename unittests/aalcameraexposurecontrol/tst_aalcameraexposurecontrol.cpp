@@ -40,12 +40,12 @@ private:
 void tst_AalCameraExposureControl::initTestCase()
 {
     m_service = new AalCameraService();
-    m_exposureControl = new AalCameraExposureControl(m_service);
+    m_exposureControl = m_service->exposureControl();
+    m_service->connectCamera();
 }
 
 void tst_AalCameraExposureControl::cleanupTestCase()
 {
-    delete m_exposureControl;
     delete m_service;
 }
 
@@ -72,9 +72,6 @@ void tst_AalCameraExposureControl::setUnsupportedParameter()
 
 void tst_AalCameraExposureControl::setExposureMode()
 {
-    // add QCameraExposure::ExposureSports to the list of supported modes
-    m_exposureControl->m_supportedExposureModes.append(QVariant::fromValue(QCameraExposure::ExposureSports));
-
     QCameraExposureControl::ExposureParameter parameter = QCameraExposureControl::ExposureMode;
 
     QSignalSpy spyActual(m_exposureControl, SIGNAL(actualValueChanged(int)));
