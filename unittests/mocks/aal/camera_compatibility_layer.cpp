@@ -100,7 +100,6 @@ void android_camera_enumerate_supported_scene_modes(struct CameraControl* contro
     Q_UNUSED(cb);
     Q_UNUSED(ctx);
     crashTest(control);
-    cb(ctx, SCENE_MODE_ACTION);
 }
 
 void android_camera_set_scene_mode(CameraControl* control, SceneMode mode)

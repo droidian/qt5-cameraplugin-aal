@@ -72,6 +72,9 @@ void tst_AalCameraExposureControl::setUnsupportedParameter()
 
 void tst_AalCameraExposureControl::setExposureMode()
 {
+    // add QCameraExposure::ExposureSports to the list of supported modes
+    m_exposureControl->m_supportedExposureModes.append(QVariant::fromValue(QCameraExposure::ExposureSports));
+
     QCameraExposureControl::ExposureParameter parameter = QCameraExposureControl::ExposureMode;
 
     QSignalSpy spyActual(m_exposureControl, SIGNAL(actualValueChanged(int)));
