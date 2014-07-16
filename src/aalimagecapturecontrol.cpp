@@ -89,13 +89,13 @@ int AalImageCaptureControl::capture(const QString &fileName)
     int rotation = metadataControl->correctedOrientation();
     android_camera_set_rotation(m_service->androidControl(), rotation);
 
-    double latitude = metadataControl->metaData("GPSLatitude").toDouble();
-    double longitude = metadataControl->metaData("GPSLongitude").toDouble();
-    double altitude = metadataControl->metaData("GPSAltitude").toDouble();
+    float latitude = metadataControl->metaData("GPSLatitude").toFloat();
+    float longitude = metadataControl->metaData("GPSLongitude").toFloat();
+    float altitude = metadataControl->metaData("GPSAltitude").toFloat();
     QDateTime timestamp = metadataControl->metaData("GPSTimeStamp").toDateTime();
     QString processingMethod = metadataControl->metaData("GPSProcessingMethod").toString();
     android_camera_set_location(m_service->androidControl(),
-                                (float)latitude, (float)longitude, (float)altitude,
+                                &latitude, &longitude, &altitude,
                                 timestamp.toTime_t(),
                                 processingMethod.toLocal8Bit().constData());
 
