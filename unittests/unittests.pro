@@ -3,6 +3,7 @@ TEMPLATE = subdirs
 SUBDIRS += \
     mocks \
     aalcameracontrol \
+    aalcameraexposurecontrol \
     aalcameraflashcontrol \
     aalcamerafocuscontrol \
     aalcamerazoomcontrol \
