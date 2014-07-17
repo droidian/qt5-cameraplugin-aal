@@ -27,6 +27,7 @@
 #include "aalvideoencodersettingscontrol.h"
 #include "aalvideorenderercontrol.h"
 #include "aalviewfindersettingscontrol.h"
+#include "aalcameraexposurecontrol.h"
 #include <storagemanager.h>
 
 #include <hybris/camera/camera_compatibility_layer.h>
@@ -56,6 +57,7 @@ AalCameraService::AalCameraService(QObject *parent):
     m_videoEncoderControl = new AalVideoEncoderSettingsControl(this);
     m_videoOutput = new AalVideoRendererControl(this);
     m_viewfinderControl = new AalViewfinderSettingsControl(this);
+    m_exposureControl = new AalCameraExposureControl(this);
 }
 
 AalCameraService::~AalCameraService()
@@ -74,6 +76,7 @@ AalCameraService::~AalCameraService()
     delete m_videoEncoderControl;
     delete m_videoOutput;
     delete m_viewfinderControl;
+    delete m_exposureControl;
     if (m_oldAndroidControl)
         android_camera_delete(m_oldAndroidControl);
     if (m_androidControl)
@@ -118,6 +121,9 @@ QMediaControl *AalCameraService::requestControl(const char *name)
 
     if (qstrcmp(name, QCameraViewfinderSettingsControl_iid) == 0)
         return m_viewfinderControl;
+
+    if (qstrcmp(name, QCameraExposureControl_iid) == 0)
+        return m_exposureControl;
 
     return 0;
 }
@@ -285,4 +291,5 @@ void AalCameraService::initControls(CameraControl *camControl, CameraControlList
         m_viewfinderControl->setAspectRatio(m_videoEncoderControl->getAspectRatio());
     m_viewfinderControl->init(camControl, listener);
     m_videoOutput->init(camControl, listener);
+    m_exposureControl->init(camControl, listener);
 }

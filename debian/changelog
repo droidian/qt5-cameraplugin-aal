@@ -1,3 +1,11 @@
+qtubuntu-camera (0.3.3+14.10.20140714-0ubuntu1) utopic; urgency=low
+
+  [ Florian Boucault ]
+  * Expose scene modes through a custom QCameraExposureControl. Only
+    relevant scene modes for now are AUTO (off) and HDR.
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 14 Jul 2014 13:59:03 +0000
+
 qtubuntu-camera (0.3.3+14.10.20140625-0ubuntu1) utopic; urgency=low
 
   [ Jim Hodapp ]
