@@ -138,6 +138,8 @@ void android_camera_reset_focus_region(CameraControl* control);
 
 // Set photo metadata
 void android_camera_set_rotation(CameraControl* control, int rotation);
+void android_camera_set_location(CameraControl* control, const float* latitude, const float* longitude, const float* altitude, int timestamp, const char* method);
+
 
 #ifdef __cplusplus
 }

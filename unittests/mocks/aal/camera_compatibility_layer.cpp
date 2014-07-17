@@ -293,3 +293,9 @@ void android_camera_set_rotation(CameraControl* control, int rotation)
     Q_UNUSED(rotation);
     crashTest(control);
 }
+
+void android_camera_set_location(CameraControl* control, const float* latitude, const float* longitude, const float* altitude, int timestamp, const char* method)
+{
+    Q_UNUSED(latitude);
+    crashTest(control);
+}

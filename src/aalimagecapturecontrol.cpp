@@ -30,6 +30,7 @@
 #include <QMediaPlayer>
 #include <QStandardPaths>
 #include <QTemporaryFile>
+#include <QDateTime>
 
 #include <cmath>
 
@@ -84,8 +85,26 @@ int AalImageCaptureControl::capture(const QString &fileName)
         return m_lastRequestId;
     }
 
-    int rotation = m_service->metadataWriterControl()->correctedOrientation();
+    AalMetaDataWriterControl* metadataControl = m_service->metadataWriterControl();
+
+    int rotation = metadataControl->correctedOrientation();
     android_camera_set_rotation(m_service->androidControl(), rotation);
+
+    QStringList availableMetadata = metadataControl->availableMetaData();
+    if (availableMetadata.contains("GPSLatitude") &&
+        availableMetadata.contains("GPSLongitude") &&
+        availableMetadata.contains("GPSAltitude") &&
+        availableMetadata.contains("GPSTimeStamp")) {
+        float latitude = metadataControl->metaData("GPSLatitude").toFloat();
+        float longitude = metadataControl->metaData("GPSLongitude").toFloat();
+        float altitude = metadataControl->metaData("GPSAltitude").toFloat();
+        QDateTime timestamp = metadataControl->metaData("GPSTimeStamp").toDateTime();
+        QString processingMethod = metadataControl->metaData("GPSProcessingMethod").toString();
+        android_camera_set_location(m_service->androidControl(),
+                                    &latitude, &longitude, &altitude,
+                                    timestamp.toTime_t(),
+                                    processingMethod.toLocal8Bit().constData());
+    }
 
     android_camera_take_snapshot(m_service->androidControl());
 
