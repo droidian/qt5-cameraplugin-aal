@@ -50,7 +50,7 @@ private:
     void writeDataToPipe();
 
     pa_simple *m_paStream;
-    uint8_t m_audioBuf[MIC_READ_BUF_SIZE];
+    int16_t m_audioBuf[MIC_READ_BUF_SIZE];
 
     MediaRecorderWrapper *m_mediaRecorder;
 

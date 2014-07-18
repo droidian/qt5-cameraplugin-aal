@@ -129,10 +129,9 @@ bool AudioCapture::setupPipe()
 void AudioCapture::writeDataToPipe()
 {
     int num = 0;
-    uint8_t buf[18] = { "Hello from test!\n" };
     // TODO: Consider a retry loop here in case of error?
     num = loopWrite(m_audioPipe, m_audioBuf, sizeof(m_audioBuf));
-    loopWrite(STDOUT_FILENO, buf, sizeof(buf));
+    loopWrite(STDOUT_FILENO, m_audioBuf, sizeof(m_audioBuf));
     qDebug() << "num: " << num;
     if (num != MIC_READ_BUF_SIZE)
         qWarning() << "Failed to write " << num << " bytes to /android/micshm: " << strerror(errno);
@@ -151,8 +150,8 @@ ssize_t AudioCapture::loopWrite(int fd, const void *data, size_t size)
         if (r == 0)
             break;
         ret += r;
-        //data = static_cast<const uint8_t*>(data + r);
-        data = (const uint8_t*) data + r;
+        //data = static_cast<const int16_t*>(data + r);
+        data = (const int16_t*) data + r;
         size -= (size_t) r;
         //size -= static_cast<size_t>(r);
     }
