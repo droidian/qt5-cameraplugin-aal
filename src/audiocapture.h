@@ -55,6 +55,7 @@ private:
     MediaRecorderWrapper *m_mediaRecorder;
 
     int m_audioPipe;
+    bool m_audioPipeOpened;
 };
 
 #endif // AUDIOCAPTURE_H

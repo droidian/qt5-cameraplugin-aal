@@ -30,7 +30,8 @@
 AudioCapture::AudioCapture(MediaRecorderWrapper *mediaRecorder)
     : m_paStream(NULL),
       m_mediaRecorder(mediaRecorder),
-      m_audioPipe(0)
+      m_audioPipe(0),
+      m_audioPipeOpened(false)
 {
     qDebug() << "Instantiating new AudioCapture instance";
     //m_audioBuf = new uint8_t[MIC_READ_BUF_SIZE];
@@ -38,9 +39,6 @@ AudioCapture::AudioCapture(MediaRecorderWrapper *mediaRecorder)
 
     if (!setupMicrophoneStream())
         qWarning() << "Failed to setup PulseAudio microphone recording stream";
-
-    if (!setupPipe())
-        qWarning() << "Failed to set up named pipe to transfer microphone data to the recorder";
 }
 
 AudioCapture::~AudioCapture()
@@ -112,31 +110,48 @@ bool AudioCapture::setupMicrophoneStream()
 
 bool AudioCapture::setupPipe()
 {
-    qDebug() << "Opening /android/micshm pipe";
+    if (m_audioPipeOpened)
+    {
+        qWarning() << "/dev/socket/micshm already opened, not opening twice";
+        return true;
+    }
+
+    qDebug() << "Opening /dev/socket/micshm pipe";
     //int ret = mkfifo("/tmp/fifo", S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
-    m_audioPipe = open("/android/micshm", O_WRONLY);
+    m_audioPipe = open("/dev/socket/micshm", O_WRONLY);
     if (m_audioPipe < 0)
     {
-        qWarning() << "Failed to open audio data pipe /android/micshm";
+        qWarning() << "Failed to open audio data pipe /dev/socket/micshm: " << strerror(errno);
         return false;
     }
 
-    qDebug() << "Opened /android/micshm pipe";
+    m_audioPipeOpened = true;
+
+    qDebug() << "Opened /dev/socket/micshm pipe";
 
     return true;
 }
 
 void AudioCapture::writeDataToPipe()
 {
+    if (!m_audioPipeOpened)
+    {
+        if (!setupPipe())
+        {
+            qWarning() << "Failed to open /dev/socket/micshm, cannot write data to pipe";
+            return;
+        }
+    }
+
     int num = 0;
     // TODO: Consider a retry loop here in case of error?
     num = loopWrite(m_audioPipe, m_audioBuf, sizeof(m_audioBuf));
     loopWrite(STDOUT_FILENO, m_audioBuf, sizeof(m_audioBuf));
     qDebug() << "num: " << num;
     if (num != MIC_READ_BUF_SIZE)
-        qWarning() << "Failed to write " << num << " bytes to /android/micshm: " << strerror(errno);
+        qWarning() << "Failed to write " << num << " bytes to /dev/socket/micshm: " << strerror(errno);
     else
-        qDebug() << "Wrote " << num << " bytes to /android/micshm";
+        qDebug() << "Wrote " << num << " bytes to /dev/socket/micshm";
 }
 
 ssize_t AudioCapture::loopWrite(int fd, const void *data, size_t size)
