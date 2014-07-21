@@ -39,8 +39,7 @@ AalCameraService *AalCameraService::m_service = 0;
 AalCameraService::AalCameraService(QObject *parent):
     QMediaService(parent),
     m_androidControl(0),
-    m_androidListener(0),
-    m_oldAndroidControl(0)
+    m_androidListener(0)
 {
     m_service = this;
 
@@ -77,8 +76,6 @@ AalCameraService::~AalCameraService()
     delete m_videoOutput;
     delete m_viewfinderControl;
     delete m_exposureControl;
-    if (m_oldAndroidControl)
-        android_camera_delete(m_oldAndroidControl);
     if (m_androidControl)
         android_camera_delete(m_androidControl);
     delete m_storageManager;
@@ -148,15 +145,6 @@ bool AalCameraService::connectCamera()
     if (m_androidControl)
         return true;
 
-    if (m_oldAndroidControl){
-        /// FIXME
-        /// becasue android_camera_disconnect() is asynchronous, it's not deleted directly when calling disconnect
-        /// properly implemented, whe should be notified when it can be deleted
-        /// in case 2 switches happend very fast, this delete might happen too eraly
-        android_camera_delete(m_oldAndroidControl);
-    }
-    m_oldAndroidControl = m_androidControl;
-
     CameraType device = BACK_FACING_CAMERA_TYPE;
     if (!isBackCameraUsed())
         device = FRONT_FACING_CAMERA_TYPE;
@@ -190,8 +178,7 @@ bool AalCameraService::connectCamera()
 
 void AalCameraService::disconnectCamera()
 {
-    if (m_service->videoOutputControl()->isViewfinderRunning())
-        m_service->videoOutputControl()->stopPreview();
+    m_service->videoOutputControl()->stopPreview();
 
     if (m_androidControl) {
         android_camera_disconnect(m_androidControl);

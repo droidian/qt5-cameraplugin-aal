@@ -105,7 +105,6 @@ private:
 
     CameraControl *m_androidControl;
     CameraControlListener *m_androidListener;
-    CameraControl *m_oldAndroidControl;
 
     StorageManager *m_storageManager;
 };
