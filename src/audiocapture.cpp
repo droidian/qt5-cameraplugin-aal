@@ -26,39 +26,84 @@
 #include <sys/stat.h>
 
 #include <QDebug>
+#include <QThread>
 
 AudioCapture::AudioCapture(MediaRecorderWrapper *mediaRecorder)
     : m_paStream(NULL),
       m_mediaRecorder(mediaRecorder),
-      m_audioPipe(0),
-      m_audioPipeOpened(false)
+      m_audioPipe(-1),
+      m_startWorkThreadCb(NULL),
+      m_startWorkThreadContext(NULL)
 {
     qDebug() << "Instantiating new AudioCapture instance";
-    //m_audioBuf = new uint8_t[MIC_READ_BUF_SIZE];
-    qDebug() << "m_audioBuf: " << m_audioBuf;
-
-    if (!setupMicrophoneStream())
-        qWarning() << "Failed to setup PulseAudio microphone recording stream";
 }
 
 AudioCapture::~AudioCapture()
 {
-    if (m_audioPipe > 0)
+    if (m_audioPipe >= 0)
         close(m_audioPipe);
     //delete m_audioBuf;
     if (m_paStream != NULL)
         pa_simple_free(m_paStream);
 }
 
-void AudioCapture::init()
+bool AudioCapture::init()
 {
     // The MediaRecorderLayer will call method (onMicrophoneRead) when it's ready to encode a new audio buffer
     android_recorder_set_audio_read_cb(m_mediaRecorder, &AudioCapture::onReadMicrophone, this);
+
+    if (!setupMicrophoneStream())
+    {
+        qWarning() << "Failed to setup PulseAudio microphone recording stream";
+        return false;
+    }
+
+    return true;
 }
 
-void AudioCapture::readMicrophone()
+void AudioCapture::run()
 {
     qDebug() << __PRETTY_FUNCTION__;
+
+    int bytesWritten = 0, bytesRead = 0;
+
+    if (!setupPipe())
+    {
+        qWarning() << "Failed to open /dev/socket/micshm, cannot write data to pipe";
+        goto exit;
+    }
+
+    do {
+        qDebug() << "--> reading from the mic";
+        bytesRead = readMicrophone();
+        if (bytesRead > 0)
+        {
+            qDebug() << "--> writing to the pipe";
+            bytesWritten = writeDataToPipe();
+        }
+    } while (bytesRead == MIC_READ_BUF_SIZE && bytesWritten == MIC_READ_BUF_SIZE);
+
+    qWarning() << "Broke out of the AudioCapture thread loop, signaling finish";
+
+exit:
+    Q_EMIT finished();
+}
+
+void AudioCapture::moveToThread(QThread *thread)
+{
+    moveToThread(thread);
+}
+
+void AudioCapture::setStartWorkerThreadCb(StartWorkerThreadCb cb, void *context)
+{
+    m_startWorkThreadCb = cb;
+    m_startWorkThreadContext = context;
+}
+
+int AudioCapture::readMicrophone()
+{
+    qDebug() << __PRETTY_FUNCTION__;
+
     int ret = 0, error = 0;
     // Reinitialize the audio buffer
     std::fill_n(m_audioBuf, sizeof(m_audioBuf), 0);
@@ -66,11 +111,29 @@ void AudioCapture::readMicrophone()
     ret = pa_simple_read(m_paStream, m_audioBuf, sizeof(m_audioBuf), &error);
     if (ret < 0)
     {
-        qWarning() << "Failed to read audio from the microphone";
-        return;
+        //qWarning() << "Failed to read audio from the microphone: " << pa_strerror(error);
+        qWarning() << "Failed to read audio from the microphone: ";
+        goto exit;
     }
-    qDebug() << "Read in " << sizeof(m_audioBuf) << " bytes";
-    writeDataToPipe();
+    else
+        ret = sizeof(m_audioBuf);
+
+    qDebug() << "Read in " << ret << " bytes";
+
+exit:
+    return ret;
+}
+
+void AudioCapture::startThreadLoop()
+{
+    qDebug() << __PRETTY_FUNCTION__;
+    if (m_startWorkThreadCb != NULL)
+    {
+        m_startWorkThreadCb(m_startWorkThreadContext);
+    }
+    else
+        qWarning() << "Couldn't start worker thread since m_startWorkThreadCb is NULL";
+    //Q_EMIT startThread();
 }
 
 void AudioCapture::onReadMicrophone(void *context)
@@ -79,8 +142,8 @@ void AudioCapture::onReadMicrophone(void *context)
     if (context != NULL)
     {
         AudioCapture *thiz = static_cast<AudioCapture*>(context);
-        thiz->readMicrophone();
-        //QMetaObject::invokeMethod(thiz, "readMicrophone", Qt::AutoConnection);
+        thiz->startThreadLoop();
+        //QMetaObject::invokeMethod(thiz, "startThreadLoop", Qt::QueuedConnection);
     }
     else
         qWarning() << "Can't call readMicrophone, context is NULL";
@@ -92,7 +155,7 @@ bool AudioCapture::setupMicrophoneStream()
     static const pa_sample_spec ss = {
         .format = PA_SAMPLE_S16LE,
         .rate = 44100,
-        .channels = 2
+        .channels = 1
     };
     int error = 0;
 
@@ -110,14 +173,15 @@ bool AudioCapture::setupMicrophoneStream()
 
 bool AudioCapture::setupPipe()
 {
-    if (m_audioPipeOpened)
+    qDebug() << __PRETTY_FUNCTION__;
+
+    if (m_audioPipe >= 0)
     {
         qWarning() << "/dev/socket/micshm already opened, not opening twice";
         return true;
     }
 
     qDebug() << "Opening /dev/socket/micshm pipe";
-    //int ret = mkfifo("/tmp/fifo", S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
     m_audioPipe = open("/dev/socket/micshm", O_WRONLY);
     if (m_audioPipe < 0)
     {
@@ -125,33 +189,37 @@ bool AudioCapture::setupPipe()
         return false;
     }
 
-    m_audioPipeOpened = true;
-
     qDebug() << "Opened /dev/socket/micshm pipe";
 
     return true;
 }
 
-void AudioCapture::writeDataToPipe()
+int AudioCapture::writeDataToPipe()
 {
-    if (!m_audioPipeOpened)
+    qDebug() << __PRETTY_FUNCTION__;
+
+    // Don't open the named pipe twice
+    if (m_audioPipe < 0)
     {
         if (!setupPipe())
         {
             qWarning() << "Failed to open /dev/socket/micshm, cannot write data to pipe";
-            return;
+            return 0;
         }
     }
 
+    qDebug() << "m_audioPipe: " << m_audioPipe;
+
     int num = 0;
-    // TODO: Consider a retry loop here in case of error?
     num = loopWrite(m_audioPipe, m_audioBuf, sizeof(m_audioBuf));
     loopWrite(STDOUT_FILENO, m_audioBuf, sizeof(m_audioBuf));
     qDebug() << "num: " << num;
     if (num != MIC_READ_BUF_SIZE)
-        qWarning() << "Failed to write " << num << " bytes to /dev/socket/micshm: " << strerror(errno);
+        qWarning() << "Failed to write " << num << " bytes to /dev/socket/micshm: " << strerror(errno) << " (" << errno << ")";
     else
         qDebug() << "Wrote " << num << " bytes to /dev/socket/micshm";
+
+    return num;
 }
 
 ssize_t AudioCapture::loopWrite(int fd, const void *data, size_t size)

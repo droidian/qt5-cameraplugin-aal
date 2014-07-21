@@ -24,6 +24,7 @@
 
 #include <QDebug>
 #include <QFile>
+#include <QThread>
 #include <QTimer>
 
 #include <hybris/camera/camera_compatibility_layer.h>
@@ -60,7 +61,8 @@ AalMediaRecorderControl::AalMediaRecorderControl(AalCameraService *service, QObj
     m_duration(0),
     m_currentState(QMediaRecorder::StoppedState),
     m_currentStatus(QMediaRecorder::UnloadedStatus),
-    m_recordingTimer(0)
+    m_recordingTimer(0),
+    m_workerThread(new QThread)
 {
 }
 
@@ -70,6 +72,7 @@ AalMediaRecorderControl::AalMediaRecorderControl(AalCameraService *service, QObj
 AalMediaRecorderControl::~AalMediaRecorderControl()
 {
     delete m_recordingTimer;
+    delete m_workerThread;
     delete m_audioCapture;
     deleteRecorder();
 }
@@ -145,6 +148,14 @@ qreal AalMediaRecorderControl::volume() const
     return 1.0;
 }
 
+void AalMediaRecorderControl::onStartThread()
+{
+    qDebug() << "Starting AudioCapture::run loop";
+    // Start the microphone read/write worker thread
+    m_audioCapture->moveToThread(m_workerThread);
+    m_workerThread->start();
+}
+
 /*!
  * \brief AalMediaRecorderControl::init makes sure the mediarecorder is
  * initialized
@@ -161,7 +172,13 @@ void AalMediaRecorderControl::initRecorder()
             Q_EMIT error(RECORDER_INITIALIZATION_ERROR, "Unable to create new audio capture, audio recording won't function");
         }
         else
+        {
+            // This signal signifies when we can start the mic data reader/writer worker thread loop
+            //QObject::connect(m_audioCapture, SIGNAL(startThread()), this, SLOT(onStartThread()));
+            m_audioCapture->setStartWorkerThreadCb(&AalMediaRecorderControl::onStartThreadCb, this);
+            QObject::connect(m_workerThread, SIGNAL(started()), m_audioCapture, SLOT(run()));
             m_audioCapture->init();
+        }
 
         if (m_mediaRecorder == 0) {
             qWarning() << "Unable to create new media recorder";
@@ -459,4 +476,11 @@ void AalMediaRecorderControl::setParameter(const QString &parameter, int value)
     Q_ASSERT(m_mediaRecorder);
     QString param =  parameter + QChar('=') + QString::number(value);
     android_recorder_setParameters(m_mediaRecorder, param.toLocal8Bit().data());
+}
+
+void AalMediaRecorderControl::onStartThreadCb(void *context)
+{
+    AalMediaRecorderControl *thiz = static_cast<AalMediaRecorderControl*>(context);
+    if (thiz != NULL)
+        thiz->onStartThread();
 }

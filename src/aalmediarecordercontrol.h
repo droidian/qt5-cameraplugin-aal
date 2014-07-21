@@ -29,6 +29,7 @@ struct CameraControl;
 struct CameraControlListener;
 struct MediaRecorderWrapper;
 class AudioCapture;
+class QThread;
 class QTimer;
 
 class AalMediaRecorderControl : public QMediaRecorderControl
@@ -57,6 +58,7 @@ public Q_SLOTS:
     virtual void setMuted(bool muted);
     virtual void setState(QMediaRecorder::State state);
     virtual void setVolume(qreal gain);
+    void onStartThread();
 
 private Q_SLOTS:
     virtual void updateDuration();
@@ -69,6 +71,7 @@ private:
     int startRecording();
     void stopRecording();
     void setParameter(const QString &parameter, int value);
+    static void onStartThreadCb(void *context);
 
     AalCameraService *m_service;
     MediaRecorderWrapper *m_mediaRecorder;
@@ -78,6 +81,7 @@ private:
     QMediaRecorder::State m_currentState;
     QMediaRecorder::Status m_currentStatus;
     QTimer *m_recordingTimer;
+    QThread *m_workerThread;
 
     static const int RECORDER_GENERAL_ERROR = -1;
     static const int RECORDER_NOT_AVAILABLE_ERROR = -2;

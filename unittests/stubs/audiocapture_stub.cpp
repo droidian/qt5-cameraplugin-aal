@@ -16,6 +16,8 @@
 
 #include "audiocapture.h"
 
+#include <QThread>
+
 #include <hybris/media/media_recorder_layer.h>
 
 AudioCapture::AudioCapture(MediaRecorderWrapper *mediaRecorder)
@@ -27,12 +29,33 @@ AudioCapture::~AudioCapture()
 {
 }
 
-void AudioCapture::init()
+bool AudioCapture::init()
+{
+    return true;
+}
+
+void AudioCapture::run()
 {
 }
 
-void AudioCapture::readMicrophone()
+void AudioCapture::moveToThread(QThread *thread)
 {
+    Q_UNUSED(thread);
+}
+
+void AudioCapture::setStartWorkerThreadCb(StartWorkerThreadCb cb, void *context)
+{
+    Q_UNUSED(cb);
+    Q_UNUSED(context);
+}
+
+void AudioCapture::startThreadLoop()
+{
+}
+
+int AudioCapture::readMicrophone()
+{
+    return 0;
 }
 
 void AudioCapture::onReadMicrophone(void *context)

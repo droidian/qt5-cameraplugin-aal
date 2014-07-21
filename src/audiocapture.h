@@ -22,32 +22,45 @@
 #include <stdint.h>
 
 #include <QObject>
+//#include <QRunnable>
 
 class AalMediaRecorderControl;
 struct MediaRecorderWrapper;
 
 struct pa_simple;
 
-class AudioCapture : public QObject
+class AudioCapture : public QObject//, public QRunnable
 {
     Q_OBJECT
+
+    typedef void (*StartWorkerThreadCb)(void *context);
 public:
     explicit AudioCapture(MediaRecorderWrapper *mediaRecorder);
     ~AudioCapture();
 
-    void init();
+    bool init();
+    void moveToThread(QThread *thread);
 
-    bool readyForCapture() const;
+    void setStartWorkerThreadCb(StartWorkerThreadCb cb, void *context);
+
+signals:
+    void finished();
+    void error(QString err);
+    void startThread();
+
+public Q_SLOTS:
+    void run();
 
 private Q_SLOTS:
-    void readMicrophone();
+    void startThreadLoop();
 
 private:
+    int readMicrophone();
     static void onReadMicrophone(void *context);
     bool setupMicrophoneStream();
     bool setupPipe();
     ssize_t loopWrite(int fd, const void *data, size_t len);
-    void writeDataToPipe();
+    int writeDataToPipe();
 
     pa_simple *m_paStream;
     int16_t m_audioBuf[MIC_READ_BUF_SIZE];
@@ -55,7 +68,9 @@ private:
     MediaRecorderWrapper *m_mediaRecorder;
 
     int m_audioPipe;
-    bool m_audioPipeOpened;
+
+    StartWorkerThreadCb m_startWorkThreadCb;
+    void *m_startWorkThreadContext;
 };
 
 #endif // AUDIOCAPTURE_H
