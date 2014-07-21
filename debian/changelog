@@ -1,3 +1,12 @@
+qtubuntu-camera (0.3.3+14.10.20140721-0ubuntu1) utopic; urgency=low
+
+  [ Florian Boucault ]
+  * Fixed disconnection so that it always happens and reconnection
+    always works. Removed never executed code that was supposed to work
+    around deletion issues. (LP: #1322604)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 21 Jul 2014 19:28:14 +0000
+
 qtubuntu-camera (0.3.3+14.10.20140717-0ubuntu1) utopic; urgency=low
 
   [ Florian Boucault ]
