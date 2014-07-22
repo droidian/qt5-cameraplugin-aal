@@ -38,9 +38,7 @@ public:
     explicit AudioCapture(MediaRecorderWrapper *mediaRecorder);
     ~AudioCapture();
 
-    bool init();
-
-    void setStartWorkerThreadCb(StartWorkerThreadCb cb, void *context);
+    bool init(StartWorkerThreadCb cb, void *context);
 
 signals:
     void finished();
@@ -67,9 +65,6 @@ private:
     MediaRecorderWrapper *m_mediaRecorder;
 
     int m_audioPipe;
-
-    StartWorkerThreadCb m_startWorkThreadCb;
-    void *m_startWorkThreadContext;
 };
 
 #endif // AUDIOCAPTURE_H

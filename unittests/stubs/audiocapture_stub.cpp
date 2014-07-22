@@ -29,19 +29,15 @@ AudioCapture::~AudioCapture()
 {
 }
 
-bool AudioCapture::init()
+bool AudioCapture::init(StartWorkerThreadCb cb, void *context)
 {
+    Q_UNUSED(cb);
+    Q_UNUSED(context);
     return true;
 }
 
 void AudioCapture::run()
 {
-}
-
-void AudioCapture::setStartWorkerThreadCb(StartWorkerThreadCb cb, void *context)
-{
-    Q_UNUSED(cb);
-    Q_UNUSED(context);
 }
 
 void AudioCapture::startThreadLoop()

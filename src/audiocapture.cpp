@@ -31,9 +31,7 @@
 AudioCapture::AudioCapture(MediaRecorderWrapper *mediaRecorder)
     : m_paStream(NULL),
       m_mediaRecorder(mediaRecorder),
-      m_audioPipe(-1),
-      m_startWorkThreadCb(NULL),
-      m_startWorkThreadContext(NULL)
+      m_audioPipe(-1)
 {
     qDebug() << "Instantiating new AudioCapture instance";
 }
@@ -46,20 +44,12 @@ AudioCapture::~AudioCapture()
         pa_simple_free(m_paStream);
 }
 
-bool AudioCapture::init()
+bool AudioCapture::init(StartWorkerThreadCb cb, void *context)
 {
-    // The MediaRecorderLayer will call method (onMicrophoneRead) when it's ready to encode a new audio buffer
-    android_recorder_set_audio_read_cb(m_mediaRecorder, &AudioCapture::onReadMicrophone, this);
+    // The MediaRecorderLayer will call method (cb) when it's ready to encode a new audio buffer
+    android_recorder_set_audio_read_cb(m_mediaRecorder, cb, context);
 
     qDebug() << "Set android_recorder_set_audio_read_cb";
-
-    if (!setupMicrophoneStream())
-    {
-        qWarning() << "Failed to setup PulseAudio microphone recording stream";
-        return false;
-    }
-
-    qDebug() << "Called setupMicrophoneStream";
 
     return true;
 }
@@ -69,6 +59,12 @@ void AudioCapture::run()
     qDebug() << __PRETTY_FUNCTION__;
 
     int bytesWritten = 0, bytesRead = 0;
+
+    if (!setupMicrophoneStream())
+    {
+        qWarning() << "Failed to setup PulseAudio microphone recording stream";
+        goto exit;
+    }
 
     if (!setupPipe())
     {
@@ -90,13 +86,6 @@ void AudioCapture::run()
 
 exit:
     Q_EMIT finished();
-}
-
-void AudioCapture::setStartWorkerThreadCb(StartWorkerThreadCb cb, void *context)
-{
-    qDebug() << __PRETTY_FUNCTION__;
-    m_startWorkThreadCb = cb;
-    m_startWorkThreadContext = context;
 }
 
 int AudioCapture::readMicrophone()
