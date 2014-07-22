@@ -41,8 +41,6 @@ public:
     bool init(StartWorkerThreadCb cb, void *context);
 
 signals:
-    void finished();
-    void error(QString err);
     void startThread();
 
 public Q_SLOTS:

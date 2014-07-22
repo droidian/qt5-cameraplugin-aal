@@ -62,7 +62,6 @@ AalMediaRecorderControl::AalMediaRecorderControl(AalCameraService *service, QObj
     m_currentState(QMediaRecorder::StoppedState),
     m_currentStatus(QMediaRecorder::UnloadedStatus),
     m_recordingTimer(0),
-    m_audioTimer(0),
     m_workerThread(new QThread)
 {
 }
@@ -73,7 +72,6 @@ AalMediaRecorderControl::AalMediaRecorderControl(AalCameraService *service, QObj
 AalMediaRecorderControl::~AalMediaRecorderControl()
 {
     delete m_recordingTimer;
-    delete m_audioTimer;
     delete m_workerThread;
     delete m_audioCapture;
     deleteRecorder();
@@ -176,27 +174,18 @@ void AalMediaRecorderControl::initRecorder()
         }
         else
         {
-            m_audioCapture->init(&AalMediaRecorderControl::onStartThreadCb, this);
             bool ret = false;
+            m_audioCapture->init(&AalMediaRecorderControl::onStartThreadCb, this);
 
-            qDebug() << "threadId: " << QThread::currentThreadId() << " (" << __FILE__ << ":" << __LINE__ << ")";
-
-            // This signal signifies when we can start the mic data reader/writer worker thread loop
-            //ret = connect(m_audioCapture, SIGNAL(startThread()), this, SLOT(onStartThread()));
-            //if (!ret)
-            //    qDebug() << "Connect 1 failed";
-
+            // Make sure that m_audioCapture is executed within the m_workerThread affinity
             m_audioCapture->moveToThread(m_workerThread);
-            qDebug() << "HERE";
 
             ret = connect(m_workerThread, SIGNAL(finished()), m_audioCapture, SLOT(deleteLater()));
             if (!ret)
-                qDebug() << "Connect 2 failed";
+                qWarning() << "Failed to connect deleteLater() to the m_workerThread finished signal";
             ret = connect(this, SIGNAL(startWorkerThread()), m_audioCapture, SLOT(run()));
             if (!ret)
-                qDebug() << "Connect 3 failed";
-
-            qDebug() << "threadId: " << QThread::currentThreadId() << " (" << __FILE__ << ":" << __LINE__ << ")";
+                qWarning() << "Failed to connect run() to the local startWorkerThread signal";
         }
 
         if (m_mediaRecorder == 0) {
@@ -470,7 +459,6 @@ void AalMediaRecorderControl::stopRecording()
 
     setStatus(QMediaRecorder::FinalizingStatus);
     m_recordingTimer->stop();
-    m_audioTimer->stop();
 
     int result = android_recorder_stop(m_mediaRecorder);
     if (result < 0) {

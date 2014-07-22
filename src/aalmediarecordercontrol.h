@@ -84,7 +84,6 @@ private:
     QMediaRecorder::State m_currentState;
     QMediaRecorder::Status m_currentStatus;
     QTimer *m_recordingTimer;
-    QTimer *m_audioTimer;
     QThread *m_workerThread;
 
     static const int RECORDER_GENERAL_ERROR = -1;

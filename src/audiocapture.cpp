@@ -63,13 +63,13 @@ void AudioCapture::run()
     if (!setupMicrophoneStream())
     {
         qWarning() << "Failed to setup PulseAudio microphone recording stream";
-        goto exit;
+        return;
     }
 
     if (!setupPipe())
     {
         qWarning() << "Failed to open /dev/socket/micshm, cannot write data to pipe";
-        goto exit;
+        return;
     }
 
     do {
@@ -80,12 +80,9 @@ void AudioCapture::run()
             qDebug() << "--> writing to the pipe";
             bytesWritten = writeDataToPipe();
         }
-    } while (bytesRead == MIC_READ_BUF_SIZE && bytesWritten == MIC_READ_BUF_SIZE);
+    } while (bytesRead == sizeof(m_audioBuf) && bytesWritten == sizeof(m_audioBuf));
 
-    qWarning() << "Broke out of the AudioCapture thread loop, signaling finish";
-
-exit:
-    Q_EMIT finished();
+    qWarning() << "Broke out of the AudioCapture thread loop, exiting thread loop";
 }
 
 int AudioCapture::readMicrophone()
@@ -99,8 +96,7 @@ int AudioCapture::readMicrophone()
     ret = pa_simple_read(m_paStream, m_audioBuf, sizeof(m_audioBuf), &error);
     if (ret < 0)
     {
-        //qWarning() << "Failed to read audio from the microphone: " << pa_strerror(error);
-        qWarning() << "Failed to read audio from the microphone: ";
+        qWarning() << "Failed to read audio from the microphone: " << pa_strerror(error);
         goto exit;
     }
     else
@@ -126,7 +122,6 @@ void AudioCapture::onReadMicrophone(void *context)
     {
         AudioCapture *thiz = static_cast<AudioCapture*>(context);
         thiz->startThreadLoop();
-        //QMetaObject::invokeMethod(thiz, "startThreadLoop", Qt::DirectConnection);
     }
     else
         qWarning() << "Can't call readMicrophone, context is NULL";
@@ -195,9 +190,7 @@ int AudioCapture::writeDataToPipe()
 
     int num = 0;
     num = loopWrite(m_audioPipe, m_audioBuf, sizeof(m_audioBuf));
-    loopWrite(STDOUT_FILENO, m_audioBuf, sizeof(m_audioBuf));
-    qDebug() << "num: " << num;
-    if (num != MIC_READ_BUF_SIZE)
+    if (num != sizeof(m_audioBuf))
         qWarning() << "Failed to write " << num << " bytes to /dev/socket/micshm: " << strerror(errno) << " (" << errno << ")";
     else
         qDebug() << "Wrote " << num << " bytes to /dev/socket/micshm";
@@ -216,10 +209,8 @@ ssize_t AudioCapture::loopWrite(int fd, const void *data, size_t size)
         if (r == 0)
             break;
         ret += r;
-        //data = static_cast<const int16_t*>(data + r);
         data = (const int16_t*) data + r;
         size -= (size_t) r;
-        //size -= static_cast<size_t>(r);
     }
     return ret;
 }
