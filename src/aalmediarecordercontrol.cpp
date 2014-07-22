@@ -178,12 +178,20 @@ void AalMediaRecorderControl::initRecorder()
         {
             m_audioCapture->init();
 
+            // This signal signifies when we can start the mic data reader/writer worker thread loop
+            bool ret = connect(m_audioCapture, SIGNAL(startThread()), this, SLOT(onStartThread()));
+            if (!ret)
+                qDebug() << "Connect 1 failed";
 
             m_audioCapture->moveToThread(m_workerThread);
-            // This signal signifies when we can start the mic data reader/writer worker thread loop
-            connect(m_audioCapture, SIGNAL(startThread()), this, SLOT(onStartThread()), Qt::QueuedConnection);
-            connect(m_workerThread, SIGNAL(finished()), m_audioCapture, SLOT(deleteLater()));
-            connect(this, SIGNAL(startWorkerThread()), m_audioCapture, SLOT(run()));
+            qDebug() << "HERE";
+
+            ret = connect(m_workerThread, SIGNAL(finished()), m_audioCapture, SLOT(deleteLater()));
+            if (!ret)
+                qDebug() << "Connect 2 failed";
+            ret = connect(this, SIGNAL(startWorkerThread()), m_audioCapture, SLOT(run()));
+            if (!ret)
+                qDebug() << "Connect 3 failed";
 
             //m_audioCapture->setStartWorkerThreadCb(&AalMediaRecorderControl::onStartThreadCb, this);
         }

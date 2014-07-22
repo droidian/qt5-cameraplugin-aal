@@ -38,11 +38,6 @@ void AudioCapture::run()
 {
 }
 
-void AudioCapture::moveToThread(QThread *thread)
-{
-    Q_UNUSED(thread);
-}
-
 void AudioCapture::setStartWorkerThreadCb(StartWorkerThreadCb cb, void *context)
 {
     Q_UNUSED(cb);

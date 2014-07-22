@@ -39,7 +39,6 @@ public:
     ~AudioCapture();
 
     bool init();
-    void moveToThread(QThread *thread);
 
     void setStartWorkerThreadCb(StartWorkerThreadCb cb, void *context);
 
