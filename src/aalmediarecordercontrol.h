@@ -81,13 +81,14 @@ private:
     QMediaRecorder::State m_currentState;
     QMediaRecorder::Status m_currentStatus;
     QTimer *m_recordingTimer;
+    QTimer *m_audioTimer;
     QThread *m_workerThread;
 
     static const int RECORDER_GENERAL_ERROR = -1;
     static const int RECORDER_NOT_AVAILABLE_ERROR = -2;
     static const int RECORDER_INITIALIZATION_ERROR = -3;
 
-    static const int DURATION_UPDATE_INTERVALL = 1000; // update every second
+    static const int DURATION_UPDATE_INTERVAL = 1000; // update every second
 
     static const QLatin1String PARAM_AUDIO_BITRATE;
     static const QLatin1String PARAM_AUDIO_CHANNELS;

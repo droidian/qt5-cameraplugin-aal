@@ -73,7 +73,7 @@ void AudioCapture::run()
         goto exit;
     }
 
-    do {
+//    do {
         qDebug() << "--> reading from the mic";
         bytesRead = readMicrophone();
         if (bytesRead > 0)
@@ -81,7 +81,7 @@ void AudioCapture::run()
             qDebug() << "--> writing to the pipe";
             bytesWritten = writeDataToPipe();
         }
-    } while (bytesRead == MIC_READ_BUF_SIZE && bytesWritten == MIC_READ_BUF_SIZE);
+//    } while (bytesRead == MIC_READ_BUF_SIZE && bytesWritten == MIC_READ_BUF_SIZE);
 
     qWarning() << "Broke out of the AudioCapture thread loop, signaling finish";
 
@@ -96,6 +96,7 @@ void AudioCapture::moveToThread(QThread *thread)
 
 void AudioCapture::setStartWorkerThreadCb(StartWorkerThreadCb cb, void *context)
 {
+    qDebug() << __PRETTY_FUNCTION__;
     m_startWorkThreadCb = cb;
     m_startWorkThreadContext = context;
 }
@@ -127,13 +128,13 @@ exit:
 void AudioCapture::startThreadLoop()
 {
     qDebug() << __PRETTY_FUNCTION__;
+    Q_EMIT startThread();
     if (m_startWorkThreadCb != NULL)
     {
         m_startWorkThreadCb(m_startWorkThreadContext);
     }
     else
         qWarning() << "Couldn't start worker thread since m_startWorkThreadCb is NULL";
-    //Q_EMIT startThread();
 }
 
 void AudioCapture::onReadMicrophone(void *context)
@@ -143,7 +144,7 @@ void AudioCapture::onReadMicrophone(void *context)
     {
         AudioCapture *thiz = static_cast<AudioCapture*>(context);
         thiz->startThreadLoop();
-        //QMetaObject::invokeMethod(thiz, "startThreadLoop", Qt::QueuedConnection);
+        //QMetaObject::invokeMethod(thiz, "startThreadLoop", Qt::DirectConnection);
     }
     else
         qWarning() << "Can't call readMicrophone, context is NULL";

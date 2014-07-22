@@ -39,7 +39,7 @@ const int AalMediaRecorderControl::RECORDER_GENERAL_ERROR;
 const int AalMediaRecorderControl::RECORDER_NOT_AVAILABLE_ERROR;
 const int AalMediaRecorderControl::RECORDER_INITIALIZATION_ERROR;
 
-const int AalMediaRecorderControl::DURATION_UPDATE_INTERVALL;
+const int AalMediaRecorderControl::DURATION_UPDATE_INTERVAL;
 
 const QLatin1String AalMediaRecorderControl::PARAM_AUDIO_BITRATE = QLatin1String("audio-param-encoding-bitrate");
 const QLatin1String AalMediaRecorderControl::PARAM_AUDIO_CHANNELS = QLatin1String("audio-param-number-of-channels");
@@ -62,6 +62,7 @@ AalMediaRecorderControl::AalMediaRecorderControl(AalCameraService *service, QObj
     m_currentState(QMediaRecorder::StoppedState),
     m_currentStatus(QMediaRecorder::UnloadedStatus),
     m_recordingTimer(0),
+    m_audioTimer(0),
     m_workerThread(new QThread)
 {
 }
@@ -72,6 +73,7 @@ AalMediaRecorderControl::AalMediaRecorderControl(AalCameraService *service, QObj
 AalMediaRecorderControl::~AalMediaRecorderControl()
 {
     delete m_recordingTimer;
+    delete m_audioTimer;
     delete m_workerThread;
     delete m_audioCapture;
     deleteRecorder();
@@ -150,10 +152,19 @@ qreal AalMediaRecorderControl::volume() const
 
 void AalMediaRecorderControl::onStartThread()
 {
+#if 0
+    qDebug() << "Starting m_audioTimer";
+    m_audioTimer->start();
+    qDebug() << "Started m_audioTimer";
+#else
     qDebug() << "Starting AudioCapture::run loop";
     // Start the microphone read/write worker thread
     m_audioCapture->moveToThread(m_workerThread);
+    connect(m_workerThread, SIGNAL(started()), m_audioCapture, SLOT(run()), Qt::DirectConnection);
     m_workerThread->start();
+    //QMetaObject::invokeMethod(m_audioCapture, "run", Qt::QueuedConnection);
+    qDebug() << "Started AudioCapture::run loop";
+#endif
 }
 
 /*!
@@ -173,10 +184,26 @@ void AalMediaRecorderControl::initRecorder()
         }
         else
         {
+#if 0
+            qDebug() << "Starting AudioCapture::run loop";
+            // Start the microphone read/write worker thread
+            m_audioCapture->moveToThread(m_workerThread);
+            m_workerThread->start();
+            QMetaObject::invokeMethod(m_audioCapture, "run", Qt::QueuedConnection);
+#else
+            if (m_audioTimer == 0) {
+                m_audioTimer = new QTimer(this);
+                m_audioTimer->setInterval(5); // 5 ms interval
+                m_audioTimer->setSingleShot(false);
+                QObject::connect(m_audioTimer, SIGNAL(timeout()), m_audioCapture, SLOT(run()));
+            }
+#endif
+
             // This signal signifies when we can start the mic data reader/writer worker thread loop
-            //QObject::connect(m_audioCapture, SIGNAL(startThread()), this, SLOT(onStartThread()));
+            QObject::connect(m_audioCapture, SIGNAL(startThread()), this, SLOT(onStartThread()), Qt::QueuedConnection);
             m_audioCapture->setStartWorkerThreadCb(&AalMediaRecorderControl::onStartThreadCb, this);
-            QObject::connect(m_workerThread, SIGNAL(started()), m_audioCapture, SLOT(run()));
+            //connect(m_workerThread, SIGNAL(started()), m_audioCapture, SLOT(run()), Qt::DirectConnection);
+            //connect(m_workerThread, SIGNAL(finished()), this, SLOT(workerThreadFinished()), Qt::DirectConnection);
             m_audioCapture->init();
         }
 
@@ -192,7 +219,7 @@ void AalMediaRecorderControl::initRecorder()
 
     if (m_recordingTimer == 0) {
         m_recordingTimer = new QTimer(this);
-        m_recordingTimer->setInterval(DURATION_UPDATE_INTERVALL);
+        m_recordingTimer->setInterval(DURATION_UPDATE_INTERVAL);
         m_recordingTimer->setSingleShot(false);
         QObject::connect(m_recordingTimer, SIGNAL(timeout()),
                          this, SLOT(updateDuration()));
@@ -282,7 +309,7 @@ void AalMediaRecorderControl::setVolume(qreal gain)
 
 void AalMediaRecorderControl::updateDuration()
 {
-    m_duration += DURATION_UPDATE_INTERVALL;
+    m_duration += DURATION_UPDATE_INTERVAL;
     Q_EMIT durationChanged(m_duration);
 }
 
@@ -451,6 +478,7 @@ void AalMediaRecorderControl::stopRecording()
 
     setStatus(QMediaRecorder::FinalizingStatus);
     m_recordingTimer->stop();
+    m_audioTimer->stop();
 
     int result = android_recorder_stop(m_mediaRecorder);
     if (result < 0) {
