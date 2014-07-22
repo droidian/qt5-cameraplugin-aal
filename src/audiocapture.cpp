@@ -42,7 +42,6 @@ AudioCapture::~AudioCapture()
 {
     if (m_audioPipe >= 0)
         close(m_audioPipe);
-    //delete m_audioBuf;
     if (m_paStream != NULL)
         pa_simple_free(m_paStream);
 }
@@ -73,7 +72,7 @@ void AudioCapture::run()
         goto exit;
     }
 
-//    do {
+    do {
         qDebug() << "--> reading from the mic";
         bytesRead = readMicrophone();
         if (bytesRead > 0)
@@ -81,7 +80,7 @@ void AudioCapture::run()
             qDebug() << "--> writing to the pipe";
             bytesWritten = writeDataToPipe();
         }
-//    } while (bytesRead == MIC_READ_BUF_SIZE && bytesWritten == MIC_READ_BUF_SIZE);
+    } while (bytesRead == MIC_READ_BUF_SIZE && bytesWritten == MIC_READ_BUF_SIZE);
 
     qWarning() << "Broke out of the AudioCapture thread loop, signaling finish";
 
@@ -129,12 +128,14 @@ void AudioCapture::startThreadLoop()
 {
     qDebug() << __PRETTY_FUNCTION__;
     Q_EMIT startThread();
+#if 0
     if (m_startWorkThreadCb != NULL)
     {
         m_startWorkThreadCb(m_startWorkThreadContext);
     }
     else
         qWarning() << "Couldn't start worker thread since m_startWorkThreadCb is NULL";
+#endif
 }
 
 void AudioCapture::onReadMicrophone(void *context)

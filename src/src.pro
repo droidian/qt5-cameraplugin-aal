@@ -2,7 +2,7 @@ include(../coverage.pri)
 TARGET = aalcamera
 TEMPLATE = lib
 CONFIG += plugin
-QT += multimedia opengl
+QT += concurrent multimedia opengl
 
 PLUGIN_TYPE = mediaservice
 

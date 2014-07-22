@@ -152,19 +152,11 @@ qreal AalMediaRecorderControl::volume() const
 
 void AalMediaRecorderControl::onStartThread()
 {
-#if 0
-    qDebug() << "Starting m_audioTimer";
-    m_audioTimer->start();
-    qDebug() << "Started m_audioTimer";
-#else
     qDebug() << "Starting AudioCapture::run loop";
     // Start the microphone read/write worker thread
-    m_audioCapture->moveToThread(m_workerThread);
-    connect(m_workerThread, SIGNAL(started()), m_audioCapture, SLOT(run()), Qt::DirectConnection);
     m_workerThread->start();
-    //QMetaObject::invokeMethod(m_audioCapture, "run", Qt::QueuedConnection);
     qDebug() << "Started AudioCapture::run loop";
-#endif
+    Q_EMIT startWorkerThread();
 }
 
 /*!
@@ -184,27 +176,18 @@ void AalMediaRecorderControl::initRecorder()
         }
         else
         {
-#if 0
-            qDebug() << "Starting AudioCapture::run loop";
-            // Start the microphone read/write worker thread
-            m_audioCapture->moveToThread(m_workerThread);
-            m_workerThread->start();
-            QMetaObject::invokeMethod(m_audioCapture, "run", Qt::QueuedConnection);
-#else
-            if (m_audioTimer == 0) {
-                m_audioTimer = new QTimer(this);
-                m_audioTimer->setInterval(5); // 5 ms interval
-                m_audioTimer->setSingleShot(false);
-                QObject::connect(m_audioTimer, SIGNAL(timeout()), m_audioCapture, SLOT(run()));
-            }
-#endif
+            m_audioCapture->init();
 
             // This signal signifies when we can start the mic data reader/writer worker thread loop
             QObject::connect(m_audioCapture, SIGNAL(startThread()), this, SLOT(onStartThread()), Qt::QueuedConnection);
-            m_audioCapture->setStartWorkerThreadCb(&AalMediaRecorderControl::onStartThreadCb, this);
-            //connect(m_workerThread, SIGNAL(started()), m_audioCapture, SLOT(run()), Qt::DirectConnection);
-            //connect(m_workerThread, SIGNAL(finished()), this, SLOT(workerThreadFinished()), Qt::DirectConnection);
-            m_audioCapture->init();
+
+            m_audioCapture->moveToThread(m_workerThread);
+#if 0
+            connect(m_workerThread, SIGNAL(finished()), m_audioCapture, SLOT(deleteLater()));
+            connect(this, SIGNAL(startWorkerThread()), m_audioCapture, SLOT(run()));
+#endif
+
+            //m_audioCapture->setStartWorkerThreadCb(&AalMediaRecorderControl::onStartThreadCb, this);
         }
 
         if (m_mediaRecorder == 0) {

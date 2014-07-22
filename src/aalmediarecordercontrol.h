@@ -60,6 +60,9 @@ public Q_SLOTS:
     virtual void setVolume(qreal gain);
     void onStartThread();
 
+signals:
+    void startWorkerThread();
+
 private Q_SLOTS:
     virtual void updateDuration();
     void handleError();
