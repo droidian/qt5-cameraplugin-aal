@@ -175,7 +175,6 @@ void AalMediaRecorderControl::initRecorder()
         else
         {
             bool ret = false;
-            m_audioCapture->init(&AalMediaRecorderControl::onStartThreadCb, this);
 
             // Make sure that m_audioCapture is executed within the m_workerThread affinity
             m_audioCapture->moveToThread(m_workerThread);
@@ -186,6 +185,8 @@ void AalMediaRecorderControl::initRecorder()
             ret = connect(this, SIGNAL(startWorkerThread()), m_audioCapture, SLOT(run()));
             if (!ret)
                 qWarning() << "Failed to connect run() to the local startWorkerThread signal";
+
+            m_audioCapture->init(&AalMediaRecorderControl::onStartThreadCb, this);
         }
 
         if (m_mediaRecorder == 0) {
