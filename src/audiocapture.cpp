@@ -30,8 +30,8 @@
 
 AudioCapture::AudioCapture(MediaRecorderWrapper *mediaRecorder)
     : m_paStream(NULL),
-      m_mediaRecorder(mediaRecorder),
-      m_audioPipe(-1)
+      m_audioPipe(-1),
+      m_mediaRecorder(mediaRecorder)
 {
     qDebug() << "Instantiating new AudioCapture instance";
 }
@@ -46,10 +46,9 @@ AudioCapture::~AudioCapture()
 
 bool AudioCapture::init(StartWorkerThreadCb cb, void *context)
 {
+    qDebug() << "Set android_recorder_set_audio_read_cb";
     // The MediaRecorderLayer will call method (cb) when it's ready to encode a new audio buffer
     android_recorder_set_audio_read_cb(m_mediaRecorder, cb, context);
-
-    qDebug() << "Set android_recorder_set_audio_read_cb";
 
     return true;
 }
@@ -91,8 +90,9 @@ int AudioCapture::readMicrophone()
 
     int ret = 0, error = 0;
     // Reinitialize the audio buffer
-    std::fill_n(m_audioBuf, sizeof(m_audioBuf), 0);
+    //std::fill_n(m_audioBuf, (sizeof(m_audioBuf) - sizeof(int16_t)), 0);
     qDebug() << "Reading microphone data...";
+    qDebug() << "m_paStream: " << m_paStream << ", m_audioBuf: " << m_audioBuf << ", sizeof: " << sizeof(m_audioBuf);;
     ret = pa_simple_read(m_paStream, m_audioBuf, sizeof(m_audioBuf), &error);
     if (ret < 0)
     {
@@ -144,8 +144,6 @@ bool AudioCapture::setupMicrophoneStream()
         return false;
     }
 
-    qDebug() << "m_paStream: " << m_paStream;
-
     return true;
 }
 
@@ -167,7 +165,7 @@ bool AudioCapture::setupPipe()
         return false;
     }
 
-    qDebug() << "Opened /dev/socket/micshm pipe";
+    qDebug() << "Opened /dev/socket/micshm pipe on fd: " << m_audioPipe;
 
     return true;
 }
@@ -185,8 +183,6 @@ int AudioCapture::writeDataToPipe()
             return 0;
         }
     }
-
-    qDebug() << "m_audioPipe: " << m_audioPipe;
 
     int num = 0;
     num = loopWrite(m_audioPipe, m_audioBuf, sizeof(m_audioBuf));

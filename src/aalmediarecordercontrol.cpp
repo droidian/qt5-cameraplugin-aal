@@ -321,7 +321,7 @@ void AalMediaRecorderControl::setStatus(QMediaRecorder::Status status)
  * FIXME add support for recording audio only
  */
 int AalMediaRecorderControl::startRecording()
-{    
+{
     if (m_service->androidControl() == 0) {
         Q_EMIT error(RECORDER_INITIALIZATION_ERROR, "No camera connection");
         return RECORDER_INITIALIZATION_ERROR;
@@ -489,6 +489,7 @@ void AalMediaRecorderControl::setParameter(const QString &parameter, int value)
 
 void AalMediaRecorderControl::onStartThreadCb(void *context)
 {
+    qDebug() << __PRETTY_FUNCTION__;
     AalMediaRecorderControl *thiz = static_cast<AalMediaRecorderControl*>(context);
     if (thiz != NULL)
         thiz->onStartThread();

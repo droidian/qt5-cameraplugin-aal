@@ -60,9 +60,8 @@ private:
     pa_simple *m_paStream;
     int16_t m_audioBuf[MIC_READ_BUF_SIZE];
 
-    MediaRecorderWrapper *m_mediaRecorder;
-
     int m_audioPipe;
+    MediaRecorderWrapper *m_mediaRecorder;
 };
 
 #endif // AUDIOCAPTURE_H
