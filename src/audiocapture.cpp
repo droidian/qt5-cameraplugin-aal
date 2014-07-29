@@ -143,7 +143,7 @@ bool AudioCapture::setupMicrophoneStream()
     // FIXME: Get these parameters more dynamically from the control
     static const pa_sample_spec ss = {
         .format = PA_SAMPLE_S16LE,
-        .rate = 44100,
+        .rate = 48000,
         .channels = 1
     };
     int error = 0;
