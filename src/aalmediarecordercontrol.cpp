@@ -469,16 +469,19 @@ void AalMediaRecorderControl::stopRecording()
     qDebug() << "Stopping recording timer";
     m_recordingTimer->stop();
 
-    qDebug() << "Stopping audio capture";
-    // Stop microphone reader/writer loop
-    m_audioCapture->stopCapture();
-
     qDebug() << "Stopping android recorder";
     int result = android_recorder_stop(m_mediaRecorder);
     if (result < 0) {
         Q_EMIT error(RECORDER_GENERAL_ERROR, "Cannot stop video recording");
         return;
     }
+
+    qDebug() << "Stopping audio capture";
+    // Stop microphone reader/writer loop
+    // NOTE: This must come after the android_recorder_stop call, otherwise the
+    // RecordThread instance will block the MPEG4Writer pthread_join when trying to
+    // cleanly stop recording.
+    m_audioCapture->stopCapture();
 
     android_recorder_reset(m_mediaRecorder);
 
