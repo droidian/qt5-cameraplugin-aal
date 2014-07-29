@@ -31,6 +31,7 @@
 AudioCapture::AudioCapture(MediaRecorderWrapper *mediaRecorder)
     : m_paStream(NULL),
       m_audioPipe(-1),
+      m_flagExit(false),
       m_mediaRecorder(mediaRecorder)
 {
     qDebug() << "Instantiating new AudioCapture instance";
@@ -53,11 +54,18 @@ bool AudioCapture::init(StartWorkerThreadCb cb, void *context)
     return true;
 }
 
+void AudioCapture::stopCapture()
+{
+    qDebug() << __PRETTY_FUNCTION__;
+    m_flagExit = true;
+}
+
 void AudioCapture::run()
 {
     qDebug() << __PRETTY_FUNCTION__;
 
     int bytesWritten = 0, bytesRead = 0;
+    const size_t readSize = sizeof(m_audioBuf);
 
     if (!setupMicrophoneStream())
     {
@@ -79,7 +87,9 @@ void AudioCapture::run()
             qDebug() << "--> writing to the pipe";
             bytesWritten = writeDataToPipe();
         }
-    } while (bytesRead == sizeof(m_audioBuf) && bytesWritten == sizeof(m_audioBuf));
+    } while (bytesRead == readSize
+                && bytesWritten == readSize
+                && !m_flagExit);
 
     qWarning() << "Broke out of the AudioCapture thread loop, exiting thread loop";
 }
@@ -89,18 +99,19 @@ int AudioCapture::readMicrophone()
     qDebug() << __PRETTY_FUNCTION__;
 
     int ret = 0, error = 0;
+    const size_t readSize = sizeof(m_audioBuf);
     // Reinitialize the audio buffer
     //std::fill_n(m_audioBuf, (sizeof(m_audioBuf) - sizeof(int16_t)), 0);
     qDebug() << "Reading microphone data...";
-    qDebug() << "m_paStream: " << m_paStream << ", m_audioBuf: " << m_audioBuf << ", sizeof: " << sizeof(m_audioBuf);;
-    ret = pa_simple_read(m_paStream, m_audioBuf, sizeof(m_audioBuf), &error);
+    qDebug() << "m_paStream: " << m_paStream << ", m_audioBuf: " << m_audioBuf << ", sizeof: " << readSize;
+    ret = pa_simple_read(m_paStream, m_audioBuf, readSize, &error);
     if (ret < 0)
     {
         qWarning() << "Failed to read audio from the microphone: " << pa_strerror(error);
         goto exit;
     }
     else
-        ret = sizeof(m_audioBuf);
+        ret = readSize;
 
     qDebug() << "Read in " << ret << " bytes";
 
@@ -185,8 +196,9 @@ int AudioCapture::writeDataToPipe()
     }
 
     int num = 0;
-    num = loopWrite(m_audioPipe, m_audioBuf, sizeof(m_audioBuf));
-    if (num != sizeof(m_audioBuf))
+    const size_t writeSize = sizeof(m_audioBuf);
+    num = loopWrite(m_audioPipe, m_audioBuf, writeSize);
+    if (num != writeSize)
         qWarning() << "Failed to write " << num << " bytes to /dev/socket/micshm: " << strerror(errno) << " (" << errno << ")";
     else
         qDebug() << "Wrote " << num << " bytes to /dev/socket/micshm";

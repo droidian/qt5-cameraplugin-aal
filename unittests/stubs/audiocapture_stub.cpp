@@ -36,6 +36,10 @@ bool AudioCapture::init(StartWorkerThreadCb cb, void *context)
     return true;
 }
 
+void AudioCapture::stopCapture()
+{
+}
+
 void AudioCapture::run()
 {
 }

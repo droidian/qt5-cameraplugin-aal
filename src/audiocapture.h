@@ -39,6 +39,8 @@ public:
     ~AudioCapture();
 
     bool init(StartWorkerThreadCb cb, void *context);
+    /* Terminates the Pulseaudio reader/writer QThread */
+    void stopCapture();
 
 signals:
     void startThread();
@@ -61,6 +63,7 @@ private:
     int16_t m_audioBuf[MIC_READ_BUF_SIZE];
 
     int m_audioPipe;
+    bool m_flagExit;
     MediaRecorderWrapper *m_mediaRecorder;
 };
 

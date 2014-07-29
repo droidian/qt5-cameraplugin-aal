@@ -454,13 +454,26 @@ int AalMediaRecorderControl::startRecording()
  */
 void AalMediaRecorderControl::stopRecording()
 {
+    qDebug() << __PRETTY_FUNCTION__;
     if (m_mediaRecorder == 0) {
+        qWarning() << "Can't stop recording properly, m_mediaRecorder is NULL";
+        return;
+    }
+    if (m_audioCapture == 0) {
+        qWarning() << "Can't stop recording properly, m_audioCapture is NULL";
         return;
     }
 
+    qDebug() << "Finalizing status";
     setStatus(QMediaRecorder::FinalizingStatus);
+    qDebug() << "Stopping recording timer";
     m_recordingTimer->stop();
 
+    qDebug() << "Stopping audio capture";
+    // Stop microphone reader/writer loop
+    m_audioCapture->stopCapture();
+
+    qDebug() << "Stopping android recorder";
     int result = android_recorder_stop(m_mediaRecorder);
     if (result < 0) {
         Q_EMIT error(RECORDER_GENERAL_ERROR, "Cannot stop video recording");
