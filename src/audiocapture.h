@@ -44,6 +44,7 @@ public:
 
 signals:
     void startThread();
+    void finished();
 
 public Q_SLOTS:
     void run();

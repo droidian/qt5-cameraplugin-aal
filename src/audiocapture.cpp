@@ -47,7 +47,6 @@ AudioCapture::~AudioCapture()
 
 bool AudioCapture::init(StartWorkerThreadCb cb, void *context)
 {
-    qDebug() << "Set android_recorder_set_audio_read_cb";
     // The MediaRecorderLayer will call method (cb) when it's ready to encode a new audio buffer
     android_recorder_set_audio_read_cb(m_mediaRecorder, cb, context);
 
@@ -80,30 +79,22 @@ void AudioCapture::run()
     }
 
     do {
-        qDebug() << "--> reading from the mic";
         bytesRead = readMicrophone();
         if (bytesRead > 0)
         {
-            qDebug() << "--> writing to the pipe";
             bytesWritten = writeDataToPipe();
         }
     } while (bytesRead == readSize
                 && bytesWritten == readSize
                 && !m_flagExit);
 
-    qWarning() << "Broke out of the AudioCapture thread loop, exiting thread loop";
+    Q_EMIT finished();
 }
 
 int AudioCapture::readMicrophone()
 {
-    qDebug() << __PRETTY_FUNCTION__;
-
     int ret = 0, error = 0;
     const size_t readSize = sizeof(m_audioBuf);
-    // Reinitialize the audio buffer
-    //std::fill_n(m_audioBuf, (sizeof(m_audioBuf) - sizeof(int16_t)), 0);
-    qDebug() << "Reading microphone data...";
-    qDebug() << "m_paStream: " << m_paStream << ", m_audioBuf: " << m_audioBuf << ", sizeof: " << readSize;
     ret = pa_simple_read(m_paStream, m_audioBuf, readSize, &error);
     if (ret < 0)
     {
@@ -113,15 +104,12 @@ int AudioCapture::readMicrophone()
     else
         ret = readSize;
 
-    qDebug() << "Read in " << ret << " bytes";
-
 exit:
     return ret;
 }
 
 void AudioCapture::startThreadLoop()
 {
-    qDebug() << __PRETTY_FUNCTION__;
     Q_EMIT startThread();
     qDebug() << "Emitted startThread()";
 }
@@ -151,7 +139,7 @@ bool AudioCapture::setupMicrophoneStream()
     m_paStream = pa_simple_new(NULL, "qtubuntu-camera", PA_STREAM_RECORD, NULL, "record", &ss, NULL, NULL, &error);
     if (m_paStream == NULL)
     {
-        qWarning() << "Failed to open a PulseAudio channel to read the microphone";
+        qWarning() << "Failed to open a PulseAudio channel to read the microphone: " << pa_strerror(error);
         return false;
     }
 
@@ -160,15 +148,13 @@ bool AudioCapture::setupMicrophoneStream()
 
 bool AudioCapture::setupPipe()
 {
-    qDebug() << __PRETTY_FUNCTION__;
-
     if (m_audioPipe >= 0)
     {
         qWarning() << "/dev/socket/micshm already opened, not opening twice";
         return true;
     }
 
-    qDebug() << "Opening /dev/socket/micshm pipe";
+    // Open the named pipe for writing only
     m_audioPipe = open("/dev/socket/micshm", O_WRONLY);
     if (m_audioPipe < 0)
     {
@@ -176,15 +162,11 @@ bool AudioCapture::setupPipe()
         return false;
     }
 
-    qDebug() << "Opened /dev/socket/micshm pipe on fd: " << m_audioPipe;
-
     return true;
 }
 
 int AudioCapture::writeDataToPipe()
 {
-    qDebug() << __PRETTY_FUNCTION__;
-
     // Don't open the named pipe twice
     if (m_audioPipe < 0)
     {
@@ -200,8 +182,6 @@ int AudioCapture::writeDataToPipe()
     num = loopWrite(m_audioPipe, m_audioBuf, writeSize);
     if (num != writeSize)
         qWarning() << "Failed to write " << num << " bytes to /dev/socket/micshm: " << strerror(errno) << " (" << errno << ")";
-    else
-        qDebug() << "Wrote " << num << " bytes to /dev/socket/micshm";
 
     return num;
 }

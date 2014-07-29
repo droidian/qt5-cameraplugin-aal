@@ -150,10 +150,9 @@ qreal AalMediaRecorderControl::volume() const
 
 void AalMediaRecorderControl::onStartThread()
 {
-    qDebug() << "Starting AudioCapture::run loop";
+    qDebug() << "Starting microphone reader/writer worker thread";
     // Start the microphone read/write worker thread
     m_workerThread->start();
-    qDebug() << "Started AudioCapture::run loop";
     Q_EMIT startWorkerThread();
 }
 
@@ -179,13 +178,18 @@ void AalMediaRecorderControl::initRecorder()
             // Make sure that m_audioCapture is executed within the m_workerThread affinity
             m_audioCapture->moveToThread(m_workerThread);
 
+            // Finished signal is for when the workerThread is completed. Important to connect this so that
+            // resources are cleaned up in the proper order and not leaked
             ret = connect(m_workerThread, SIGNAL(finished()), m_audioCapture, SLOT(deleteLater()));
             if (!ret)
                 qWarning() << "Failed to connect deleteLater() to the m_workerThread finished signal";
+            // startWorkerThread signal comes from an Android layer callback that resides down in
+            // the AudioRecordHybris class
             ret = connect(this, SIGNAL(startWorkerThread()), m_audioCapture, SLOT(run()));
             if (!ret)
                 qWarning() << "Failed to connect run() to the local startWorkerThread signal";
 
+            // Call onStartThreadCb when the reader side of the named pipe has been setup
             m_audioCapture->init(&AalMediaRecorderControl::onStartThreadCb, this);
         }
 
@@ -464,19 +468,15 @@ void AalMediaRecorderControl::stopRecording()
         return;
     }
 
-    qDebug() << "Finalizing status";
     setStatus(QMediaRecorder::FinalizingStatus);
-    qDebug() << "Stopping recording timer";
     m_recordingTimer->stop();
 
-    qDebug() << "Stopping android recorder";
     int result = android_recorder_stop(m_mediaRecorder);
     if (result < 0) {
         Q_EMIT error(RECORDER_GENERAL_ERROR, "Cannot stop video recording");
         return;
     }
 
-    qDebug() << "Stopping audio capture";
     // Stop microphone reader/writer loop
     // NOTE: This must come after the android_recorder_stop call, otherwise the
     // RecordThread instance will block the MPEG4Writer pthread_join when trying to
@@ -505,7 +505,6 @@ void AalMediaRecorderControl::setParameter(const QString &parameter, int value)
 
 void AalMediaRecorderControl::onStartThreadCb(void *context)
 {
-    qDebug() << __PRETTY_FUNCTION__;
     AalMediaRecorderControl *thiz = static_cast<AalMediaRecorderControl*>(context);
     if (thiz != NULL)
         thiz->onStartThread();
