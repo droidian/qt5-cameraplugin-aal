@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Canonical, Ltd.
+ * Copyright (C) 2013-2014 Canonical, Ltd.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -148,6 +148,9 @@ qreal AalMediaRecorderControl::volume() const
     return 1.0;
 }
 
+/*!
+ * \brief Starts the main microphone reader/writer loop in AudioCapture (run)
+ */
 void AalMediaRecorderControl::onStartThread()
 {
     qDebug() << "Starting microphone reader/writer worker thread";

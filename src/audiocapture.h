@@ -12,6 +12,8 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Authored by: Jim Hodapp <jim.hodapp@canonical.com>
  */
 
 #ifndef AUDIOCAPTURE_H
@@ -22,14 +24,13 @@
 #include <stdint.h>
 
 #include <QObject>
-//#include <QRunnable>
 
 class AalMediaRecorderControl;
 struct MediaRecorderWrapper;
 
 struct pa_simple;
 
-class AudioCapture : public QObject//, public QRunnable
+class AudioCapture : public QObject
 {
     Q_OBJECT
 
@@ -54,7 +55,6 @@ private Q_SLOTS:
 
 private:
     int readMicrophone();
-    static void onReadMicrophone(void *context);
     bool setupMicrophoneStream();
     bool setupPipe();
     ssize_t loopWrite(int fd, const void *data, size_t len);

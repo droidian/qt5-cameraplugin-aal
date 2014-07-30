@@ -12,6 +12,8 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Authored by: Jim Hodapp <jim.hodapp@canonical.com>
  */
 
 #include "audiocapture.h"
@@ -21,9 +23,6 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 
 #include <QDebug>
 #include <QThread>
@@ -34,7 +33,6 @@ AudioCapture::AudioCapture(MediaRecorderWrapper *mediaRecorder)
       m_flagExit(false),
       m_mediaRecorder(mediaRecorder)
 {
-    qDebug() << "Instantiating new AudioCapture instance";
 }
 
 AudioCapture::~AudioCapture()
@@ -45,6 +43,9 @@ AudioCapture::~AudioCapture()
         pa_simple_free(m_paStream);
 }
 
+/*!
+ * \brief Initializes AudioCapture so that it's ready to read microphone data from Pulseaudio
+ */
 bool AudioCapture::init(StartWorkerThreadCb cb, void *context)
 {
     // The MediaRecorderLayer will call method (cb) when it's ready to encode a new audio buffer
@@ -53,12 +54,18 @@ bool AudioCapture::init(StartWorkerThreadCb cb, void *context)
     return true;
 }
 
+/*!
+ * \brief Stops the microphone data capture thread loop
+ */
 void AudioCapture::stopCapture()
 {
     qDebug() << __PRETTY_FUNCTION__;
     m_flagExit = true;
 }
 
+/*!
+ * \brief The main microphone reader/writer loop. Reads from Pulseaudio, writes to named pipe
+ */
 void AudioCapture::run()
 {
     qDebug() << __PRETTY_FUNCTION__;
@@ -91,6 +98,9 @@ void AudioCapture::run()
     Q_EMIT finished();
 }
 
+/*!
+ * \brief Reads microphone data from Pulseaudio
+ */
 int AudioCapture::readMicrophone()
 {
     int ret = 0, error = 0;
@@ -108,24 +118,21 @@ exit:
     return ret;
 }
 
+/*!
+ * \brief Signals AalMediaRecorderControl to start the main thread loop.
+ * \detail This is necessary due to thread contexts. Starting of the main thread loop
+ * for AudioCapture must be done in the main thread context and not in the AudioCapture
+ * thread context, otherwise the loop start signal will never be seen.
+ */
 void AudioCapture::startThreadLoop()
 {
     Q_EMIT startThread();
-    qDebug() << "Emitted startThread()";
+    qDebug() << "Emitted startThread(), should start reading from mic";
 }
 
-void AudioCapture::onReadMicrophone(void *context)
-{
-    qDebug() << __PRETTY_FUNCTION__;
-    if (context != NULL)
-    {
-        AudioCapture *thiz = static_cast<AudioCapture*>(context);
-        thiz->startThreadLoop();
-    }
-    else
-        qWarning() << "Can't call readMicrophone, context is NULL";
-}
-
+/*!
+ * \brief Sets up the Pulseaudio microphone input channel
+ */
 bool AudioCapture::setupMicrophoneStream()
 {
     // FIXME: Get these parameters more dynamically from the control
@@ -146,6 +153,9 @@ bool AudioCapture::setupMicrophoneStream()
     return true;
 }
 
+/*!
+ * \brief Opens the named pipe /dev/socket/micshm for writing mic data to the Android (reader) side
+ */
 bool AudioCapture::setupPipe()
 {
     if (m_audioPipe >= 0)
@@ -165,6 +175,9 @@ bool AudioCapture::setupPipe()
     return true;
 }
 
+/*!
+ * \brief Writes mic data to the named pipe /dev/socket/micshm
+ */
 int AudioCapture::writeDataToPipe()
 {
     // Don't open the named pipe twice

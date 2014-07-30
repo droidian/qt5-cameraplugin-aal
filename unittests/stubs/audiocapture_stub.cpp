@@ -52,8 +52,3 @@ int AudioCapture::readMicrophone()
 {
     return 0;
 }
-
-void AudioCapture::onReadMicrophone(void *context)
-{
-    Q_UNUSED(context);
-}
