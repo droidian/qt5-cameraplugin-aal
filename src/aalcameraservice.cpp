@@ -28,6 +28,7 @@
 #include "aalvideorenderercontrol.h"
 #include "aalviewfindersettingscontrol.h"
 #include "storagemanager.h"
+#include "aalcameraexposurecontrol.h"
 
 #include <hybris/camera/camera_compatibility_layer.h>
 
@@ -38,8 +39,7 @@ AalCameraService *AalCameraService::m_service = 0;
 AalCameraService::AalCameraService(QObject *parent):
     QMediaService(parent),
     m_androidControl(0),
-    m_androidListener(0),
-    m_oldAndroidControl(0)
+    m_androidListener(0)
 {
     m_service = this;
 
@@ -56,6 +56,7 @@ AalCameraService::AalCameraService(QObject *parent):
     m_videoEncoderControl = new AalVideoEncoderSettingsControl(this);
     m_videoOutput = new AalVideoRendererControl(this);
     m_viewfinderControl = new AalViewfinderSettingsControl(this);
+    m_exposureControl = new AalCameraExposureControl(this);
 }
 
 AalCameraService::~AalCameraService()
@@ -74,8 +75,7 @@ AalCameraService::~AalCameraService()
     delete m_videoEncoderControl;
     delete m_videoOutput;
     delete m_viewfinderControl;
-    if (m_oldAndroidControl)
-        android_camera_delete(m_oldAndroidControl);
+    delete m_exposureControl;
     if (m_androidControl)
         android_camera_delete(m_androidControl);
     delete m_storageManager;
@@ -119,6 +119,9 @@ QMediaControl *AalCameraService::requestControl(const char *name)
     if (qstrcmp(name, QCameraViewfinderSettingsControl_iid) == 0)
         return m_viewfinderControl;
 
+    if (qstrcmp(name, QCameraExposureControl_iid) == 0)
+        return m_exposureControl;
+
     return 0;
 }
 
@@ -141,15 +144,6 @@ bool AalCameraService::connectCamera()
 {
     if (m_androidControl)
         return true;
-
-    if (m_oldAndroidControl){
-        /// FIXME
-        /// becasue android_camera_disconnect() is asynchronous, it's not deleted directly when calling disconnect
-        /// properly implemented, whe should be notified when it can be deleted
-        /// in case 2 switches happend very fast, this delete might happen too eraly
-        android_camera_delete(m_oldAndroidControl);
-    }
-    m_oldAndroidControl = m_androidControl;
 
     CameraType device = BACK_FACING_CAMERA_TYPE;
     if (!isBackCameraUsed())
@@ -184,8 +178,7 @@ bool AalCameraService::connectCamera()
 
 void AalCameraService::disconnectCamera()
 {
-    if (m_service->videoOutputControl()->isViewfinderRunning())
-        m_service->videoOutputControl()->stopPreview();
+    m_service->videoOutputControl()->stopPreview();
 
     if (m_androidControl) {
         android_camera_disconnect(m_androidControl);
@@ -285,4 +278,5 @@ void AalCameraService::initControls(CameraControl *camControl, CameraControlList
         m_viewfinderControl->setAspectRatio(m_videoEncoderControl->getAspectRatio());
     m_viewfinderControl->init(camControl, listener);
     m_videoOutput->init(camControl, listener);
+    m_exposureControl->init(camControl, listener);
 }

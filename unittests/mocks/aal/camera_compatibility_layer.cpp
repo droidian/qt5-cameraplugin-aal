@@ -16,8 +16,8 @@
  * Authored by: Thomas Voss <thomas.voss@canonical.com>
  */
 
-#include <hybris/camera/camera_compatibility_layer.h>
-#include <hybris/camera/camera_compatibility_layer_capabilities.h>
+#include "camera_compatibility_layer.h"
+#include "camera_compatibility_layer_capabilities.h"
 
 #include "camera_control.h"
 
@@ -93,6 +93,14 @@ void android_camera_get_white_balance_mode(CameraControl* control, WhiteBalanceM
 {
     Q_UNUSED(mode);
     crashTest(control);
+}
+
+void android_camera_enumerate_supported_scene_modes(CameraControl* control, scene_mode_callback cb, void* ctx)
+{
+    Q_UNUSED(cb);
+    Q_UNUSED(ctx);
+    crashTest(control);
+    cb(ctx, SCENE_MODE_ACTION);
 }
 
 void android_camera_set_scene_mode(CameraControl* control, SceneMode mode)
@@ -283,5 +291,11 @@ void android_camera_reset_focus_region(CameraControl* control)
 void android_camera_set_rotation(CameraControl* control, int rotation)
 {
     Q_UNUSED(rotation);
+    crashTest(control);
+}
+
+void android_camera_set_location(CameraControl* control, const float* latitude, const float* longitude, const float* altitude, int timestamp, const char* method)
+{
+    Q_UNUSED(latitude);
     crashTest(control);
 }
