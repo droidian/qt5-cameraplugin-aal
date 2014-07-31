@@ -92,6 +92,6 @@ void tst_AalImageCaptureControl::priorityAspectRatio()
     }
 }
 
-QTEST_MAIN(tst_AalImageCaptureControl)
+QTEST_GUILESS_MAIN(tst_AalImageCaptureControl)
 
 #include "tst_aalimagecapturecontrol.moc"

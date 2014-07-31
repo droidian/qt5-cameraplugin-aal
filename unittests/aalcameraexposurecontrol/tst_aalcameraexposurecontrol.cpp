@@ -91,6 +91,6 @@ void tst_AalCameraExposureControl::setExposureMode()
     QCOMPARE(spyRequested.count(), 1);
 }
 
-QTEST_MAIN(tst_AalCameraExposureControl)
+QTEST_GUILESS_MAIN(tst_AalCameraExposureControl)
 
 #include "tst_aalcameraexposurecontrol.moc"

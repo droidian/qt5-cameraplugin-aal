@@ -137,6 +137,6 @@ void tst_StorageManager::removeTestDirectory()
         dir.rmdir(testPath);
 }
 
-QTEST_MAIN(tst_StorageManager);
+QTEST_GUILESS_MAIN(tst_StorageManager);
 
 #include "tst_storagemanager.moc"

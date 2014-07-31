@@ -71,6 +71,6 @@ void tst_AalCameraControl::captureMode()
     QCOMPARE(spy.count(), 1);
 }
 
-QTEST_MAIN(tst_AalCameraControl)
+QTEST_GUILESS_MAIN(tst_AalCameraControl)
 
 #include "tst_aalcameracontrol.moc"

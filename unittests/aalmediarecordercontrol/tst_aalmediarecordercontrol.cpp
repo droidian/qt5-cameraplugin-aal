@@ -72,6 +72,6 @@ void tst_AalMediaRecorderControl::setState()
     QCOMPARE(m_recorderControl->status(), QMediaRecorder::UnloadedStatus);
 }
 
-QTEST_MAIN(tst_AalMediaRecorderControl)
+QTEST_GUILESS_MAIN(tst_AalMediaRecorderControl)
 
 #include "tst_aalmediarecordercontrol.moc"

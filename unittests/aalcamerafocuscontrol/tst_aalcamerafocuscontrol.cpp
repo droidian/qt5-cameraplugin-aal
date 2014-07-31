@@ -120,6 +120,6 @@ void tst_AalCameraFocusControl::point2Region()
 }
 
 
-QTEST_MAIN(tst_AalCameraFocusControl)
+QTEST_GUILESS_MAIN(tst_AalCameraFocusControl)
 
 #include "tst_aalcamerafocuscontrol.moc"

@@ -52,7 +52,7 @@ public:
 
     void init(CameraControl *control, CameraControlListener *listener);
     MediaRecorderWrapper* mediaRecorder() const;
-    AudioCapture *audioCapture();
+    AudioCapture *audioCapture() const;
 
 public Q_SLOTS:
     virtual void setMuted(bool muted);

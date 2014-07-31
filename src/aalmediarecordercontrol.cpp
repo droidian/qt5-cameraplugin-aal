@@ -72,8 +72,8 @@ AalMediaRecorderControl::AalMediaRecorderControl(AalCameraService *service, QObj
 AalMediaRecorderControl::~AalMediaRecorderControl()
 {
     delete m_recordingTimer;
-    delete m_workerThread;
-    delete m_audioCapture;
+    m_workerThread->deleteLater();
+    m_audioCapture->deleteLater();
     deleteRecorder();
 }
 
@@ -246,7 +246,7 @@ MediaRecorderWrapper* AalMediaRecorderControl::mediaRecorder() const
     return m_mediaRecorder;
 }
 
-AudioCapture *AalMediaRecorderControl::audioCapture()
+AudioCapture *AalMediaRecorderControl::audioCapture() const
 {
     return m_audioCapture;
 }

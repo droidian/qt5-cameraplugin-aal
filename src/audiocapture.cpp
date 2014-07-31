@@ -107,14 +107,10 @@ int AudioCapture::readMicrophone()
     const size_t readSize = sizeof(m_audioBuf);
     ret = pa_simple_read(m_paStream, m_audioBuf, readSize, &error);
     if (ret < 0)
-    {
         qWarning() << "Failed to read audio from the microphone: " << pa_strerror(error);
-        goto exit;
-    }
     else
         ret = readSize;
 
-exit:
     return ret;
 }
 
@@ -181,13 +177,10 @@ bool AudioCapture::setupPipe()
 int AudioCapture::writeDataToPipe()
 {
     // Don't open the named pipe twice
-    if (m_audioPipe < 0)
+    if (m_audioPipe < 0 && !setupPipe())
     {
-        if (!setupPipe())
-        {
-            qWarning() << "Failed to open /dev/socket/micshm, cannot write data to pipe";
-            return 0;
-        }
+        qWarning() << "Failed to open /dev/socket/micshm, cannot write data to pipe";
+        return 0;
     }
 
     int num = 0;

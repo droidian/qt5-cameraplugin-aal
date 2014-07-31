@@ -60,6 +60,6 @@ void tst_AalVideoDeviceSelectorControl::selectDevice()
     QCOMPARE(spy2.count(), 1);
 }
 
-QTEST_MAIN(tst_AalVideoDeviceSelectorControl)
+QTEST_GUILESS_MAIN(tst_AalVideoDeviceSelectorControl)
 
 #include "tst_aalvideodeviceselectorcontrol.moc"
