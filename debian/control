@@ -5,7 +5,7 @@ Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 Build-Depends: debhelper (>= 9),
                libgl1-mesa-dev | libgl-dev,
                libgles2-mesa-dev,
-               libhybris-dev,
+               libhybris-dev (>= 0.1.0+git20131207+e452e83-0ubuntu23),
                libpulse-dev,
                libqt5opengl5-dev,
                libqtubuntu-media-signals-dev,
@@ -13,6 +13,7 @@ Build-Depends: debhelper (>= 9),
                pkg-config,
                qt5-default,
                qtmultimedia5-dev,
+               libpulse-dev
 Standards-Version: 3.9.4
 Homepage: https://launchpad.net/qtubuntu-camera
 # If you aren't a member of ~phablet-team but need to upload packaging changes,

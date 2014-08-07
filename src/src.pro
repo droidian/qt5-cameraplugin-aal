@@ -2,7 +2,7 @@ include(../coverage.pri)
 TARGET = aalcamera
 TEMPLATE = lib
 CONFIG += plugin
-QT += multimedia opengl
+QT += concurrent multimedia opengl
 
 PLUGIN_TYPE = mediaservice
 
@@ -14,7 +14,9 @@ LIBS += \
     -lcamera \
     -lmedia \
     -lubuntu_application_api \
-    -lqtubuntu-media-signals
+    -lqtubuntu-media-signals \
+    -lpulse \
+    -lpulse-simple
 
 OTHER_FILES += aalcamera.json
 
@@ -33,6 +35,7 @@ HEADERS += \
     aalvideoencodersettingscontrol.h \
     aalvideorenderercontrol.h \
     aalviewfindersettingscontrol.h \
+    audiocapture.h \
     aalcameraexposurecontrol.h \
     storagemanager.h
 
@@ -51,5 +54,6 @@ SOURCES += \
     aalvideoencodersettingscontrol.cpp \
     aalvideorenderercontrol.cpp \
     aalviewfindersettingscontrol.cpp \
+    audiocapture.cpp \
     aalcameraexposurecontrol.cpp \
     storagemanager.cpp

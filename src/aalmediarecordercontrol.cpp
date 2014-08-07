@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Canonical, Ltd.
+ * Copyright (C) 2013-2014 Canonical, Ltd.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -19,10 +19,12 @@
 #include "aalmetadatawritercontrol.h"
 #include "aalvideoencodersettingscontrol.h"
 #include "aalviewfindersettingscontrol.h"
+#include "audiocapture.h"
 #include "storagemanager.h"
 
 #include <QDebug>
 #include <QFile>
+#include <QThread>
 #include <QTimer>
 
 #include <hybris/camera/camera_compatibility_layer.h>
@@ -37,7 +39,7 @@ const int AalMediaRecorderControl::RECORDER_GENERAL_ERROR;
 const int AalMediaRecorderControl::RECORDER_NOT_AVAILABLE_ERROR;
 const int AalMediaRecorderControl::RECORDER_INITIALIZATION_ERROR;
 
-const int AalMediaRecorderControl::DURATION_UPDATE_INTERVALL;
+const int AalMediaRecorderControl::DURATION_UPDATE_INTERVAL;
 
 const QLatin1String AalMediaRecorderControl::PARAM_AUDIO_BITRATE = QLatin1String("audio-param-encoding-bitrate");
 const QLatin1String AalMediaRecorderControl::PARAM_AUDIO_CHANNELS = QLatin1String("audio-param-number-of-channels");
@@ -55,10 +57,12 @@ AalMediaRecorderControl::AalMediaRecorderControl(AalCameraService *service, QObj
    : QMediaRecorderControl(parent),
     m_service(service),
     m_mediaRecorder(0),
+    m_audioCapture(0),
     m_duration(0),
     m_currentState(QMediaRecorder::StoppedState),
     m_currentStatus(QMediaRecorder::UnloadedStatus),
-    m_recordingTimer(0)
+    m_recordingTimer(0),
+    m_workerThread(new QThread)
 {
 }
 
@@ -68,6 +72,8 @@ AalMediaRecorderControl::AalMediaRecorderControl(AalCameraService *service, QObj
 AalMediaRecorderControl::~AalMediaRecorderControl()
 {
     delete m_recordingTimer;
+    m_workerThread->deleteLater();
+    m_audioCapture->deleteLater();
     deleteRecorder();
 }
 
@@ -143,6 +149,17 @@ qreal AalMediaRecorderControl::volume() const
 }
 
 /*!
+ * \brief Starts the main microphone reader/writer loop in AudioCapture (run)
+ */
+void AalMediaRecorderControl::onStartThread()
+{
+    qDebug() << "Starting microphone reader/writer worker thread";
+    // Start the microphone read/write worker thread
+    m_workerThread->start();
+    Q_EMIT startWorkerThread();
+}
+
+/*!
  * \brief AalMediaRecorderControl::init makes sure the mediarecorder is
  * initialized
  */
@@ -150,6 +167,34 @@ void AalMediaRecorderControl::initRecorder()
 {
     if (m_mediaRecorder == 0) {
         m_mediaRecorder = android_media_new_recorder();
+
+        m_audioCapture = new AudioCapture(m_mediaRecorder);
+
+        if (m_audioCapture == 0) {
+            qWarning() << "Unable to create new audio capture, audio recording won't function";
+            Q_EMIT error(RECORDER_INITIALIZATION_ERROR, "Unable to create new audio capture, audio recording won't function");
+        }
+        else
+        {
+            bool ret = false;
+
+            // Make sure that m_audioCapture is executed within the m_workerThread affinity
+            m_audioCapture->moveToThread(m_workerThread);
+
+            // Finished signal is for when the workerThread is completed. Important to connect this so that
+            // resources are cleaned up in the proper order and not leaked
+            ret = connect(m_workerThread, SIGNAL(finished()), m_audioCapture, SLOT(deleteLater()));
+            if (!ret)
+                qWarning() << "Failed to connect deleteLater() to the m_workerThread finished signal";
+            // startWorkerThread signal comes from an Android layer callback that resides down in
+            // the AudioRecordHybris class
+            ret = connect(this, SIGNAL(startWorkerThread()), m_audioCapture, SLOT(run()));
+            if (!ret)
+                qWarning() << "Failed to connect run() to the local startWorkerThread signal";
+
+            // Call onStartThreadCb when the reader side of the named pipe has been setup
+            m_audioCapture->init(&AalMediaRecorderControl::onStartThreadCb, this);
+        }
 
         if (m_mediaRecorder == 0) {
             qWarning() << "Unable to create new media recorder";
@@ -163,7 +208,7 @@ void AalMediaRecorderControl::initRecorder()
 
     if (m_recordingTimer == 0) {
         m_recordingTimer = new QTimer(this);
-        m_recordingTimer->setInterval(DURATION_UPDATE_INTERVALL);
+        m_recordingTimer->setInterval(DURATION_UPDATE_INTERVAL);
         m_recordingTimer->setSingleShot(false);
         QObject::connect(m_recordingTimer, SIGNAL(timeout()),
                          this, SLOT(updateDuration()));
@@ -194,6 +239,16 @@ void AalMediaRecorderControl::errorCB(void *context)
     Q_UNUSED(context);
     QMetaObject::invokeMethod(AalCameraService::instance()->mediaRecorderControl(),
                               "handleError", Qt::QueuedConnection);
+}
+
+MediaRecorderWrapper* AalMediaRecorderControl::mediaRecorder() const
+{
+    return m_mediaRecorder;
+}
+
+AudioCapture *AalMediaRecorderControl::audioCapture() const
+{
+    return m_audioCapture;
 }
 
 /*!
@@ -243,7 +298,7 @@ void AalMediaRecorderControl::setVolume(qreal gain)
 
 void AalMediaRecorderControl::updateDuration()
 {
-    m_duration += DURATION_UPDATE_INTERVALL;
+    m_duration += DURATION_UPDATE_INTERVAL;
     Q_EMIT durationChanged(m_duration);
 }
 
@@ -273,7 +328,7 @@ void AalMediaRecorderControl::setStatus(QMediaRecorder::Status status)
  * FIXME add support for recording audio only
  */
 int AalMediaRecorderControl::startRecording()
-{    
+{
     if (m_service->androidControl() == 0) {
         Q_EMIT error(RECORDER_INITIALIZATION_ERROR, "No camera connection");
         return RECORDER_INITIALIZATION_ERROR;
@@ -406,7 +461,13 @@ int AalMediaRecorderControl::startRecording()
  */
 void AalMediaRecorderControl::stopRecording()
 {
+    qDebug() << __PRETTY_FUNCTION__;
     if (m_mediaRecorder == 0) {
+        qWarning() << "Can't stop recording properly, m_mediaRecorder is NULL";
+        return;
+    }
+    if (m_audioCapture == 0) {
+        qWarning() << "Can't stop recording properly, m_audioCapture is NULL";
         return;
     }
 
@@ -418,6 +479,12 @@ void AalMediaRecorderControl::stopRecording()
         Q_EMIT error(RECORDER_GENERAL_ERROR, "Cannot stop video recording");
         return;
     }
+
+    // Stop microphone reader/writer loop
+    // NOTE: This must come after the android_recorder_stop call, otherwise the
+    // RecordThread instance will block the MPEG4Writer pthread_join when trying to
+    // cleanly stop recording.
+    m_audioCapture->stopCapture();
 
     android_recorder_reset(m_mediaRecorder);
 
@@ -437,4 +504,11 @@ void AalMediaRecorderControl::setParameter(const QString &parameter, int value)
     Q_ASSERT(m_mediaRecorder);
     QString param =  parameter + QChar('=') + QString::number(value);
     android_recorder_setParameters(m_mediaRecorder, param.toLocal8Bit().data());
+}
+
+void AalMediaRecorderControl::onStartThreadCb(void *context)
+{
+    AalMediaRecorderControl *thiz = static_cast<AalMediaRecorderControl*>(context);
+    if (thiz != NULL)
+        thiz->onStartThread();
 }

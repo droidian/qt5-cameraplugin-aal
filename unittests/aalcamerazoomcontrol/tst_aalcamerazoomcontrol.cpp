@@ -73,6 +73,6 @@ void tst_AalCameraZoomControl::zoomTo()
     QCOMPARE(spy.count(), 2);
 }
 
-QTEST_MAIN(tst_AalCameraZoomControl)
+QTEST_GUILESS_MAIN(tst_AalCameraZoomControl)
 
 #include "tst_aalcamerazoomcontrol.moc"

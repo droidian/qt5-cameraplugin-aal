@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Canonical, Ltd.
+ * Copyright (C) 2013-2014 Canonical, Ltd.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -28,6 +28,8 @@ class AalCameraService;
 struct CameraControl;
 struct CameraControlListener;
 struct MediaRecorderWrapper;
+class AudioCapture;
+class QThread;
 class QTimer;
 
 class AalMediaRecorderControl : public QMediaRecorderControl
@@ -49,11 +51,17 @@ public:
     static void errorCB(void* context);
 
     void init(CameraControl *control, CameraControlListener *listener);
+    MediaRecorderWrapper* mediaRecorder() const;
+    AudioCapture *audioCapture() const;
 
 public Q_SLOTS:
     virtual void setMuted(bool muted);
     virtual void setState(QMediaRecorder::State state);
     virtual void setVolume(qreal gain);
+    void onStartThread();
+
+signals:
+    void startWorkerThread();
 
 private Q_SLOTS:
     virtual void updateDuration();
@@ -66,20 +74,23 @@ private:
     int startRecording();
     void stopRecording();
     void setParameter(const QString &parameter, int value);
+    static void onStartThreadCb(void *context);
 
     AalCameraService *m_service;
     MediaRecorderWrapper *m_mediaRecorder;
+    AudioCapture *m_audioCapture;
     QUrl m_outputLocation;
     qint64 m_duration;
     QMediaRecorder::State m_currentState;
     QMediaRecorder::Status m_currentStatus;
     QTimer *m_recordingTimer;
+    QThread *m_workerThread;
 
     static const int RECORDER_GENERAL_ERROR = -1;
     static const int RECORDER_NOT_AVAILABLE_ERROR = -2;
     static const int RECORDER_INITIALIZATION_ERROR = -3;
 
-    static const int DURATION_UPDATE_INTERVALL = 1000; // update every second
+    static const int DURATION_UPDATE_INTERVAL = 1000; // update every second
 
     static const QLatin1String PARAM_AUDIO_BITRATE;
     static const QLatin1String PARAM_AUDIO_CHANNELS;

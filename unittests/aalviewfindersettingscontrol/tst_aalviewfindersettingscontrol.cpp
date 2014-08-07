@@ -124,6 +124,6 @@ void tst_AalViewfinderSettingsControl::chooseOptimalSize0AspectRatioEmpty()
     QCOMPARE(m_vfControl->chooseOptimalSize(resolutions), QSize());
 }
 
-QTEST_MAIN(tst_AalViewfinderSettingsControl)
+QTEST_GUILESS_MAIN(tst_AalViewfinderSettingsControl)
 
 #include "tst_aalviewfindersettingscontrol.moc"

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Canonical, Ltd.
+ * Copyright (C) 2013-2014 Canonical, Ltd.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -27,8 +27,8 @@
 #include "aalvideoencodersettingscontrol.h"
 #include "aalvideorenderercontrol.h"
 #include "aalviewfindersettingscontrol.h"
+#include "storagemanager.h"
 #include "aalcameraexposurecontrol.h"
-#include <storagemanager.h>
 
 #include <hybris/camera/camera_compatibility_layer.h>
 

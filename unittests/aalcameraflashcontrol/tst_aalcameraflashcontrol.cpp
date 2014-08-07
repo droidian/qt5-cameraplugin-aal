@@ -57,6 +57,6 @@ void tst_AalCameraFlashControl::flashMode()
     QCOMPARE(m_flashControl->flashMode(), mode);
 }
 
-QTEST_MAIN(tst_AalCameraFlashControl)
+QTEST_GUILESS_MAIN(tst_AalCameraFlashControl)
 
 #include "tst_aalcameraflashcontrol.moc"
