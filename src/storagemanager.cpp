@@ -36,8 +36,11 @@ StorageManager::StorageManager()
 QString StorageManager::nextPhotoFileName(const QString &directoy)
 {
     m_directory = directoy;
-    if (m_directory.isEmpty())
+    if (m_directory.isEmpty()) {
         m_directory = QStandardPaths::writableLocation(QStandardPaths::PicturesLocation) + "/" + QCoreApplication::applicationName();
+        QDir dir;
+        dir.mkpath(m_directory);
+    }
 
     return nextMediaFileName(photoBase, photoExtension);
 }
@@ -45,8 +48,11 @@ QString StorageManager::nextPhotoFileName(const QString &directoy)
 QString StorageManager::nextVideoFileName(const QString &directoy)
 {
     m_directory = directoy;
-    if (m_directory.isEmpty())
+    if (m_directory.isEmpty()) {
         m_directory = QStandardPaths::writableLocation(QStandardPaths::MoviesLocation) + "/" + QCoreApplication::applicationName();
+        QDir dir;
+        dir.mkpath(m_directory);
+    }
 
     return nextMediaFileName(videoBase, videoExtension);
 }
