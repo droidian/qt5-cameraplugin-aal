@@ -118,6 +118,7 @@ void AalVideoRendererControl::startPreview()
             android_camera_set_preview_texture(cc, m_textureId);
             android_camera_start_preview(cc);
             m_viewFinderRunning = true;
+            updateViewfinderFrame();
         }
     } else {
         // requests a new texture
