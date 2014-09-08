@@ -186,7 +186,8 @@ void AalImageCaptureControl::shutter()
 
 QSize AalImageCaptureControl::chooseOptimalSize(const QList<QSize> &sizes)
 {
-    QSize optimalSize;
+    QSize optimalSize(0, 0);
+    long optimalPixels = 0;
 
     if (!sizes.empty()) {
         getPriorityAspectRatios();
@@ -203,13 +204,15 @@ QSize AalImageCaptureControl::chooseOptimalSize(const QList<QSize> &sizes)
             QList<QSize>::const_iterator it = sizes.begin();
             while (it != sizes.end()) {
                 const float ratio = (float)(*it).width() / (float)(*it).height();
+                const long pixels = ((long)((*it).width())) * ((long)((*it).height()));
                 const float EPSILON = 10e-3;
-                if (fabs(ratio - m_aspectRatio) < EPSILON) {
+                if (fabs(ratio - m_aspectRatio) < EPSILON && pixels > optimalPixels) {
                     optimalSize = *it;
-                    break;
+                    optimalPixels = pixels;
                 }
                 ++it;
             }
+            if (optimalPixels > 0) break;
             ++ratioIt;
         }
     }
