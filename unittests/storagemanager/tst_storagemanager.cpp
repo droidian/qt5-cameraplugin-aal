@@ -31,7 +31,6 @@ class tst_StorageManager : public QObject
 private slots:
     void initTestCase();
     void cleanupTestCase();
-    void nextFileName();
     void checkDirectory();
     void fileNameGenerator_data();
     void fileNameGenerator();
@@ -47,34 +46,6 @@ void tst_StorageManager::initTestCase()
 
 void tst_StorageManager::cleanupTestCase()
 {
-    removeTestDirectory();
-}
-
-void tst_StorageManager::nextFileName()
-{
-    StorageManager storage;
-
-    const QLatin1String photoBase("image");
-    const QLatin1String videoBase("video");
-
-    QString fileName = storage.nextPhotoFileName(testPath);
-    QString compareFileName = storage.fileNameGenerator(1, photoBase,"jpg");
-    QCOMPARE(fileName, compareFileName);
-
-    QDir dir;
-    dir.mkpath(testPath);
-    QFile file(compareFileName);
-    file.open(QIODevice::ReadWrite);
-    file.close();
-    fileName = storage.nextPhotoFileName(testPath);
-    compareFileName = storage.fileNameGenerator(2, photoBase, "jpg");
-    QCOMPARE(fileName, compareFileName);
-
-
-    fileName = storage.nextVideoFileName(testPath);
-    compareFileName = storage.fileNameGenerator(1, videoBase, "mp4");
-    QCOMPARE(fileName, compareFileName);
-
     removeTestDirectory();
 }
 
@@ -101,40 +72,32 @@ void tst_StorageManager::checkDirectory()
 
 void tst_StorageManager::fileNameGenerator_data()
 {
-    QTest::addColumn<int>("index");
-    QTest::addColumn<QString>("idxString");
     QTest::addColumn<QString>("extension");
 
-    QTest::newRow("1") << 1 << "0001" << "jpg";
-    QTest::newRow("12") << 12 << "0012" << "mp4";
-    QTest::newRow("9999") << 9999 << "9999" << "jpg";
+    QTest::newRow("jpg") << "jpg";
+    QTest::newRow("mp4") << "mp4";
 }
 
 void tst_StorageManager::fileNameGenerator()
 {
-    QFETCH(int, index);
-    QFETCH(QString, idxString);
     QFETCH(QString, extension);
 
     StorageManager storage;
     storage.m_directory = "/tmp";
     const QLatin1String photoBase("image");
 
-    QRegExp middlePattern("\\d\\d\\.\\d\\d\\.\\d\\d");
-    QString date = QDate::currentDate().toString("yyyy.MM.dd");
-    QString expectedPre = QString("/tmp/image%1").arg(date);
-    QString expectedPost = QString("%1.%2").arg(idxString).arg(extension);
+    QString basePath = QString("/tmp/%1").arg(photoBase);
+    QString date = QDate::currentDate().toString("yyyyMMdd");
+    QRegExp pattern(QString("%1\\d{8}_\\d{9}\\.%2").arg(basePath).arg(extension));
+    QString expectedPre = QString("%1%2").arg(basePath).arg(date);
 
-    QString generated = storage.fileNameGenerator(index, photoBase, extension);
+    QString generated = storage.fileNameGenerator(photoBase, extension);
+    QVERIFY(pattern.exactMatch(generated));
+
     QStringList parts = generated.split('_');
-    QCOMPARE(parts.count(), 3);
-
+    QCOMPARE(parts.count(), 2);
     QString pre = parts[0];
     QCOMPARE(pre, expectedPre);
-    QString post = parts[2];
-    QCOMPARE(post, expectedPost);
-    QString middle = parts[1];
-    QVERIFY(middlePattern.exactMatch(middle));
 }
 
 void tst_StorageManager::removeTestDirectory()

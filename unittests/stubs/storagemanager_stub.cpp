@@ -41,17 +41,9 @@ bool StorageManager::checkDirectory(const QString &path) const
     return true;
 }
 
-QString StorageManager::nextMediaFileName(const QString &base, const QString &extension)
+QString StorageManager::fileNameGenerator(const QString &base,
+                                         const QString& extension)
 {
-    Q_UNUSED(base);
-    Q_UNUSED(extension);
-    return QString();
-}
-
-QString StorageManager::fileNameGenerator(int idx, const QString &base,
-                                          const QString& extension)
-{
-    Q_UNUSED(idx);
     Q_UNUSED(base);
     Q_UNUSED(extension);
     return QString();
