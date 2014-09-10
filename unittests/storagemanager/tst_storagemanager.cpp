@@ -18,6 +18,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QRegExp>
 
 #define private public
 #include "storagemanager.h"
@@ -119,10 +120,21 @@ void tst_StorageManager::fileNameGenerator()
     storage.m_directory = "/tmp";
     const QLatin1String photoBase("image");
 
-    QString date = QDate::currentDate().toString("yyyyMMdd");
-    QString expected = QString("/tmp/image%1_%2.%3").arg(date).arg(idxString).arg(extension);
+    QRegExp middlePattern("\\d\\d\\.\\d\\d\\.\\d\\d");
+    QString date = QDate::currentDate().toString("yyyy.MM.dd");
+    QString expectedPre = QString("/tmp/image%1").arg(date);
+    QString expectedPost = QString("%1.%2").arg(idxString).arg(extension);
+
     QString generated = storage.fileNameGenerator(index, photoBase, extension);
-    QCOMPARE(generated, expected);
+    QStringList parts = generated.split('_');
+    QCOMPARE(parts.count(), 3);
+
+    QString pre = parts[0];
+    QCOMPARE(pre, expectedPre);
+    QString post = parts[2];
+    QCOMPARE(post, expectedPost);
+    QString middle = parts[1];
+    QVERIFY(middlePattern.exactMatch(middle));
 }
 
 void tst_StorageManager::removeTestDirectory()

@@ -15,7 +15,7 @@
  */
 
 #include "storagemanager.h"
-#include <QDate>
+#include <QDateTime>
 #include <QDebug>
 #include <QDir>
 #include <QFile>
@@ -27,7 +27,7 @@ const QLatin1String photoBase = QLatin1String("image");
 const QLatin1String videoBase = QLatin1String("video");
 const QLatin1String photoExtension = QLatin1String("jpg");
 const QLatin1String videoExtension = QLatin1String("mp4");
-const QLatin1String dateFormat = QLatin1String("yyyyMMdd");
+const QLatin1String dateFormat = QLatin1String("yyyy.MM.dd_HH.mm.ss");
 
 StorageManager::StorageManager()
 {
@@ -93,7 +93,7 @@ QString StorageManager::nextMediaFileName(const QString &base, const QString &ex
 QString StorageManager::fileNameGenerator(int idx, const QString &base,
                                           const QString& extension)
 {
-    QString date = QDate::currentDate().toString(dateFormat);
+    QString date = QDateTime::currentDateTime().toString(dateFormat);
     return QString("%1/%2%3_%4.%5")
             .arg(m_directory)
             .arg(base)
