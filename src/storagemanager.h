@@ -30,8 +30,7 @@ public:
     bool checkDirectory(const QString &path) const;
 
 private:
-    QString nextMediaFileName(const QString &base, const QString &extension);
-    QString fileNameGenerator(int idx, const QString &base, const QString &extension);
+    QString fileNameGenerator(const QString &base, const QString &extension);
 
     QString m_directory;
 };
