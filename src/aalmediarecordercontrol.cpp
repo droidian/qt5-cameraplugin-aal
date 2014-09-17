@@ -24,6 +24,7 @@
 
 #include <QDebug>
 #include <QFile>
+#include <QFileInfo>
 #include <QThread>
 #include <QTimer>
 
@@ -389,10 +390,13 @@ int AalMediaRecorderControl::startRecording()
         return RECORDER_INITIALIZATION_ERROR;
     }
 
-    QString fileName = m_outputLocation.path();
-    if (fileName.isEmpty() || QFile::exists(fileName)) {
+    QString fileName;
+    if (QString(m_outputLocation.path()).isEmpty() || !QFileInfo(m_outputLocation.path()).isWritable()) {
         fileName = m_service->storageManager()->nextVideoFileName();
+    } else {
+        fileName = m_service->storageManager()->nextVideoFileName(m_outputLocation.path());
     }
+
     int fd;
     fd = open(fileName.toLocal8Bit().data(), O_WRONLY | O_CREAT,
               S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
