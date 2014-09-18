@@ -186,7 +186,7 @@ void AalImageCaptureControl::shutter()
 
 QSize AalImageCaptureControl::chooseOptimalSize(const QList<QSize> &sizes)
 {
-    QSize optimalSize(0, 0);
+    QSize optimalSize;
     long optimalPixels = 0;
 
     if (!sizes.empty()) {
@@ -198,7 +198,7 @@ QSize AalImageCaptureControl::chooseOptimalSize(const QList<QSize> &sizes)
         // find one on the current aspect ration, it selects the next ratio and
         // tries again.
         QList<float>::const_iterator ratioIt = m_prioritizedAspectRatios.begin();
-        while (ratioIt != m_prioritizedAspectRatios.end() && optimalSize.isEmpty()) {
+        while (ratioIt != m_prioritizedAspectRatios.end()) {
             m_aspectRatio = (*ratioIt);
 
             QList<QSize>::const_iterator it = sizes.begin();
