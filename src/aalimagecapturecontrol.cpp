@@ -23,13 +23,13 @@
 
 #include <hybris/camera/camera_compatibility_layer.h>
 #include <hybris/camera/camera_compatibility_layer_capabilities.h>
+#include <exiv2/exiv2.hpp>
 
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QMediaPlayer>
 #include <QStandardPaths>
-#include <QTemporaryFile>
 #include <QDateTime>
 
 #include <cmath>
@@ -261,28 +261,74 @@ void AalImageCaptureControl::getPriorityAspectRatios()
     }
 }
 
+bool AalImageCaptureControl::updateJpegMetadata(void* data, uint32_t dataSize, QTemporaryFile* destination)
+{
+    Exiv2::Image::AutoPtr image;
+    try {
+        image = Exiv2::ImageFactory::open((Exiv2::byte*) data, dataSize);
+        if (!image.get()) {
+            return false;
+        }
+    } catch(const Exiv2::AnyError&) {
+        return false;
+    }
+
+    try {
+        image->readMetadata();
+        Exiv2::ExifData ed = image->exifData();
+        QString now = QDateTime::currentDateTime().toString("yyyy:MM:dd HH:mm:ss");
+        ed["Exif.Photo.DateTimeOriginal"].setValue(now.toStdString());
+        ed["Exif.Photo.DateTimeDigitized"].setValue(now.toStdString());
+        image->setExifData(ed);
+        image->writeMetadata();
+    } catch(const Exiv2::AnyError&) {
+        return false;
+    }
+
+    if (!destination->open()) {
+        return false;
+    }
+
+    try {
+        Exiv2::BasicIo& io = image->io();
+        char* modifiedMetadata = (char*) io.mmap();
+        long size = io.size();
+        qint64 writtenSize = destination->write(modifiedMetadata, size);
+        //unmap
+        destination->close();
+        return (writtenSize == size);
+
+    } catch(const Exiv2::AnyError&) {
+        destination->close();
+        return false;
+    }
+}
+
 void AalImageCaptureControl::saveJpeg(void *data, uint32_t dataSize)
 {
     if (m_pendingCaptureFile.isNull() || !m_service->androidControl())
         return;
 
     QTemporaryFile file;
-    if (!file.open()) {
-        emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
-                   QString("Could not open temprary file %1").arg(file.fileName()));
-        m_pendingCaptureFile.clear();
-        m_service->updateCaptureReady();
-        return;
-    }
+    if (!updateJpegMetadata(data, dataSize, &file)) {
+        qDebug() << "Failed to update EXIF timestamps. Picture will be saved as UTC timezone.";
+        if (!file.open()) {
+            emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
+                       QString("Could not open temprary file %1").arg(file.fileName()));
+            m_pendingCaptureFile.clear();
+            m_service->updateCaptureReady();
+            return;
+        }
 
-    qint64 writtenSize = file.write((const char*)data, dataSize);
-    file.close();
-    if (writtenSize != dataSize) {
-        emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
-                   QString("Could not write file %1").arg(file.fileName()));
-        m_pendingCaptureFile.clear();
-        m_service->updateCaptureReady();
-        return;
+        qint64 writtenSize = file.write((const char*)data, dataSize);
+        file.close();
+        if (writtenSize != dataSize) {
+            emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
+                       QString("Could not write file %1").arg(file.fileName()));
+            m_pendingCaptureFile.clear();
+            m_service->updateCaptureReady();
+            return;
+        }
     }
 
     QFile finalFile(file.fileName());
