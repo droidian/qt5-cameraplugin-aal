@@ -65,7 +65,8 @@ bool AalCameraExposureControl::setValue(ExposureParameter parameter, const QVari
         return false;
     }
 
-    if (parameter == QCameraExposureControl::ExposureMode) {
+    if ((parameter == QCameraExposureControl::ExposureMode) &&
+    (m_service->androidControl() != NULL)) {
         m_requestedExposureMode = value.value<QCameraExposure::ExposureMode>();
         Q_EMIT requestedValueChanged(QCameraExposureControl::ExposureMode);
 
