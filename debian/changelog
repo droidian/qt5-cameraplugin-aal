@@ -1,3 +1,11 @@
+qtubuntu-camera (0.3.3+14.10.20140924-0ubuntu1) 14.09; urgency=low
+
+  [ Ricardo Salveti de Araujo ]
+  * Ensure androidControl is valid before using it to change exposure
+    settings. (LP: #1368436)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 24 Sep 2014 17:52:59 +0000
+
 qtubuntu-camera (0.3.3+14.10.20140918-0ubuntu1) 14.09; urgency=low
 
   [ Yuan-Chen Cheng ]
