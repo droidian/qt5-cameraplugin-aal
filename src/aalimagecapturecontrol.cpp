@@ -263,9 +263,11 @@ void AalImageCaptureControl::getPriorityAspectRatios()
 
 bool AalImageCaptureControl::updateJpegMetadata(void* data, uint32_t dataSize, QTemporaryFile* destination)
 {
+    if (data == 0 || destination == 0) return false;
+
     Exiv2::Image::AutoPtr image;
     try {
-        image = Exiv2::ImageFactory::open((Exiv2::byte*) data, dataSize);
+        image = Exiv2::ImageFactory::open(static_cast<Exiv2::byte*>(data), dataSize);
         if (!image.get()) {
             return false;
         }
@@ -276,7 +278,7 @@ bool AalImageCaptureControl::updateJpegMetadata(void* data, uint32_t dataSize, Q
     try {
         image->readMetadata();
         Exiv2::ExifData ed = image->exifData();
-        QString now = QDateTime::currentDateTime().toString("yyyy:MM:dd HH:mm:ss");
+        const QString now = QDateTime::currentDateTime().toString("yyyy:MM:dd HH:mm:ss");
         ed["Exif.Photo.DateTimeOriginal"].setValue(now.toStdString());
         ed["Exif.Photo.DateTimeDigitized"].setValue(now.toStdString());
         image->setExifData(ed);
@@ -291,10 +293,10 @@ bool AalImageCaptureControl::updateJpegMetadata(void* data, uint32_t dataSize, Q
 
     try {
         Exiv2::BasicIo& io = image->io();
-        char* modifiedMetadata = (char*) io.mmap();
-        long size = io.size();
-        qint64 writtenSize = destination->write(modifiedMetadata, size);
-        //unmap
+        char* modifiedMetadata = reinterpret_cast<char*>(io.mmap());
+        const long size = io.size();
+        const qint64 writtenSize = destination->write(modifiedMetadata, size);
+        io.munmap();
         destination->close();
         return (writtenSize == size);
 
@@ -311,7 +313,7 @@ void AalImageCaptureControl::saveJpeg(void *data, uint32_t dataSize)
 
     QTemporaryFile file;
     if (!updateJpegMetadata(data, dataSize, &file)) {
-        qDebug() << "Failed to update EXIF timestamps. Picture will be saved as UTC timezone.";
+        qWarning() << "Failed to update EXIF timestamps. Picture will be saved as UTC timezone.";
         if (!file.open()) {
             emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
                        QString("Could not open temprary file %1").arg(file.fileName()));
@@ -320,7 +322,7 @@ void AalImageCaptureControl::saveJpeg(void *data, uint32_t dataSize)
             return;
         }
 
-        qint64 writtenSize = file.write((const char*)data, dataSize);
+        const qint64 writtenSize = file.write(static_cast<const char*>(data), dataSize);
         file.close();
         if (writtenSize != dataSize) {
             emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
