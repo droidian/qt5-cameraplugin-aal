@@ -8,6 +8,9 @@ LIBS += -L../mocks/aal -laal
 INCLUDEPATH += ../../src
 INCLUDEPATH += ../mocks/aal
 
+CONFIG += link_pkgconfig
+PKGCONFIG += exiv2
+
 HEADERS += ../../src/aalimagecapturecontrol.h \
     ../../src/aalcameraservice.h \
     ../../src/aalimageencodercontrol.h \

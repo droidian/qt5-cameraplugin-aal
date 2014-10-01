@@ -19,6 +19,7 @@
 
 #include <QCameraImageCaptureControl>
 #include <QString>
+#include <QTemporaryFile>
 #include <storagemanager.h>
 
 #include <stdint.h>
@@ -67,6 +68,7 @@ private:
     float getScreenAspectRatio();
     void getPriorityAspectRatios();
     void saveJpeg(void* data, uint32_t dataSize);
+    bool updateJpegMetadata(void* data, uint32_t dataSize, QTemporaryFile* destination);
 
     AalCameraService *m_service;
     AalCameraControl *m_cameraControl;
