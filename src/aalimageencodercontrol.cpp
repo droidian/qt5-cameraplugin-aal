@@ -112,7 +112,7 @@ void AalImageEncoderControl::setThumbnailSize(const QSize &size)
         return;
     }
 
-    if (!m_availableSizes.contains(size)) {
+    if (!m_availableThumbnailSizes.contains(size)) {
         qWarning() << "Thumbnail size " << size << "is not supported by the camera";
         qWarning() << "Supported thumbnail sizes are: " << m_availableThumbnailSizes;
         return;
