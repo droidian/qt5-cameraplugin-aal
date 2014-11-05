@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Canonical, Ltd.
+ * Copyright (C) 2013-2014 Canonical, Ltd.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -63,6 +63,14 @@ QList<QSize> AalImageEncoderControl::supportedResolutions(const QImageEncoderSet
     return QList<QSize>();
 }
 
+QList<QSize> AalImageEncoderControl::supportedThumbnailResolutions(const QImageEncoderSettings &settings, bool *continuous) const
+{
+    Q_UNUSED(settings);
+    Q_UNUSED(continuous);
+
+    return QList<QSize>();
+}
+
 void AalImageEncoderControl::init(CameraControl *control)
 {
     Q_UNUSED(control);
@@ -73,18 +81,36 @@ void AalImageEncoderControl::setSize(const QSize &size)
     Q_UNUSED(size);
 }
 
+void AalImageEncoderControl::setThumbnailSize(const QSize &size)
+{
+    Q_UNUSED(size);
+}
+
 void AalImageEncoderControl::resetAllSettings()
 {
 }
 
-void AalImageEncoderControl::setPictureSizeCb(void *ctx, int width, int height)
+void AalImageEncoderControl::getPictureSizeCb(void *ctx, int width, int height)
 {
     Q_UNUSED(ctx);
     Q_UNUSED(width);
     Q_UNUSED(height);
 }
 
-void AalImageEncoderControl::setPictureSize(int width, int height)
+void AalImageEncoderControl::getPictureSize(int width, int height)
+{
+    Q_UNUSED(width);
+    Q_UNUSED(height);
+}
+
+void AalImageEncoderControl::getThumbnailSizeCb(void *ctx, int width, int height)
+{
+    Q_UNUSED(ctx);
+    Q_UNUSED(width);
+    Q_UNUSED(height);
+}
+
+void AalImageEncoderControl::getThumbnailSize(int width, int height)
 {
     Q_UNUSED(width);
     Q_UNUSED(height);

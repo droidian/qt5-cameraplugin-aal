@@ -149,6 +149,14 @@ void AalImageCaptureControl::init(CameraControl *control, CameraControlListener 
     else
         qWarning() << "No supported resolutions detected for currently selected camera device." << endl;
 
+    // Set the optimal thumbnail image resolution that will be saved to the JPEG file
+    if (!imageEncoderControl->supportedThumbnailResolutions(settings).empty()) {
+        imageEncoderControl->setThumbnailSize(
+                chooseOptimalSize(imageEncoderControl->supportedThumbnailResolutions(settings)));
+    }
+    else
+        qWarning() << "No supported resolutions detected for currently selected camera device." << endl;
+
     listener->on_msg_shutter_cb = &AalImageCaptureControl::shutterCB;
     listener->on_data_compressed_image_cb = &AalImageCaptureControl::saveJpegCB;
 
