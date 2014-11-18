@@ -395,7 +395,7 @@ int AalMediaRecorderControl::startRecording()
     if (fileName.isEmpty()) {
         fileName = m_service->storageManager()->nextVideoFileName();
     } else if (fileInfo.isDir()) {
-        fileName = m_service->storageManager()->nextVideoFileName(m_outputLocation.path());
+        fileName = m_service->storageManager()->nextVideoFileName(fileName);
     }
 
     int fd;
