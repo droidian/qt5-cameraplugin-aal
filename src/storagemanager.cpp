@@ -15,10 +15,9 @@
  */
 
 #include "storagemanager.h"
-#include <QDate>
+#include <QDateTime>
 #include <QDebug>
 #include <QDir>
-#include <QFile>
 #include <QFileInfo>
 #include <QStandardPaths>
 #include <QCoreApplication>
@@ -27,7 +26,7 @@ const QLatin1String photoBase = QLatin1String("image");
 const QLatin1String videoBase = QLatin1String("video");
 const QLatin1String photoExtension = QLatin1String("jpg");
 const QLatin1String videoExtension = QLatin1String("mp4");
-const QLatin1String dateFormat = QLatin1String("yyyyMMdd");
+const QLatin1String dateFormat = QLatin1String("yyyyMMdd_HHmmsszzz");
 
 StorageManager::StorageManager()
 {
@@ -42,7 +41,7 @@ QString StorageManager::nextPhotoFileName(const QString &directoy)
         dir.mkpath(m_directory);
     }
 
-    return nextMediaFileName(photoBase, photoExtension);
+    return fileNameGenerator(photoBase, photoExtension);
 }
 
 QString StorageManager::nextVideoFileName(const QString &directoy)
@@ -54,7 +53,7 @@ QString StorageManager::nextVideoFileName(const QString &directoy)
         dir.mkpath(m_directory);
     }
 
-    return nextMediaFileName(videoBase, videoExtension);
+    return fileNameGenerator(videoBase, videoExtension);
 }
 
 bool StorageManager::checkDirectory(const QString &path) const
@@ -79,25 +78,12 @@ bool StorageManager::checkDirectory(const QString &path) const
     return true;
 }
 
-QString StorageManager::nextMediaFileName(const QString &base, const QString &extension)
+QString StorageManager::fileNameGenerator(const QString &base, const QString& extension)
 {
-    int idx = 1;
-    QString fileName = fileNameGenerator(idx, base, extension);
-    while (QFile::exists(fileName)) {
-        ++idx;
-        fileName = fileNameGenerator(idx, base, extension);
-    }
-    return fileName;
-}
-
-QString StorageManager::fileNameGenerator(int idx, const QString &base,
-                                          const QString& extension)
-{
-    QString date = QDate::currentDate().toString(dateFormat);
-    return QString("%1/%2%3_%4.%5")
+    QString date = QDateTime::currentDateTime().toString(dateFormat);
+    return QString("%1/%2%3.%4")
             .arg(m_directory)
             .arg(base)
             .arg(date)
-            .arg(idx,4,10,QLatin1Char('0'))
             .arg(extension);
 }

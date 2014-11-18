@@ -18,6 +18,9 @@ LIBS += \
     -lpulse \
     -lpulse-simple
 
+CONFIG += link_pkgconfig
+PKGCONFIG += exiv2
+
 OTHER_FILES += aalcamera.json
 
 HEADERS += \

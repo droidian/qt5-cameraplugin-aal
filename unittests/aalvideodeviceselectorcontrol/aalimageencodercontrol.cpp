@@ -70,14 +70,27 @@ void AalImageEncoderControl::resetAllSettings()
 {
 }
 
-void AalImageEncoderControl::setPictureSizeCb(void *ctx, int width, int height)
+void AalImageEncoderControl::getPictureSizeCb(void *ctx, int width, int height)
 {
     Q_UNUSED(ctx);
     Q_UNUSED(width);
     Q_UNUSED(height);
 }
 
-void AalImageEncoderControl::setPictureSize(int width, int height)
+void AalImageEncoderControl::getPictureSize(int width, int height)
+{
+    Q_UNUSED(width);
+    Q_UNUSED(height);
+}
+
+void AalImageEncoderControl::getThumbnailSizeCb(void *ctx, int width, int height)
+{
+    Q_UNUSED(ctx);
+    Q_UNUSED(width);
+    Q_UNUSED(height);
+}
+
+void AalImageEncoderControl::getThumbnailSize(int width, int height)
 {
     Q_UNUSED(width);
     Q_UNUSED(height);

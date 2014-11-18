@@ -23,13 +23,13 @@
 
 #include <hybris/camera/camera_compatibility_layer.h>
 #include <hybris/camera/camera_compatibility_layer_capabilities.h>
+#include <exiv2/exiv2.hpp>
 
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QMediaPlayer>
 #include <QStandardPaths>
-#include <QTemporaryFile>
 #include <QDateTime>
 
 #include <cmath>
@@ -149,6 +149,14 @@ void AalImageCaptureControl::init(CameraControl *control, CameraControlListener 
     else
         qWarning() << "No supported resolutions detected for currently selected camera device." << endl;
 
+    // Set the optimal thumbnail image resolution that will be saved to the JPEG file
+    if (!imageEncoderControl->supportedThumbnailResolutions(settings).empty()) {
+        imageEncoderControl->setThumbnailSize(
+                chooseOptimalSize(imageEncoderControl->supportedThumbnailResolutions(settings)));
+    }
+    else
+        qWarning() << "No supported resolutions detected for currently selected camera device." << endl;
+
     listener->on_msg_shutter_cb = &AalImageCaptureControl::shutterCB;
     listener->on_data_compressed_image_cb = &AalImageCaptureControl::saveJpegCB;
 
@@ -188,6 +196,7 @@ void AalImageCaptureControl::shutter()
 QSize AalImageCaptureControl::chooseOptimalSize(const QList<QSize> &sizes)
 {
     QSize optimalSize;
+    long optimalPixels = 0;
 
     if (!sizes.empty()) {
         getPriorityAspectRatios();
@@ -198,19 +207,21 @@ QSize AalImageCaptureControl::chooseOptimalSize(const QList<QSize> &sizes)
         // find one on the current aspect ration, it selects the next ratio and
         // tries again.
         QList<float>::const_iterator ratioIt = m_prioritizedAspectRatios.begin();
-        while (ratioIt != m_prioritizedAspectRatios.end() && optimalSize.isEmpty()) {
+        while (ratioIt != m_prioritizedAspectRatios.end()) {
             m_aspectRatio = (*ratioIt);
 
             QList<QSize>::const_iterator it = sizes.begin();
             while (it != sizes.end()) {
                 const float ratio = (float)(*it).width() / (float)(*it).height();
+                const long pixels = ((long)((*it).width())) * ((long)((*it).height()));
                 const float EPSILON = 10e-3;
-                if (fabs(ratio - m_aspectRatio) < EPSILON) {
+                if (fabs(ratio - m_aspectRatio) < EPSILON && pixels > optimalPixels) {
                     optimalSize = *it;
-                    break;
+                    optimalPixels = pixels;
                 }
                 ++it;
             }
+            if (optimalPixels > 0) break;
             ++ratioIt;
         }
     }
@@ -261,28 +272,76 @@ void AalImageCaptureControl::getPriorityAspectRatios()
     }
 }
 
+bool AalImageCaptureControl::updateJpegMetadata(void* data, uint32_t dataSize, QTemporaryFile* destination)
+{
+    if (data == 0 || destination == 0) return false;
+
+    Exiv2::Image::AutoPtr image;
+    try {
+        image = Exiv2::ImageFactory::open(static_cast<Exiv2::byte*>(data), dataSize);
+        if (!image.get()) {
+            return false;
+        }
+    } catch(const Exiv2::AnyError&) {
+        return false;
+    }
+
+    try {
+        image->readMetadata();
+        Exiv2::ExifData ed = image->exifData();
+        const QString now = QDateTime::currentDateTime().toString("yyyy:MM:dd HH:mm:ss");
+        ed["Exif.Photo.DateTimeOriginal"].setValue(now.toStdString());
+        ed["Exif.Photo.DateTimeDigitized"].setValue(now.toStdString());
+        image->setExifData(ed);
+        image->writeMetadata();
+    } catch(const Exiv2::AnyError&) {
+        return false;
+    }
+
+    if (!destination->open()) {
+        return false;
+    }
+
+    try {
+        Exiv2::BasicIo& io = image->io();
+        char* modifiedMetadata = reinterpret_cast<char*>(io.mmap());
+        const long size = io.size();
+        const qint64 writtenSize = destination->write(modifiedMetadata, size);
+        io.munmap();
+        destination->close();
+        return (writtenSize == size);
+
+    } catch(const Exiv2::AnyError&) {
+        destination->close();
+        return false;
+    }
+}
+
 void AalImageCaptureControl::saveJpeg(void *data, uint32_t dataSize)
 {
     if (m_pendingCaptureFile.isNull() || !m_service->androidControl())
         return;
 
     QTemporaryFile file;
-    if (!file.open()) {
-        emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
-                   QString("Could not open temprary file %1").arg(file.fileName()));
-        m_pendingCaptureFile.clear();
-        m_service->updateCaptureReady();
-        return;
-    }
+    if (!updateJpegMetadata(data, dataSize, &file)) {
+        qWarning() << "Failed to update EXIF timestamps. Picture will be saved as UTC timezone.";
+        if (!file.open()) {
+            emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
+                       QString("Could not open temprary file %1").arg(file.fileName()));
+            m_pendingCaptureFile.clear();
+            m_service->updateCaptureReady();
+            return;
+        }
 
-    qint64 writtenSize = file.write((const char*)data, dataSize);
-    file.close();
-    if (writtenSize != dataSize) {
-        emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
-                   QString("Could not write file %1").arg(file.fileName()));
-        m_pendingCaptureFile.clear();
-        m_service->updateCaptureReady();
-        return;
+        const qint64 writtenSize = file.write(static_cast<const char*>(data), dataSize);
+        file.close();
+        if (writtenSize != dataSize) {
+            emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
+                       QString("Could not write file %1").arg(file.fileName()));
+            m_pendingCaptureFile.clear();
+            m_service->updateCaptureReady();
+            return;
+        }
     }
 
     QFile finalFile(file.fileName());

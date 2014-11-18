@@ -18,6 +18,8 @@
 #include <cmath>
 
 #include "aalcameraservice.h"
+#include "data_validjpeg.h"
+#include "data_noexifjpeg.h"
 
 #define private public
 #include "aalimagecapturecontrol.h"
@@ -33,6 +35,8 @@ private slots:
     void chooseOptimalSizeEmpty();
 
     void priorityAspectRatio();
+
+    void updateEXIF();
 
 private:
     AalImageCaptureControl *m_icControl;
@@ -90,6 +94,23 @@ void tst_AalImageCaptureControl::priorityAspectRatio()
         qDebug() << "backAspectRatios[i]: " << backAspectRatios[i] << endl;
         Q_ASSERT(fabs(m_icControl->m_prioritizedAspectRatios[i] - backAspectRatios[i]) < EPSILON);
     }
+}
+
+void tst_AalImageCaptureControl::updateEXIF()
+{
+    bool result;
+    QTemporaryFile tmp;
+    char *invalidJPEG = "INVALID_IMAGE";
+    result = m_icControl->updateJpegMetadata(0, 0, &tmp);
+    QCOMPARE(result, false);
+    result = m_icControl->updateJpegMetadata(invalidJPEG, strlen(invalidJPEG), 0);
+    QCOMPARE(result, false);
+    result = m_icControl->updateJpegMetadata(invalidJPEG, strlen(invalidJPEG), &tmp);
+    QCOMPARE(result, false);
+    result = m_icControl->updateJpegMetadata(data_validjpeg, data_validjpeg_len, &tmp);
+    QCOMPARE(result, true);
+    result = m_icControl->updateJpegMetadata(data_noexifjpeg, data_noexifjpeg_len, &tmp);
+    QCOMPARE(result, true);
 }
 
 QTEST_GUILESS_MAIN(tst_AalImageCaptureControl)

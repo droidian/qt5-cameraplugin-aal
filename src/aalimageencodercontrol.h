@@ -36,21 +36,27 @@ public:
     void setImageSettings(const QImageEncoderSettings &settings);
     QStringList supportedImageCodecs() const;
     QList<QSize> supportedResolutions(const QImageEncoderSettings &settings, bool *continuous = 0) const;
+    QList<QSize> supportedThumbnailResolutions(const QImageEncoderSettings &settings, bool *continuous = 0) const;
 
     void init(CameraControl *control);
     void setSize(const QSize &size);
+    void setThumbnailSize(const QSize &size);
     void resetAllSettings();
 
     void enablePhotoMode();
 
-    static void setPictureSizeCb(void *ctx, int width, int height);
+    static void getPictureSizeCb(void *ctx, int width, int height);
+    static void getThumbnailSizeCb(void *ctx, int width, int height);
 
 private:
     AalCameraService *m_service;
     QList<QSize> m_availableSizes;
+    QList<QSize> m_availableThumbnailSizes;
     QSize m_currentSize;
+    QSize m_currentThumbnailSize;
 
-    void setPictureSize(int width, int height);
+    void getPictureSize(int width, int height);
+    void getThumbnailSize(int width, int height);
 };
 
 #endif

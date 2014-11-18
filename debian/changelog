@@ -1,3 +1,49 @@
+qtubuntu-camera (0.3.3+15.04.20141105-0ubuntu1) vivid; urgency=low
+
+  [ Jim Hodapp ]
+  * Add thumbnail size selection support.
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 05 Nov 2014 01:31:29 +0000
+
+qtubuntu-camera (0.3.3+14.10.20141001-0ubuntu1) 14.09; urgency=low
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+  [ Ugo Riboni ]
+  * Fix EXIF timestamp before saving JPEG, so that timestamps are in
+    local times and not in UTC (LP: #1371390)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 01 Oct 2014 22:23:52 +0000
+
+qtubuntu-camera (0.3.3+14.10.20140924-0ubuntu1) 14.09; urgency=low
+
+  [ Ricardo Salveti de Araujo ]
+  * Ensure androidControl is valid before using it to change exposure
+    settings. (LP: #1368436)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 24 Sep 2014 17:52:59 +0000
+
+qtubuntu-camera (0.3.3+14.10.20140918-0ubuntu1) 14.09; urgency=low
+
+  [ Yuan-Chen Cheng ]
+  * fix bug on use the lowest resolution instead of highest one. (LP:
+    #1365385)
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 18 Sep 2014 14:26:04 +0000
+
+qtubuntu-camera (0.3.3+14.10.20140911-0ubuntu1) utopic; urgency=low
+
+  [ Ugo Riboni ]
+  * Prevent filenames from reoccurring when a photo is deleted and re-
+    taken the same day, by adding time up to the second to the filename.
+    (LP: #1234130)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 11 Sep 2014 19:55:53 +0000
+
 qtubuntu-camera (0.3.3+14.10.20140909-0ubuntu1) utopic; urgency=low
 
   [ Ricardo Salveti de Araujo ]
