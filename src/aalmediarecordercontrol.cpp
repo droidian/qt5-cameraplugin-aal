@@ -390,10 +390,11 @@ int AalMediaRecorderControl::startRecording()
         return RECORDER_INITIALIZATION_ERROR;
     }
 
-    QString fileName;
-    if (QString(m_outputLocation.path()).isEmpty() || !QFileInfo(m_outputLocation.path()).isWritable()) {
+    QString fileName = m_outputLocation.path();
+    QFileInfo fileInfo = QFileInfo(fileName);
+    if (fileName.isEmpty()) {
         fileName = m_service->storageManager()->nextVideoFileName();
-    } else {
+    } else if (fileInfo.isDir()) {
         fileName = m_service->storageManager()->nextVideoFileName(m_outputLocation.path());
     }
 
