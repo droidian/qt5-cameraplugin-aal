@@ -1,3 +1,20 @@
+qtubuntu-camera (0.3.3+15.04.20141119-0ubuntu1) vivid; urgency=low
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+  [ Florian Boucault ]
+  * Support outputLocation() when parameter is a directory path, so one
+    can assign external storage path (e.g. SD card) from QML using
+    'camera.videoRecorder.outputLocation'.
+
+  [ Penk Chen ]
+  * Support outputLocation() when parameter is a directory path, so one
+    can assign external storage path (e.g. SD card) from QML using
+    'camera.videoRecorder.outputLocation'.
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 19 Nov 2014 14:31:08 +0000
+
 qtubuntu-camera (0.3.3+15.04.20141105-0ubuntu1) vivid; urgency=low
 
   [ Jim Hodapp ]
