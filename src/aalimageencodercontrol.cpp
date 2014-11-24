@@ -30,7 +30,7 @@ AalImageEncoderControl::AalImageEncoderControl(AalCameraService *service, QObjec
       m_currentThumbnailSize()
 {
     int jpegQuality;
-    //android_camera_get_jpeg_quality(m_service->androidControl(), &jpegQuality);
+    android_camera_get_jpeg_quality(m_service->androidControl(), &jpegQuality);
     m_encoderSettings.setQuality(jpegQualityToQtEncodingQuality(jpegQuality));
 }
 
@@ -55,7 +55,7 @@ void AalImageEncoderControl::setImageSettings(const QImageEncoderSettings &setti
         // JPEG quality
         m_encoderSettings.setQuality(settings.quality());
         int jpegQuality = qtEncodingQualityToJpegQuality(settings.quality());
-        //android_camera_set_jpeg_quality(m_service->androidControl(), jpegQuality);
+        android_camera_set_jpeg_quality(m_service->androidControl(), jpegQuality);
 
         // codec
         if (!settings.codec().isNull()) {
