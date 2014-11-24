@@ -127,6 +127,18 @@ void android_camera_get_auto_focus_mode(CameraControl* control, AutoFocusMode* m
     crashTest(control);
 }
 
+void android_camera_set_jpeg_quality(CameraControl* control, int quality)
+{
+    Q_UNUSED(quality);
+    crashTest(control);
+}
+
+void android_camera_get_jpeg_quality(CameraControl* control, int* quality)
+{
+    Q_UNUSED(quality);
+    crashTest(control);
+}
+
 void android_camera_set_effect_mode(CameraControl* control, EffectMode mode)
 {
     Q_UNUSED(mode);
