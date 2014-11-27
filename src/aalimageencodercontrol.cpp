@@ -29,9 +29,6 @@ AalImageEncoderControl::AalImageEncoderControl(AalCameraService *service, QObjec
       m_currentSize(),
       m_currentThumbnailSize()
 {
-    int jpegQuality;
-    android_camera_get_jpeg_quality(m_service->androidControl(), &jpegQuality);
-    m_encoderSettings.setQuality(jpegQualityToQtEncodingQuality(jpegQuality));
 }
 
 AalImageEncoderControl::~AalImageEncoderControl()
@@ -103,6 +100,10 @@ void AalImageEncoderControl::init(CameraControl *control)
         android_camera_enumerate_supported_picture_sizes(control, &AalImageEncoderControl::getPictureSizeCb, this);
         android_camera_enumerate_supported_thumbnail_sizes(control, &AalImageEncoderControl::getThumbnailSizeCb, this);
     }
+
+    int jpegQuality;
+    android_camera_get_jpeg_quality(control, &jpegQuality);
+    m_encoderSettings.setQuality(jpegQualityToQtEncodingQuality(jpegQuality));
 }
 
 void AalImageEncoderControl::setSize(const QSize &size)
