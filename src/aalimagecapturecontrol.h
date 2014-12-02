@@ -64,7 +64,7 @@ private Q_SLOTS:
     void shutter();
 
 private:
-    QSize chooseOptimalSize(const QList<QSize> &sizes);
+    QSize chooseOptimalSize(const QList<QSize> &sizes, bool updateAspectRatio = true);
     float getScreenAspectRatio();
     void getPriorityAspectRatios();
     void saveJpeg(void* data, uint32_t dataSize);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Canonical, Ltd.
+ * Copyright (C) 2013-2014 Canonical, Ltd.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -152,7 +152,7 @@ void AalImageCaptureControl::init(CameraControl *control, CameraControlListener 
     // Set the optimal thumbnail image resolution that will be saved to the JPEG file
     if (!imageEncoderControl->supportedThumbnailResolutions(settings).empty()) {
         imageEncoderControl->setThumbnailSize(
-                chooseOptimalSize(imageEncoderControl->supportedThumbnailResolutions(settings)));
+                chooseOptimalSize(imageEncoderControl->supportedThumbnailResolutions(settings), false));
     }
     else
         qWarning() << "No supported resolutions detected for currently selected camera device." << endl;
@@ -193,7 +193,7 @@ void AalImageCaptureControl::shutter()
     Q_EMIT imageExposed(m_lastRequestId);
 }
 
-QSize AalImageCaptureControl::chooseOptimalSize(const QList<QSize> &sizes)
+QSize AalImageCaptureControl::chooseOptimalSize(const QList<QSize> &sizes, bool updateAspectRatio)
 {
     QSize optimalSize;
     long optimalPixels = 0;
@@ -208,7 +208,10 @@ QSize AalImageCaptureControl::chooseOptimalSize(const QList<QSize> &sizes)
         // tries again.
         QList<float>::const_iterator ratioIt = m_prioritizedAspectRatios.begin();
         while (ratioIt != m_prioritizedAspectRatios.end()) {
-            m_aspectRatio = (*ratioIt);
+            // Don't update the aspect ratio when using this function for finding
+            // the optimal thumbnail size as it will affect the preview window size
+            if (updateAspectRatio)
+                m_aspectRatio = (*ratioIt);
 
             QList<QSize>::const_iterator it = sizes.begin();
             while (it != sizes.end()) {
