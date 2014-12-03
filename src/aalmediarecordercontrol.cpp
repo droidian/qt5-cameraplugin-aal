@@ -62,7 +62,7 @@ AalMediaRecorderControl::AalMediaRecorderControl(AalCameraService *service, QObj
     m_currentState(QMediaRecorder::StoppedState),
     m_currentStatus(QMediaRecorder::UnloadedStatus),
     m_recordingTimer(0),
-    m_workerThread(new QThread)
+    m_workerThread(0)
 {
 }
 
@@ -167,6 +167,7 @@ void AalMediaRecorderControl::initRecorder()
         m_mediaRecorder = android_media_new_recorder();
 
         m_audioCapture = new AudioCapture(m_mediaRecorder);
+        m_workerThread = new QThread;
 
         if (m_audioCapture == 0) {
             qWarning() << "Unable to create new audio capture, audio recording won't function";
@@ -187,6 +188,7 @@ void AalMediaRecorderControl::initRecorder()
             ret = connect(m_audioCapture, SIGNAL(finished()), m_audioCapture, SLOT(deleteLater()));
             if (!ret)
                 qWarning() << "Failed to connect deleteLater() to the m_audioCapture finished signal";
+            // Clean up the worker thread after we finish recording
             ret = connect(m_workerThread, SIGNAL(finished()), m_workerThread, SLOT(deleteLater()));
             if (!ret)
                 qWarning() << "Failed to connect deleteLater() to the m_workerThread finished signal";
