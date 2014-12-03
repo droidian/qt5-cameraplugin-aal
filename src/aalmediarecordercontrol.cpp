@@ -72,8 +72,6 @@ AalMediaRecorderControl::AalMediaRecorderControl(AalCameraService *service, QObj
 AalMediaRecorderControl::~AalMediaRecorderControl()
 {
     delete m_recordingTimer;
-    m_workerThread->deleteLater();
-    m_audioCapture->deleteLater();
     deleteRecorder();
 }
 
@@ -183,7 +181,13 @@ void AalMediaRecorderControl::initRecorder()
 
             // Finished signal is for when the workerThread is completed. Important to connect this so that
             // resources are cleaned up in the proper order and not leaked
-            ret = connect(m_workerThread, SIGNAL(finished()), m_audioCapture, SLOT(deleteLater()));
+            ret = connect(m_audioCapture, SIGNAL(finished()), m_workerThread, SLOT(quit()));
+            if (!ret)
+                qWarning() << "Failed to connect quit() to the m_audioCapture finished signal";
+            ret = connect(m_audioCapture, SIGNAL(finished()), m_audioCapture, SLOT(deleteLater()));
+            if (!ret)
+                qWarning() << "Failed to connect deleteLater() to the m_audioCapture finished signal";
+            ret = connect(m_workerThread, SIGNAL(finished()), m_workerThread, SLOT(deleteLater()));
             if (!ret)
                 qWarning() << "Failed to connect deleteLater() to the m_workerThread finished signal";
             // startWorkerThread signal comes from an Android layer callback that resides down in

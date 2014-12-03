@@ -95,6 +95,13 @@ void AudioCapture::run()
                 && bytesWritten == readSize
                 && !m_flagExit);
 
+    // Make sure that Pulse stops reading the microphone when recording stops
+    if (m_paStream != NULL)
+    {
+        pa_simple_free(m_paStream);
+        m_paStream = NULL;
+    }
+
     Q_EMIT finished();
 }
 

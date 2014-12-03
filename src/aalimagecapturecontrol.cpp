@@ -210,7 +210,7 @@ QSize AalImageCaptureControl::chooseOptimalSize(const QList<QSize> &sizes, bool 
         while (ratioIt != m_prioritizedAspectRatios.end()) {
             // Don't update the aspect ratio when using this function for finding
             // the optimal thumbnail size as it will affect the preview window size
-            if (updateAspectRatio)
+            //if (updateAspectRatio)
                 m_aspectRatio = (*ratioIt);
 
             QList<QSize>::const_iterator it = sizes.begin();
