@@ -200,7 +200,9 @@ QSize AalImageCaptureControl::chooseOptimalSize(const QList<QSize> &sizes, bool 
 
     if (!sizes.empty()) {
         getPriorityAspectRatios();
-        m_aspectRatio = m_prioritizedAspectRatios.front();
+        float aspectRatio = m_prioritizedAspectRatios.front();
+        if (updateAspectRatio)
+            m_aspectRatio = aspectRatio;
 
         // Loop over all reported camera resolutions until we find the highest
         // one that matches the current prioritized aspect ratio. If it doesn't
@@ -212,13 +214,15 @@ QSize AalImageCaptureControl::chooseOptimalSize(const QList<QSize> &sizes, bool 
             // the optimal thumbnail size as it will affect the preview window size
             if (updateAspectRatio)
                 m_aspectRatio = (*ratioIt);
+            else
+                aspectRatio = (*ratioIt);
 
             QList<QSize>::const_iterator it = sizes.begin();
             while (it != sizes.end()) {
                 const float ratio = (float)(*it).width() / (float)(*it).height();
                 const long pixels = ((long)((*it).width())) * ((long)((*it).height()));
                 const float EPSILON = 10e-3;
-                if (fabs(ratio - m_aspectRatio) < EPSILON && pixels > optimalPixels) {
+                if (fabs(ratio - aspectRatio) < EPSILON && pixels > optimalPixels) {
                     optimalSize = *it;
                     optimalPixels = pixels;
                 }
