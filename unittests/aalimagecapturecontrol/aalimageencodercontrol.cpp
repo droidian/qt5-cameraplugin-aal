@@ -115,3 +115,15 @@ void AalImageEncoderControl::getThumbnailSize(int width, int height)
     Q_UNUSED(width);
     Q_UNUSED(height);
 }
+
+QMultimedia::EncodingQuality AalImageEncoderControl::jpegQualityToQtEncodingQuality(int jpegQuality)
+{
+    Q_UNUSED(jpegQuality)
+    return QMultimedia::NormalQuality;
+}
+
+int AalImageEncoderControl::qtEncodingQualityToJpegQuality(QMultimedia::EncodingQuality quality)
+{
+    Q_UNUSED(quality)
+    return 100;
+}

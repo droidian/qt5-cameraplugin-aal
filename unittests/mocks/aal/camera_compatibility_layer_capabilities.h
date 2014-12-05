@@ -121,6 +121,7 @@ void android_camera_enumerate_supported_scene_modes(CameraControl* control, scen
 void android_camera_get_scene_mode(CameraControl* control, SceneMode* mode);
 void android_camera_get_auto_focus_mode(CameraControl* control, AutoFocusMode* mode);
 void android_camera_get_preview_format(CameraControl* control, CameraPixelFormat* format);
+void android_camera_get_jpeg_quality(struct CameraControl* control, int* quality);
 
 // Adjusts camera parameters
 void android_camera_set_preview_size(CameraControl* control, int width, int height); 
@@ -132,6 +133,7 @@ void android_camera_set_white_balance_mode(CameraControl* control, WhiteBalanceM
 void android_camera_set_scene_mode(CameraControl* control, SceneMode mode);
 void android_camera_set_auto_focus_mode(CameraControl* control, AutoFocusMode mode);
 void android_camera_set_preview_format(CameraControl* control, CameraPixelFormat format);
+void android_camera_set_jpeg_quality(struct CameraControl* control, int quality);
 
 void android_camera_set_focus_region(CameraControl* control, FocusRegion* region);
 void android_camera_reset_focus_region(CameraControl* control);

@@ -54,9 +54,12 @@ private:
     QList<QSize> m_availableThumbnailSizes;
     QSize m_currentSize;
     QSize m_currentThumbnailSize;
+    QImageEncoderSettings m_encoderSettings;
 
     void getPictureSize(int width, int height);
     void getThumbnailSize(int width, int height);
+    QMultimedia::EncodingQuality jpegQualityToQtEncodingQuality(int jpegQuality);
+    int qtEncodingQualityToJpegQuality(QMultimedia::EncodingQuality quality);
 };
 
 #endif

@@ -43,12 +43,32 @@ QString AalImageEncoderControl::imageCodecDescription(const QString &codec) cons
 
 QImageEncoderSettings AalImageEncoderControl::imageSettings() const
 {
-    return QImageEncoderSettings();
+    return m_encoderSettings;
 }
 
 void AalImageEncoderControl::setImageSettings(const QImageEncoderSettings &settings)
 {
-    Q_UNUSED(settings);
+    if (!settings.isNull()) {
+        // JPEG quality
+        m_encoderSettings.setQuality(settings.quality());
+        int jpegQuality = qtEncodingQualityToJpegQuality(settings.quality());
+        android_camera_set_jpeg_quality(m_service->androidControl(), jpegQuality);
+
+        // codec
+        if (!settings.codec().isNull()) {
+            m_encoderSettings.setCodec(settings.codec());
+        }
+
+        // resolution
+        if (!settings.resolution().isNull()) {
+            m_encoderSettings.setResolution(settings.resolution());
+        }
+
+        // encoding options
+        if (!settings.encodingOptions().isEmpty()) {
+            m_encoderSettings.setEncodingOptions(settings.encodingOptions());
+        }
+    }
 }
 
 QStringList AalImageEncoderControl::supportedImageCodecs() const
@@ -80,6 +100,10 @@ void AalImageEncoderControl::init(CameraControl *control)
         android_camera_enumerate_supported_picture_sizes(control, &AalImageEncoderControl::getPictureSizeCb, this);
         android_camera_enumerate_supported_thumbnail_sizes(control, &AalImageEncoderControl::getThumbnailSizeCb, this);
     }
+
+    int jpegQuality;
+    android_camera_get_jpeg_quality(control, &jpegQuality);
+    m_encoderSettings.setQuality(jpegQualityToQtEncodingQuality(jpegQuality));
 }
 
 void AalImageEncoderControl::setSize(const QSize &size)
@@ -174,4 +198,45 @@ void AalImageEncoderControl::getPictureSize(int width, int height)
 void AalImageEncoderControl::getThumbnailSize(int width, int height)
 {
     m_availableThumbnailSizes.append(QSize(width, height));
+}
+
+
+QMultimedia::EncodingQuality AalImageEncoderControl::jpegQualityToQtEncodingQuality(int jpegQuality)
+{
+    QMultimedia::EncodingQuality quality;
+    if (jpegQuality <= 40) {
+        quality = QMultimedia::VeryLowQuality;
+    } else if (jpegQuality <= 60) {
+        quality = QMultimedia::LowQuality;
+    } else if (jpegQuality <= 80) {
+        quality = QMultimedia::NormalQuality;
+    } else if (jpegQuality <= 90) {
+        quality = QMultimedia::HighQuality;
+    } else {
+        quality = QMultimedia::VeryHighQuality;
+    }
+    return quality;
+}
+
+int AalImageEncoderControl::qtEncodingQualityToJpegQuality(QMultimedia::EncodingQuality quality)
+{
+    int jpegQuality = 100;
+    switch (quality) {
+    case QMultimedia::VeryLowQuality:
+        jpegQuality = 40;
+        break;
+    case QMultimedia::LowQuality:
+        jpegQuality = 60;
+        break;
+    case QMultimedia::NormalQuality:
+        jpegQuality = 80;
+        break;
+    case QMultimedia::HighQuality:
+        jpegQuality = 90;
+        break;
+    case QMultimedia::VeryHighQuality:
+        jpegQuality = 100;
+        break;
+    }
+    return jpegQuality;
 }
