@@ -142,20 +142,32 @@ void AalImageCaptureControl::init(CameraControl *control, CameraControlListener 
     // Set the optimal image resolution that will be used by the camera
     QImageEncoderSettings settings;
     AalImageEncoderControl *imageEncoderControl = AalCameraService::instance()->imageEncoderControl();
+    float imageAspectRatio = 0.0, thumbnailAspectRatio = 0.0;
     if (!imageEncoderControl->supportedResolutions(settings).empty()) {
-        imageEncoderControl->setSize(
-                chooseOptimalSize(imageEncoderControl->supportedResolutions(settings)));
+        const QSize s = chooseOptimalSize(imageEncoderControl->supportedResolutions(settings));
+        imageAspectRatio = (float)s.width() / (float)s.height();
+        qDebug() << "Setting image resolution: " << s;
+        qDebug() << "Image aspect ratio: " << imageAspectRatio;
+        imageEncoderControl->setSize(s);
     }
     else
         qWarning() << "No supported resolutions detected for currently selected camera device." << endl;
 
     // Set the optimal thumbnail image resolution that will be saved to the JPEG file
     if (!imageEncoderControl->supportedThumbnailResolutions(settings).empty()) {
-        imageEncoderControl->setThumbnailSize(
-                chooseOptimalSize(imageEncoderControl->supportedThumbnailResolutions(settings), false));
+        const QSize s = chooseOptimalSize(imageEncoderControl->supportedThumbnailResolutions(settings), false);
+        thumbnailAspectRatio = (float)s.width() / (float)s.height();
+        qDebug() << "Setting thumbnail resolution: " << s;
+        qDebug() << "Thumbnail aspect ratio: " << thumbnailAspectRatio;
+        imageEncoderControl->setThumbnailSize(s);
     }
     else
         qWarning() << "No supported resolutions detected for currently selected camera device." << endl;
+
+    // Thumbnails will appear squashed or stretched if not the same aspect ratio as the original image.
+    // This will most likely be an incorrect size list supplied to qtubuntu-camera from the camera driver.
+    if (imageAspectRatio != thumbnailAspectRatio)
+        qWarning() << "** The image and thumbnail aspect ratios are not equal. Thumbnails will display wrong!";
 
     listener->on_msg_shutter_cb = &AalImageCaptureControl::shutterCB;
     listener->on_data_compressed_image_cb = &AalImageCaptureControl::saveJpegCB;
