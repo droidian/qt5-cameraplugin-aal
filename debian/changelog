@@ -1,3 +1,13 @@
+qtubuntu-camera (0.3.3+15.04.20141205.1-0ubuntu1) vivid; urgency=low
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+  [ Florian Boucault ]
+  * Added support for getting and setting image encoding quality.
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 05 Dec 2014 13:52:04 +0000
+
 qtubuntu-camera (0.3.3+15.04.20141204-0ubuntu1) vivid; urgency=low
 
   [ Jim Hodapp ]
