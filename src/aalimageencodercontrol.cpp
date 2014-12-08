@@ -173,6 +173,5 @@ void AalImageEncoderControl::getPictureSize(int width, int height)
 
 void AalImageEncoderControl::getThumbnailSize(int width, int height)
 {
-    qDebug() << "Thumbnail size: " << QSize(width, height);
     m_availableThumbnailSizes.append(QSize(width, height));
 }
