@@ -5,7 +5,7 @@ Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 Build-Depends: debhelper (>= 9),
                libgl1-mesa-dev | libgl-dev,
                libgles2-mesa-dev,
-               libhybris-dev (>= 0.1.0+git20131207+e452e83-0ubuntu34),
+               libhybris-dev (>= 0.1.0+git20131207+e452e83-0ubuntu36),
                libpulse-dev,
                libqt5opengl5-dev,
                libqtubuntu-media-signals-dev,
