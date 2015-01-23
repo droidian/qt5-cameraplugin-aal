@@ -423,6 +423,7 @@ int AalMediaRecorderControl::startRecording()
     ret = android_recorder_setOutputFile(m_mediaRecorder, m_outfd);
     if (ret < 0) {
         close(m_outfd);
+        m_outfd = -1;
         deleteRecorder();
         Q_EMIT error(RECORDER_INITIALIZATION_ERROR, "android_recorder_setOutputFile() failed");
         return RECORDER_INITIALIZATION_ERROR;
@@ -432,6 +433,7 @@ int AalMediaRecorderControl::startRecording()
     ret = android_recorder_setVideoSize(m_mediaRecorder, resolution.width(), resolution.height());
     if (ret < 0) {
         close(m_outfd);
+        m_outfd = -1;
         deleteRecorder();
         Q_EMIT error(RECORDER_INITIALIZATION_ERROR, "android_recorder_setVideoSize() failed");
         return RECORDER_INITIALIZATION_ERROR;
@@ -439,6 +441,7 @@ int AalMediaRecorderControl::startRecording()
     ret = android_recorder_setVideoFrameRate(m_mediaRecorder, videoSettings.frameRate());
     if (ret < 0) {
         close(m_outfd);
+        m_outfd = -1;
         deleteRecorder();
         Q_EMIT error(RECORDER_INITIALIZATION_ERROR, "android_recorder_setVideoFrameRate() failed");
         return RECORDER_INITIALIZATION_ERROR;
@@ -458,6 +461,7 @@ int AalMediaRecorderControl::startRecording()
     ret = android_recorder_prepare(m_mediaRecorder);
     if (ret < 0) {
         close(m_outfd);
+        m_outfd = -1;
         deleteRecorder();
         Q_EMIT error(RECORDER_INITIALIZATION_ERROR, "android_recorder_prepare() failed");
         return RECORDER_INITIALIZATION_ERROR;
@@ -466,6 +470,7 @@ int AalMediaRecorderControl::startRecording()
     ret = android_recorder_start(m_mediaRecorder);
     if (ret < 0) {
         close(m_outfd);
+        m_outfd = -1;
         deleteRecorder();
         Q_EMIT error(RECORDER_INITIALIZATION_ERROR, "android_recorder_start() failed");
         return RECORDER_INITIALIZATION_ERROR;
