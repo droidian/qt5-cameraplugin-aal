@@ -79,6 +79,7 @@ private:
     AalCameraService *m_service;
     MediaRecorderWrapper *m_mediaRecorder;
     AudioCapture *m_audioCapture;
+    int m_outfd;
     QUrl m_outputLocation;
     qint64 m_duration;
     QMediaRecorder::State m_currentState;
