@@ -118,7 +118,6 @@ bool AalMediaRecorderControl::setOutputLocation(const QUrl &location)
         return true;
 
     m_outputLocation = location;
-    Q_EMIT actualLocationChanged(m_outputLocation);
     return true;
 }
 
@@ -403,6 +402,7 @@ int AalMediaRecorderControl::startRecording()
     } else if (fileInfo.isDir()) {
         fileName = m_service->storageManager()->nextVideoFileName(fileName);
     }
+    Q_EMIT actualLocationChanged(QUrl(fileName));
 
     int fd;
     fd = open(fileName.toLocal8Bit().data(), O_WRONLY | O_CREAT,
