@@ -1,3 +1,14 @@
+qtubuntu-camera (0.3.3+15.04.20150124-0ubuntu1) vivid; urgency=low
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+  [ Florian Boucault ]
+  * Properly report where videos are recorded (QML property
+    Camera.videoRecorder.actualLocation).
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Sat, 24 Jan 2015 17:11:57 +0000
+
 qtubuntu-camera (0.3.3+15.04.20150109-0ubuntu1) vivid; urgency=low
 
   * New rebuild forced
