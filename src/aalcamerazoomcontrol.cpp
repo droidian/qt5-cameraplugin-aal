@@ -91,6 +91,10 @@ void AalCameraZoomControl::enablePhotoMode()
 {
     Q_ASSERT(m_service->androidControl());
 
+    if (!m_service->androidControl()) {
+        return;
+    }
+
     resetCurrentZoom();
 
     int maxZoom = 1;
