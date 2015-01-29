@@ -178,7 +178,9 @@ bool AalCameraService::connectCamera()
 
 void AalCameraService::disconnectCamera()
 {
-    m_service->videoOutputControl()->stopPreview();
+    if (m_service->videoOutputControl()) {
+        m_service->videoOutputControl()->stopPreview();
+    }
 
     if (m_androidControl) {
         android_camera_disconnect(m_androidControl);
