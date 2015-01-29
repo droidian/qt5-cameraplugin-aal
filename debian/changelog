@@ -1,3 +1,14 @@
+qtubuntu-camera (0.3.3+15.04.20150129-0ubuntu1) vivid; urgency=low
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+  [ Florian Boucault ]
+  * Make sure we don't dereference invalid pointers during rapid
+    connect/disconnect sequences. (LP: #1411789)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 29 Jan 2015 19:51:02 +0000
+
 qtubuntu-camera (0.3.3+15.04.20150126-0ubuntu1) vivid; urgency=low
 
   [ Jim Hodapp ]
