@@ -61,7 +61,6 @@ private:
     QCameraFocus::FocusPointMode m_focusPointMode;
     QPointF m_focusPoint;
     FocusRegion m_focusRegion;
-    bool setOnInit;
     bool m_focusRunning;
 };
 
