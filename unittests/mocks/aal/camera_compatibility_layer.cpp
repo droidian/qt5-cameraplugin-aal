@@ -123,8 +123,8 @@ void android_camera_set_auto_focus_mode(CameraControl* control, AutoFocusMode mo
 
 void android_camera_get_auto_focus_mode(CameraControl* control, AutoFocusMode* mode)
 {
-    Q_UNUSED(mode);
     crashTest(control);
+    *mode = AUTO_FOCUS_MODE_AUTO;
 }
 
 void android_camera_set_jpeg_quality(CameraControl* control, int quality)

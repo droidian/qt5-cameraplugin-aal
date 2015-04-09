@@ -34,7 +34,6 @@ AalCameraFocusControl::AalCameraFocusControl(AalCameraService *service, QObject 
       m_focusMode(QCameraFocus::AutoFocus),
       m_focusPointMode(QCameraFocus::FocusPointAuto),
       m_focusPoint(0.0, 0.0),
-      setOnInit(false),
       m_focusRunning(false)
 {
     m_focusRegion.left = 0.0;
@@ -105,8 +104,6 @@ void AalCameraFocusControl::setFocusMode(QCameraFocus::FocusModes mode)
     m_focusMode = mode;
     if (m_service->androidControl()) {
         android_camera_set_auto_focus_mode(m_service->androidControl(), focusMode);
-    } else {
-        setOnInit = true;
     }
 
     Q_EMIT focusModeChanged(m_focusMode);
@@ -154,20 +151,8 @@ void AalCameraFocusControl::init(CameraControl *control, CameraControlListener *
 {
     listener->on_msg_focus_cb = &AalCameraFocusControl::focusCB;
 
-    if (setOnInit) {
-        AutoFocusMode mode = qt2Android(m_focusMode);
-        android_camera_set_auto_focus_mode(control, mode);
-        if (m_focusRegion.weight > 0.0) {
-            android_camera_set_focus_region(control, &m_focusRegion);
-            QTimer::singleShot(1, this, SLOT(startFocus()));
-        }
-        setOnInit = false;
-    } else {
-        AutoFocusMode mode;
-        android_camera_get_auto_focus_mode(control, &mode);
-        m_focusMode = android2Qt(mode);
-    }
-
+    AutoFocusMode mode = qt2Android(m_focusMode);
+    android_camera_set_auto_focus_mode(control, mode);
     m_focusRunning = false;
 }
 
