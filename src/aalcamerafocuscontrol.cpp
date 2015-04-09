@@ -153,10 +153,6 @@ void AalCameraFocusControl::init(CameraControl *control, CameraControlListener *
 
     AutoFocusMode mode = qt2Android(m_focusMode);
     android_camera_set_auto_focus_mode(control, mode);
-    if (m_focusRegion.weight > 0.0) {
-        android_camera_set_focus_region(control, &m_focusRegion);
-        QTimer::singleShot(1, this, SLOT(startFocus()));
-    }
     m_focusRunning = false;
 }
 
