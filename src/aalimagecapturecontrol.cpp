@@ -94,11 +94,13 @@ int AalImageCaptureControl::capture(const QString &fileName)
     QStringList availableMetadata = metadataControl->availableMetaData();
     if (availableMetadata.contains("GPSLatitude") &&
         availableMetadata.contains("GPSLongitude") &&
-        availableMetadata.contains("GPSAltitude") &&
         availableMetadata.contains("GPSTimeStamp")) {
         float latitude = metadataControl->metaData("GPSLatitude").toFloat();
         float longitude = metadataControl->metaData("GPSLongitude").toFloat();
-        float altitude = metadataControl->metaData("GPSAltitude").toFloat();
+        float altitude = 0.0f;
+        if (availableMetadata.contains("GPSAltitude")) {
+            altitude = metadataControl->metaData("GPSAltitude").toFloat();
+        }
         QDateTime timestamp = metadataControl->metaData("GPSTimeStamp").toDateTime();
         QString processingMethod = metadataControl->metaData("GPSProcessingMethod").toString();
         android_camera_set_location(m_service->androidControl(),
