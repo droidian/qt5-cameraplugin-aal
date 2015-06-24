@@ -9,5 +9,4 @@ HEADERS =  camera_compatibility_layer.h \
            media_recorder_layer.h
 
 SOURCES += camera_compatibility_layer.cpp \
-           media_recorder_layer.cpp \
-           ubuntu_application_api.cpp
+           media_recorder_layer.cpp

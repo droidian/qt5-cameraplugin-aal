@@ -2,7 +2,7 @@ include(../coverage.pri)
 TARGET = aalcamera
 TEMPLATE = lib
 CONFIG += plugin
-QT += concurrent multimedia opengl
+QT += concurrent multimedia opengl gui
 
 PLUGIN_TYPE = mediaservice
 
@@ -13,7 +13,6 @@ INCLUDEPATH += /usr/include/libqtubuntu-media-signals
 LIBS += \
     -lcamera \
     -lmedia \
-    -lubuntu_application_api \
     -lqtubuntu-media-signals \
     -lpulse \
     -lpulse-simple
