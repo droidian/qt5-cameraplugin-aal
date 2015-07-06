@@ -31,10 +31,10 @@
 #include <QMediaPlayer>
 #include <QStandardPaths>
 #include <QDateTime>
+#include <QGuiApplication>
+#include <QScreen>
 
 #include <cmath>
-
-#include <ubuntu/application/ui/display.h>
 
 AalImageCaptureControl::AalImageCaptureControl(AalCameraService *service, QObject *parent)
    : QCameraImageCaptureControl(parent),
@@ -255,12 +255,11 @@ float AalImageCaptureControl::getScreenAspectRatio()
     // Only get the screen aspect ratio once, otherwise use the cached copy
     if (m_screenAspectRatio == 0.0) {
         // Get screen resolution.
-        UAUiDisplay* display = ua_ui_display_new_with_index(0);
-        const int kScreenWidth = ua_ui_display_query_horizontal_res(display);
-        const int kScreenHeight = ua_ui_display_query_vertical_res(display);
+        QScreen *screen = QGuiApplication::primaryScreen();
+        Q_ASSERT(!screen);
+        const int kScreenWidth = screen->geometry().width();
+        const int kScreenHeight = screen->geometry().height();
         Q_ASSERT(kScreenWidth > 0 && kScreenHeight > 0);
-
-        ua_ui_display_destroy(display);
 
         m_screenAspectRatio = (kScreenWidth > kScreenHeight) ?
             ((float)kScreenWidth / (float)kScreenHeight) : ((float)kScreenHeight / (float)kScreenWidth);
