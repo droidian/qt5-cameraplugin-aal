@@ -1,3 +1,14 @@
+qtubuntu-camera (0.3.3+15.10.20150706-0ubuntu1) wily; urgency=medium
+
+  [ Alberto Aguirre ]
+  * Remove dependency on platform-api. Use QScreen instead to obtain
+    screen dimensions.
+
+  [ CI Train Bot ]
+  * New rebuild forced.
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Mon, 06 Jul 2015 18:22:45 +0000
+
 qtubuntu-camera (0.3.3+15.10.20150629-0ubuntu1) wily; urgency=medium
 
   [ Florian Boucault ]
