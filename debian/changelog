@@ -1,4 +1,10 @@
-qtubuntu-camera (0.3.3+15.10.20150710-0ubuntu1) wily; urgency=medium
+qtubuntu-camera (0.3.3+15.04.20150710-0ubuntu2) UNRELEASED; urgency=medium
+
+  * No change rebuild since qtubuntu-media-signals was rebuilt 
+
+ -- Jim Hodapp <jim.hodapp@canonical.com>  Mon, 10 Aug 2015 09:30:48 -0400
+
+qtubuntu-camera (0.3.3+15.04.20150710-0ubuntu1) vivid; urgency=medium
 
   [ CI Train Bot ]
   * New rebuild forced.
