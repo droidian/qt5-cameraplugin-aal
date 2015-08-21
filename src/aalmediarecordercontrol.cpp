@@ -181,7 +181,16 @@ bool AalMediaRecorderControl::initRecorder()
             return false;
         }
 
-        m_audioCaptureAvailable = initAudioCapture();
+        int audioInitError = initAudioCapture();
+        if (audioInitError == 0) {
+            m_audioCaptureAvailable = true;
+        } else {
+            m_audioCaptureAvailable = false;
+            if (audioInitError == AudioCapture::AUDIO_CAPTURE_TIMEOUT_ERROR) {
+                deleteRecorder();
+                return false;
+            }
+        }
 
         android_recorder_set_error_cb(m_mediaRecorder, &AalMediaRecorderControl::errorCB, this);
         android_camera_unlock(m_service->androidControl());
@@ -207,16 +216,16 @@ void AalMediaRecorderControl::deleteRecorder()
     setStatus(QMediaRecorder::UnloadedStatus);
 }
 
-bool AalMediaRecorderControl::initAudioCapture()
+int AalMediaRecorderControl::initAudioCapture()
 {
     // setting up audio recording; m_audioCapture is executed within the m_workerThread affinity
     m_audioCapture = new AudioCapture(m_mediaRecorder);
-    if (!m_audioCapture->setupMicrophoneStream())
+    int audioInitError = m_audioCapture->setupMicrophoneStream();
+    if (audioInitError != 0)
     {
         qWarning() << "Failed to setup PulseAudio microphone recording stream";
         delete m_audioCapture;
         m_audioCapture = 0;
-        return false;
     } else {
         m_audioCapture->moveToThread(&m_audioCaptureThread);
 
@@ -226,8 +235,8 @@ bool AalMediaRecorderControl::initAudioCapture()
 
         // Call recorderReadAudioCallback when the reader side of the named pipe has been setup
         m_audioCapture->init(&AalMediaRecorderControl::recorderReadAudioCallback, this);
-        return true;
     }
+    return audioInitError;
 }
 
 void AalMediaRecorderControl::deleteAudioCapture()

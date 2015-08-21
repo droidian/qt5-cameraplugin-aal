@@ -40,7 +40,7 @@ void AudioCapture::stopCapture()
 {
 }
 
-bool AudioCapture::setupMicrophoneStream()
+int AudioCapture::setupMicrophoneStream()
 {
 }
 

@@ -72,7 +72,7 @@ private Q_SLOTS:
 private:
     bool initRecorder();
     void deleteRecorder();
-    bool initAudioCapture();
+    int initAudioCapture();
     void setStatus(QMediaRecorder::Status status);
     int startRecording();
     void stopRecording();

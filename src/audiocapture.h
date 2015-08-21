@@ -36,12 +36,15 @@ class AudioCapture : public QObject
 
     typedef void (*RecorderReadAudioCallback)(void *context);
 public:
+    static const int AUDIO_CAPTURE_GENERAL_ERROR = -1;
+    static const int AUDIO_CAPTURE_TIMEOUT_ERROR = -2;
+
     explicit AudioCapture(MediaRecorderWrapper *mediaRecorder);
     ~AudioCapture();
 
     bool init(RecorderReadAudioCallback callback, void *context);
     /* Terminates the Pulseaudio reader/writer QThread */
-    bool setupMicrophoneStream();
+    int setupMicrophoneStream();
     void stopCapture();
 
 public Q_SLOTS:

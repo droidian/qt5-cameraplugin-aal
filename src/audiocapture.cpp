@@ -119,7 +119,7 @@ int AudioCapture::readMicrophone()
 /*!
  * \brief Sets up the Pulseaudio microphone input channel
  */
-bool AudioCapture::setupMicrophoneStream()
+int AudioCapture::setupMicrophoneStream()
 {
     // FIXME: Get these parameters more dynamically from the control
     static const pa_sample_spec ss = {
@@ -133,10 +133,14 @@ bool AudioCapture::setupMicrophoneStream()
     if (m_paStream == NULL)
     {
         qWarning() << "Failed to open a PulseAudio channel to read the microphone: " << pa_strerror(error);
-        return false;
+        if (error == PA_ERR_TIMEOUT) {
+            return AUDIO_CAPTURE_TIMEOUT_ERROR;
+        } else {
+            return AUDIO_CAPTURE_GENERAL_ERROR;
+        }
     }
 
-    return true;
+    return 0;
 }
 
 /*!
