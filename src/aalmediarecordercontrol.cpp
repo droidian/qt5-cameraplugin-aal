@@ -241,6 +241,7 @@ void AalMediaRecorderControl::deleteAudioCapture()
 
     delete m_audioCapture;
     m_audioCapture = 0;
+    m_audioCaptureAvailable = false;
 }
 
 /*!
