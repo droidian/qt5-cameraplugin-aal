@@ -37,6 +37,8 @@ AudioCapture::AudioCapture(MediaRecorderWrapper *mediaRecorder)
 
 AudioCapture::~AudioCapture()
 {
+    android_recorder_set_audio_read_cb(m_mediaRecorder, NULL, NULL);
+
     if (m_audioPipe >= 0)
         close(m_audioPipe);
     if (m_paStream != NULL)
@@ -46,10 +48,10 @@ AudioCapture::~AudioCapture()
 /*!
  * \brief Initializes AudioCapture so that it's ready to read microphone data from Pulseaudio
  */
-bool AudioCapture::init(StartWorkerThreadCb cb, void *context)
+bool AudioCapture::init(RecorderReadAudioCallback callback, void *context)
 {
-    // The MediaRecorderLayer will call method (cb) when it's ready to encode a new audio buffer
-    android_recorder_set_audio_read_cb(m_mediaRecorder, cb, context);
+    // The MediaRecorderLayer will call method (callback) when it's ready to encode a new audio buffer
+    android_recorder_set_audio_read_cb(m_mediaRecorder, callback, context);
 
     return true;
 }
@@ -68,16 +70,11 @@ void AudioCapture::stopCapture()
  */
 void AudioCapture::run()
 {
+    m_flagExit = false;
     qDebug() << __PRETTY_FUNCTION__;
 
     int bytesWritten = 0, bytesRead = 0;
     const size_t readSize = sizeof(m_audioBuf);
-
-    if (!setupMicrophoneStream())
-    {
-        qWarning() << "Failed to setup PulseAudio microphone recording stream";
-        return;
-    }
 
     if (!setupPipe())
     {
@@ -101,8 +98,6 @@ void AudioCapture::run()
         pa_simple_free(m_paStream);
         m_paStream = NULL;
     }
-
-    Q_EMIT finished();
 }
 
 /*!
@@ -122,21 +117,9 @@ int AudioCapture::readMicrophone()
 }
 
 /*!
- * \brief Signals AalMediaRecorderControl to start the main thread loop.
- * \detail This is necessary due to thread contexts. Starting of the main thread loop
- * for AudioCapture must be done in the main thread context and not in the AudioCapture
- * thread context, otherwise the loop start signal will never be seen.
- */
-void AudioCapture::startThreadLoop()
-{
-    Q_EMIT startThread();
-    qDebug() << "Emitted startThread(), should start reading from mic";
-}
-
-/*!
  * \brief Sets up the Pulseaudio microphone input channel
  */
-bool AudioCapture::setupMicrophoneStream()
+int AudioCapture::setupMicrophoneStream()
 {
     // FIXME: Get these parameters more dynamically from the control
     static const pa_sample_spec ss = {
@@ -150,10 +133,14 @@ bool AudioCapture::setupMicrophoneStream()
     if (m_paStream == NULL)
     {
         qWarning() << "Failed to open a PulseAudio channel to read the microphone: " << pa_strerror(error);
-        return false;
+        if (error == PA_ERR_TIMEOUT) {
+            return AUDIO_CAPTURE_TIMEOUT_ERROR;
+        } else {
+            return AUDIO_CAPTURE_GENERAL_ERROR;
+        }
     }
 
-    return true;
+    return 0;
 }
 
 /*!

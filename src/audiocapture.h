@@ -34,28 +34,24 @@ class AudioCapture : public QObject
 {
     Q_OBJECT
 
-    typedef void (*StartWorkerThreadCb)(void *context);
+    typedef void (*RecorderReadAudioCallback)(void *context);
 public:
+    static const int AUDIO_CAPTURE_GENERAL_ERROR = -1;
+    static const int AUDIO_CAPTURE_TIMEOUT_ERROR = -2;
+
     explicit AudioCapture(MediaRecorderWrapper *mediaRecorder);
     ~AudioCapture();
 
-    bool init(StartWorkerThreadCb cb, void *context);
+    bool init(RecorderReadAudioCallback callback, void *context);
     /* Terminates the Pulseaudio reader/writer QThread */
+    int setupMicrophoneStream();
     void stopCapture();
-
-signals:
-    void startThread();
-    void finished();
 
 public Q_SLOTS:
     void run();
 
-private Q_SLOTS:
-    void startThreadLoop();
-
 private:
     int readMicrophone();
-    bool setupMicrophoneStream();
     bool setupPipe();
     ssize_t loopWrite(int fd, const void *data, size_t len);
     int writeDataToPipe();
