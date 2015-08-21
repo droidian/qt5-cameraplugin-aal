@@ -355,6 +355,7 @@ int AalMediaRecorderControl::startRecording()
     Q_EMIT durationChanged(m_duration);
 
     if (!initRecorder()) {
+        setStatus(QMediaRecorder::UnloadedStatus);
         return RECORDER_NOT_AVAILABLE_ERROR;
     }
 
