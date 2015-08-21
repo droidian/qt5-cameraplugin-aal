@@ -217,16 +217,17 @@ bool AalMediaRecorderControl::initAudioCapture()
         delete m_audioCapture;
         m_audioCapture = 0;
         return false;
+    } else {
+        m_audioCapture->moveToThread(&m_audioCaptureThread);
+
+        // startWorkerThread signal comes from an Android layer callback that resides down in
+        // the AudioRecordHybris class
+        connect(this, SIGNAL(audioCaptureThreadStarted()), m_audioCapture, SLOT(run()));
+
+        // Call recorderReadAudioCallback when the reader side of the named pipe has been setup
+        m_audioCapture->init(&AalMediaRecorderControl::recorderReadAudioCallback, this);
+        return true;
     }
-    m_audioCapture->moveToThread(&m_audioCaptureThread);
-
-    // startWorkerThread signal comes from an Android layer callback that resides down in
-    // the AudioRecordHybris class
-    connect(this, SIGNAL(audioCaptureThreadStarted()), m_audioCapture, SLOT(run()));
-
-    // Call recorderReadAudioCallback when the reader side of the named pipe has been setup
-    m_audioCapture->init(&AalMediaRecorderControl::recorderReadAudioCallback, this);
-    return true;
 }
 
 void AalMediaRecorderControl::deleteAudioCapture()
