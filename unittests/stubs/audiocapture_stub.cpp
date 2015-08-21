@@ -29,7 +29,7 @@ AudioCapture::~AudioCapture()
 {
 }
 
-bool AudioCapture::init(StartWorkerThreadCb cb, void *context)
+bool AudioCapture::init(RecorderReadAudioCallback cb, void *context)
 {
     Q_UNUSED(cb);
     Q_UNUSED(context);
@@ -40,11 +40,11 @@ void AudioCapture::stopCapture()
 {
 }
 
-void AudioCapture::run()
+bool AudioCapture::setupMicrophoneStream()
 {
 }
 
-void AudioCapture::startThreadLoop()
+void AudioCapture::run()
 {
 }
 
