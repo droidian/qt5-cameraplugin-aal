@@ -1,3 +1,9 @@
+qtubuntu-camera (0.3.3+15.04.20150821.3-0ubuntu1) vivid; urgency=medium
+
+  * New rebuild forced.
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Fri, 21 Aug 2015 20:46:38 +0000
+
 qtubuntu-camera (0.3.3+15.04.20150710-0ubuntu1) vivid; urgency=medium
 
   [ CI Train Bot ]
