@@ -1,3 +1,20 @@
+qtubuntu-camera (0.3.3+15.04.20150710-0ubuntu2) UNRELEASED; urgency=medium
+
+  * No change rebuild since qtubuntu-media-signals was rebuilt 
+
+ -- Jim Hodapp <jim.hodapp@canonical.com>  Mon, 10 Aug 2015 09:30:48 -0400
+
+qtubuntu-camera (0.3.3+15.04.20150710-0ubuntu1) vivid; urgency=medium
+
+  [ CI Train Bot ]
+  * New rebuild forced.
+
+  [ Jim Hodapp ]
+  * Update the required version of qtubuntu-media-signals and relink
+    qtubuntu-camera so that it doesn't break the camera-app.
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Fri, 10 Jul 2015 18:12:33 +0000
+
 qtubuntu-camera (0.3.3+15.04.20150821.3-0ubuntu1) vivid; urgency=medium
 
   * New rebuild forced.
