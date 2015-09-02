@@ -1,3 +1,15 @@
+qtubuntu-camera (0.3.3+15.10.20150710-0ubuntu2~gcc5.2) wily; urgency=medium
+
+  * No-change rebuild against libexiv2-14.
+
+ -- Martin Pitt <martin.pitt@ubuntu.com>  Thu, 06 Aug 2015 08:04:06 +0200
+
+qtubuntu-camera (0.3.3+15.10.20150710-0ubuntu2~gcc5.1) wily; urgency=medium
+
+  * No-change test rebuild for g++5 ABI transition
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Wed, 22 Jul 2015 23:29:52 +0000
+
 qtubuntu-camera (0.3.3+15.10.20150710-0ubuntu1) wily; urgency=medium
 
   [ CI Train Bot ]
