@@ -37,9 +37,9 @@ public:
     QStringList supportedImageCodecs() const;
     QList<QSize> supportedResolutions(const QImageEncoderSettings &settings, bool *continuous = 0) const;
     QList<QSize> supportedThumbnailResolutions(const QImageEncoderSettings &settings, bool *continuous = 0) const;
+    float getAspectRatio() const;
 
     void init(CameraControl *control);
-    void setThumbnailSize(const QSize &size);
     void resetAllSettings();
 
     void enablePhotoMode();
@@ -60,6 +60,7 @@ private:
     void getThumbnailSize(int width, int height);
     QMultimedia::EncodingQuality jpegQualityToQtEncodingQuality(int jpegQuality);
     int qtEncodingQualityToJpegQuality(QMultimedia::EncodingQuality quality);
+    QSize selectSizeWithAspectRatio(const QList<QSize> &sizes, float targetAspectRatio);
 };
 
 #endif

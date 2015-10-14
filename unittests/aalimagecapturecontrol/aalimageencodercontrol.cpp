@@ -82,11 +82,6 @@ bool AalImageEncoderControl::setSize(const QSize &size)
     return true;
 }
 
-void AalImageEncoderControl::setThumbnailSize(const QSize &size)
-{
-    Q_UNUSED(size);
-}
-
 void AalImageEncoderControl::resetAllSettings()
 {
 }

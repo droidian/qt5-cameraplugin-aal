@@ -51,7 +51,6 @@ public:
     void setReady(bool ready);
 
     bool isCaptureRunning() const;
-    float getAspectRatio() const;
 
 public Q_SLOTS:
     void init(CameraControl *control, CameraControlListener *listener);
@@ -61,9 +60,6 @@ private Q_SLOTS:
     void shutter();
 
 private:
-    QSize chooseOptimalSize(const QList<QSize> &sizes);
-    float getScreenAspectRatio();
-    void getPriorityAspectRatios();
     void saveJpeg(void* data, uint32_t dataSize);
     bool updateJpegMetadata(void* data, uint32_t dataSize, QTemporaryFile* destination);
 

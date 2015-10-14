@@ -147,47 +147,6 @@ void AalImageCaptureControl::init(CameraControl *control, CameraControlListener 
 {
     Q_UNUSED(control);
 
-    // Set the optimal image resolution that will be used by the camera
-    QImageEncoderSettings settings;
-    AalImageEncoderControl *imageEncoderControl = AalCameraService::instance()->imageEncoderControl();
-    float imageAspectRatio = 0.0, thumbnailAspectRatio = 0.0;
-    qDebug() << "(AalImageCaptureControl::init) settings resol:" << imageEncoderControl->imageSettings().resolution();
-    QSize currentResolution = imageEncoderControl->imageSettings().resolution();
-    QList<QSize> supportedResolutions = imageEncoderControl->supportedResolutions(settings);
-
-    if (currentResolution.isValid() && supportedResolutions.contains(currentResolution)) {
-        imageAspectRatio = getAspectRatio();
-    } else {
-        if (!supportedResolutions.empty()) {
-            const QSize s = chooseOptimalSize(supportedResolutions);
-            imageAspectRatio = (float)s.width() / (float)s.height();
-            qDebug() << "(AalImageCaptureControl::init) Setting image resolution: " << s;
-            qDebug() << "(AalImageCaptureControl::init) Image aspect ratio: " << imageAspectRatio;
-            QImageEncoderSettings resolutionSettings;
-            resolutionSettings.setResolution(s);
-            imageEncoderControl->setImageSettings(resolutionSettings);
-        }
-        else
-            qWarning() << "(AalImageCaptureControl::init) No supported resolutions detected for currently selected camera device." << endl;
-    }
-
-    // FIXME: should instead select the resolution that matches the aspect ratio of the image encoder
-    // Set the optimal thumbnail image resolution that will be saved to the JPEG file
-    if (!imageEncoderControl->supportedThumbnailResolutions(settings).empty()) {
-        const QSize s = chooseOptimalSize(imageEncoderControl->supportedThumbnailResolutions(settings));
-        thumbnailAspectRatio = (float)s.width() / (float)s.height();
-        qDebug() << "(AalImageCaptureControl::init) Setting thumbnail resolution: " << s;
-        qDebug() << "(AalImageCaptureControl::init) Thumbnail aspect ratio: " << thumbnailAspectRatio;
-        imageEncoderControl->setThumbnailSize(s);
-    }
-    else
-        qWarning() << "(AalImageCaptureControl::init) No supported resolutions detected for currently selected camera device." << endl;
-
-    // Thumbnails will appear squashed or stretched if not the same aspect ratio as the original image.
-    // This will most likely be an incorrect size list supplied to qtubuntu-camera from the camera driver.
-    if (imageAspectRatio != thumbnailAspectRatio)
-        qWarning() << "(AalImageCaptureControl::init) ** The image and thumbnail aspect ratios are not equal. Thumbnails will display wrong!";
-
     listener->on_msg_shutter_cb = &AalImageCaptureControl::shutterCB;
     listener->on_data_compressed_image_cb = &AalImageCaptureControl::saveJpegCB;
 
@@ -213,105 +172,10 @@ bool AalImageCaptureControl::isCaptureRunning() const
     return !m_pendingCaptureFile.isNull();
 }
 
-float AalImageCaptureControl::getAspectRatio() const
-{
-    AalImageEncoderControl *imageEncoderControl = AalCameraService::instance()->imageEncoderControl();
-    if (imageEncoderControl) {
-        QSize resolution = imageEncoderControl->imageSettings().resolution();
-        return (float)resolution.width() / (float)resolution.height();
-    } else {
-        return 0.0f;
-    }
-}
-
 void AalImageCaptureControl::shutter()
 {
     m_audioPlayer->play();
     Q_EMIT imageExposed(m_lastRequestId);
-}
-
-QSize AalImageCaptureControl::chooseOptimalSize(const QList<QSize> &sizes)
-{
-    QSize optimalSize;
-    long optimalPixels = 0;
-
-//    qDebug() << "BOUDIOU SIZES" << sizes;
-    if (!sizes.empty()) {
-        getPriorityAspectRatios();
-        float aspectRatio = m_prioritizedAspectRatios.front();
-
-        // Loop over all reported camera resolutions until we find the highest
-        // one that matches the current prioritized aspect ratio. If it doesn't
-        // find one on the current aspect ration, it selects the next ratio and
-        // tries again.
-        QList<float>::const_iterator ratioIt = m_prioritizedAspectRatios.begin();
-        while (ratioIt != m_prioritizedAspectRatios.end()) {
-            // Don't update the aspect ratio when using this function for finding
-            // the optimal thumbnail size as it will affect the preview window size
-            aspectRatio = (*ratioIt);
-
-            QList<QSize>::const_iterator it = sizes.begin();
-            while (it != sizes.end()) {
-                const float ratio = (float)(*it).width() / (float)(*it).height();
-                const long pixels = ((long)((*it).width())) * ((long)((*it).height()));
-                const float EPSILON = 0.02;
-                if (fabs(ratio - aspectRatio) < EPSILON && pixels > optimalPixels) {
-                    optimalSize = *it;
-                    optimalPixels = pixels;
-                }
-                ++it;
-            }
-            if (optimalPixels > 0) break;
-            ++ratioIt;
-        }
-    }
-
-    return optimalSize;
-}
-
-float AalImageCaptureControl::getScreenAspectRatio()
-{
-    // Only get the screen aspect ratio once, otherwise use the cached copy
-    if (m_screenAspectRatio == 0.0) {
-        // Get screen resolution.
-        QScreen *screen = QGuiApplication::primaryScreen();
-        Q_ASSERT(!screen);
-        const int kScreenWidth = screen->geometry().width();
-        const int kScreenHeight = screen->geometry().height();
-        Q_ASSERT(kScreenWidth > 0 && kScreenHeight > 0);
-
-        m_screenAspectRatio = (kScreenWidth > kScreenHeight) ?
-            ((float)kScreenWidth / (float)kScreenHeight) : ((float)kScreenHeight / (float)kScreenWidth);
-    }
-
-    qDebug() << "getScreenAspectRatio" << m_screenAspectRatio;
-    return m_screenAspectRatio;
-}
-
-void AalImageCaptureControl::getPriorityAspectRatios()
-{
-    m_prioritizedAspectRatios.clear();
-    float screenAspectRatio = getScreenAspectRatio();
-    if (screenAspectRatio > 0.0f) {
-        m_prioritizedAspectRatios.append(screenAspectRatio);
-    }
-
-    if (m_service->isBackCameraUsed()) {
-        // Prioritized list of aspect ratios for the back camera
-        const float backAspectRatios[4] = { 16.0f/9.0f, 3.0f/2.0f, 4.0f/3.0f, 5.0f/4.0f };
-        for (uint8_t i=0; i<4; ++i) {
-            if (!m_prioritizedAspectRatios.contains(backAspectRatios[i])) {
-                m_prioritizedAspectRatios.append(backAspectRatios[i]);
-            }
-        }
-    } else {
-        // Prioritized list of aspect ratios for the front camera
-        const float frontAspectRatios[4] = { 4.0f/3.0f, 5.0f/4.0f, 16.0f/9.0f, 3.0f/2.0f };
-        for (uint8_t i=0; i<4; ++i) {
-            m_prioritizedAspectRatios.append(frontAspectRatios[i]);
-        }
-    }
-    qDebug() << "BOUDIOU PRIO" << m_screenAspectRatio << m_prioritizedAspectRatios;
 }
 
 bool AalImageCaptureControl::updateJpegMetadata(void* data, uint32_t dataSize, QTemporaryFile* destination)

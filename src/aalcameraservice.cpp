@@ -231,7 +231,7 @@ void AalCameraService::enablePhotoMode()
     m_imageEncoderControl->enablePhotoMode();
     m_focusControl->enablePhotoMode();
     m_zoomControl->enablePhotoMode();
-    m_viewfinderControl->setAspectRatio(m_imageCaptureControl->getAspectRatio());
+    m_viewfinderControl->setAspectRatio(m_imageEncoderControl->getAspectRatio());
 }
 
 /*!
@@ -285,11 +285,11 @@ void AalCameraService::initControls(CameraControl *camControl, CameraControlList
     m_focusControl->init(camControl, listener);
     m_zoomControl->init(camControl, listener);
     m_videoEncoderControl->init(camControl, listener);
-    qDebug() << "INIT CONTROLS" << m_imageCaptureControl->getAspectRatio();
+    qDebug() << "INIT CONTROLS" << m_imageEncoderControl->getAspectRatio();
 
     m_viewfinderControl->init(camControl, listener);
     if (m_cameraControl->captureMode() == QCamera::CaptureStillImage)
-        m_viewfinderControl->setAspectRatio(m_imageCaptureControl->getAspectRatio());
+        m_viewfinderControl->setAspectRatio(m_imageEncoderControl->getAspectRatio());
     else
         m_viewfinderControl->setAspectRatio(m_videoEncoderControl->getAspectRatio());
     m_videoOutput->init(camControl, listener);
