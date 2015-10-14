@@ -57,6 +57,14 @@ void AalCameraService::disconnectCamera()
 {
 }
 
+void AalCameraService::startPreview()
+{
+}
+
+void AalCameraService::stopPreview()
+{
+}
+
 void AalCameraService::initControls(CameraControl *camControl, CameraControlListener *listener)
 {
     Q_UNUSED(camControl);

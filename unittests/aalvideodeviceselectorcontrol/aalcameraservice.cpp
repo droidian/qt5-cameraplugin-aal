@@ -54,6 +54,14 @@ void AalCameraService::disconnectCamera()
 {
 }
 
+void AalCameraService::startPreview()
+{
+}
+
+void AalCameraService::stopPreview()
+{
+}
+
 bool AalCameraService::isCameraActive() const
 {
     return true;

@@ -68,6 +68,14 @@ void AalCameraService::disconnectCamera()
     android_camera_disconnect(m_androidControl);
 }
 
+void AalCameraService::startPreview()
+{
+}
+
+void AalCameraService::stopPreview()
+{
+}
+
 void AalCameraService::initControls(CameraControl *camControl, CameraControlListener *listener)
 {
     m_zoomControl->init(camControl, listener);
