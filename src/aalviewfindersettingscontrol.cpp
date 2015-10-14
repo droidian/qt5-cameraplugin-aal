@@ -219,15 +219,20 @@ QSize AalViewfinderSettingsControl::chooseOptimalSize(const QList<QSize> &sizes)
             return sizes[1];
         }
 
+        QSize largestSize;
         QList<QSize>::const_iterator it = sizes.begin();
         while (it != sizes.end()) {
-            const float ratio = (float)(*it).width() / (float)(*it).height();
+            QSize size = *it;
+            const float ratio = (float)size.width() / (float)size.height();
             const float EPSILON = 0.02;
             if (fabs(ratio - m_aspectRatio) < EPSILON) {
-                return *it;
+                if (size.width() * size.height() > largestSize.width() * largestSize.height()) {
+                    largestSize = size;
+                }
             }
             ++it;
         }
+        return largestSize;
     }
 
     return QSize();
