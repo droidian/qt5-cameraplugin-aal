@@ -76,9 +76,10 @@ void AalImageEncoderControl::init(CameraControl *control)
     Q_UNUSED(control);
 }
 
-void AalImageEncoderControl::setSize(const QSize &size)
+bool AalImageEncoderControl::setSize(const QSize &size)
 {
     Q_UNUSED(size);
+    return true;
 }
 
 void AalImageEncoderControl::setThumbnailSize(const QSize &size)

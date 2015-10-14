@@ -61,7 +61,6 @@ void tst_AalImageCaptureControl::chooseOptimalSize16by9()
 {
     Q_ASSERT(m_service->isBackCameraUsed());
 
-    m_icControl->m_aspectRatio = 16.0f / 9.0f;
     QList<QSize> resolutions;
     resolutions.append(QSize(1920, 1080));
     resolutions.append(QSize(1280, 720));
@@ -72,7 +71,6 @@ void tst_AalImageCaptureControl::chooseOptimalSize16by9()
 
 void tst_AalImageCaptureControl::chooseOptimalSizeEmpty()
 {
-    m_icControl->m_aspectRatio = 4.0f / 3.0f;
     QList<QSize> resolutions;
 
     QCOMPARE(m_icControl->chooseOptimalSize(resolutions), QSize());

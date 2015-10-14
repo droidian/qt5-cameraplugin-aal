@@ -15,12 +15,17 @@
  */
 
 #include "aalimageencodercontrol.h"
+#include "aalcameracontrol.h"
+#include "aalviewfindersettingscontrol.h"
+#include "aalvideoencodersettingscontrol.h"
+#include "aalimagecapturecontrol.h"
 #include "aalcameraservice.h"
 
 #include <hybris/camera/camera_compatibility_layer_capabilities.h>
 
 #include <unistd.h>
 
+#include <QCamera>
 #include <QDebug>
 
 AalImageEncoderControl::AalImageEncoderControl(AalCameraService *service, QObject *parent)
@@ -62,8 +67,22 @@ void AalImageEncoderControl::setImageSettings(const QImageEncoderSettings &setti
         }
 
         // resolution
+        qDebug() << "(AalImageEncoderControl::setImageSettings) settings resol:" << settings.resolution().isNull() << settings.resolution();
         if (!settings.resolution().isNull()) {
-            m_encoderSettings.setResolution(settings.resolution());
+            if (setSize(settings.resolution())) {
+                m_encoderSettings.setResolution(settings.resolution());
+                if (m_service->cameraControl()->captureMode() == QCamera::CaptureStillImage) {
+                    m_service->viewfinderControl()->setAspectRatio(m_service->imageCaptureControl()->getAspectRatio());
+                } else {
+                    m_service->viewfinderControl()->setAspectRatio(m_service->videoEncoderControl()->getAspectRatio());
+                }
+
+                // Set the optimal thumbnail image resolution that will be saved to the JPEG file
+                if (!m_availableThumbnailSizes.empty()) {
+//                    const QSize thumbnailSize = chooseOptimalSize(m_availableThumbnailSizes);
+//                    imageEncoderControl->setThumbnailSize(thumbnailSize);
+                }
+            }
         }
 
         // encoding options
@@ -106,25 +125,29 @@ void AalImageEncoderControl::init(CameraControl *control)
     int jpegQuality;
     android_camera_get_jpeg_quality(control, &jpegQuality);
     m_encoderSettings.setQuality(jpegQualityToQtEncodingQuality(jpegQuality));
+
+    android_camera_set_picture_size(control, m_currentSize.width(), m_currentSize.height());
 }
 
-void AalImageEncoderControl::setSize(const QSize &size)
+bool AalImageEncoderControl::setSize(const QSize &size)
 {
     CameraControl *cc = m_service->androidControl();
+    qDebug() << "(AalImageEncoderControl::setSize) settings resol:" << size << cc;
     if (!cc) {
         m_currentSize = size;
-        return;
+        return true;
     }
 
     if (!m_availableSizes.contains(size)) {
-        qWarning() << "Size " << size << "is not supported by the camera";
-        qWarning() << "Supported sizes are: " << m_availableSizes;
-        return;
+        qWarning() << "(AalImageEncoderControl::setSize) Size " << size << "is not supported by the camera";
+        qWarning() << "(AalImageEncoderControl::setSize) Supported sizes are: " << m_availableSizes;
+        return false;
     }
 
     m_currentSize = size;
 
     android_camera_set_picture_size(cc, size.width(), size.height());
+    return true;
 }
 
 /*!

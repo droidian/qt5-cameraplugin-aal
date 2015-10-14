@@ -39,7 +39,6 @@ public:
     QList<QSize> supportedThumbnailResolutions(const QImageEncoderSettings &settings, bool *continuous = 0) const;
 
     void init(CameraControl *control);
-    void setSize(const QSize &size);
     void setThumbnailSize(const QSize &size);
     void resetAllSettings();
 
@@ -56,6 +55,7 @@ private:
     QSize m_currentThumbnailSize;
     QImageEncoderSettings m_encoderSettings;
 
+    bool setSize(const QSize &size);
     void getPictureSize(int width, int height);
     void getThumbnailSize(int width, int height);
     QMultimedia::EncodingQuality jpegQualityToQtEncodingQuality(int jpegQuality);

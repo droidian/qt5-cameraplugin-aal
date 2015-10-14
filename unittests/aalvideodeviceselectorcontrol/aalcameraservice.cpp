@@ -65,11 +65,6 @@ void AalCameraService::initControls(CameraControl *camControl, CameraControlList
     Q_UNUSED(listener);
 }
 
-bool AalCameraService::isReady() const
-{
-    return true;
-}
-
 bool AalCameraService::isRecording() const
 {
     return false;

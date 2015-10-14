@@ -142,6 +142,8 @@ StorageManager *AalCameraService::storageManager()
 
 bool AalCameraService::connectCamera()
 {
+    qDebug() << "CONNECT CAMERA" << m_androidControl;
+
     if (m_androidControl)
         return true;
 
@@ -171,16 +173,14 @@ bool AalCameraService::connectCamera()
 
     m_androidListener->context = m_androidControl;
     initControls(m_androidControl, m_androidListener);
-    m_videoOutput->startPreview();
 
     return true;
 }
 
 void AalCameraService::disconnectCamera()
 {
-    if (m_service->videoOutputControl()) {
-        m_service->videoOutputControl()->stopPreview();
-    }
+    qDebug() << "DIS-CONNECT CAMERA" << m_androidControl;
+    stopPreview();
 
     if (m_androidControl) {
         android_camera_disconnect(m_androidControl);
@@ -190,6 +190,26 @@ void AalCameraService::disconnectCamera()
     if (m_androidListener) {
         delete m_androidListener;
         m_androidListener = 0;
+    }
+}
+
+void AalCameraService::startPreview()
+{
+    qDebug() << "START PREVIEW" << m_androidControl << m_videoOutput;
+    if (m_videoOutput) {
+        qDebug() << "STARTING PREVIEW";
+        m_videoOutput->startPreview();
+        qDebug() << "STARTED PREVIEW";
+    }
+}
+
+void AalCameraService::stopPreview()
+{
+    qDebug() << "STOP PREVIEW" << m_androidControl << m_videoOutput;
+    if (m_videoOutput) {
+        qDebug() << "STOPPING PREVIEW";
+        m_videoOutput->stopPreview();
+        qDebug() << "STOPPED PREVIEW";
     }
 }
 
@@ -222,15 +242,6 @@ void AalCameraService::enableVideoMode()
     m_focusControl->enableVideoMode();
     m_zoomControl->enableVideoMode();
     m_viewfinderControl->setAspectRatio(m_videoEncoderControl->getAspectRatio());
-}
-
-/*!
- * \brief AalCameraService::isReady return if the camera is ready for capturing
- * \return
- */
-bool AalCameraService::isReady() const
-{
-    return m_imageCaptureControl->isReadyForCapture();
 }
 
 /*!
@@ -274,11 +285,13 @@ void AalCameraService::initControls(CameraControl *camControl, CameraControlList
     m_focusControl->init(camControl, listener);
     m_zoomControl->init(camControl, listener);
     m_videoEncoderControl->init(camControl, listener);
+    qDebug() << "INIT CONTROLS" << m_imageCaptureControl->getAspectRatio();
+
+    m_viewfinderControl->init(camControl, listener);
     if (m_cameraControl->captureMode() == QCamera::CaptureStillImage)
         m_viewfinderControl->setAspectRatio(m_imageCaptureControl->getAspectRatio());
     else
         m_viewfinderControl->setAspectRatio(m_videoEncoderControl->getAspectRatio());
-    m_viewfinderControl->init(camControl, listener);
     m_videoOutput->init(camControl, listener);
     m_exposureControl->init(camControl, listener);
 }

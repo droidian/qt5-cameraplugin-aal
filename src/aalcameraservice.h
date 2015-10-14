@@ -69,6 +69,8 @@ public:
 
     bool connectCamera();
     void disconnectCamera();
+    void startPreview();
+    void stopPreview();
 
     bool isCameraActive() const;
     bool isBackCameraUsed() const;
@@ -76,7 +78,6 @@ public:
     void enablePhotoMode();
     void enableVideoMode();
 
-    bool isReady() const;
     bool isRecording() const;
 
     static AalCameraService *instance() { return m_service; }
