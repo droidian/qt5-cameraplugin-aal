@@ -24,7 +24,6 @@
 #include <hybris/camera/camera_compatibility_layer_capabilities.h>
 
 #include <unistd.h>
-#include <cmath>
 
 #include <QCamera>
 #include <QDebug>
@@ -165,7 +164,7 @@ bool AalImageEncoderControl::setSize(const QSize &size)
     // Set the optimal thumbnail image resolution that will be saved to the JPEG file
     if (!m_availableThumbnailSizes.empty()) {
         qDebug() << "(AalImageEncoderControl::setSize) previous thumb size:" << m_currentThumbnailSize;
-        m_currentThumbnailSize = selectSizeWithAspectRatio(m_availableThumbnailSizes, imageAspectRatio);
+        m_currentThumbnailSize = m_service->selectSizeWithAspectRatio(m_availableThumbnailSizes, imageAspectRatio);
         qDebug() << "(AalImageEncoderControl::setSize) selected thumb size:" << m_currentThumbnailSize;
         thumbnailAspectRatio = (float)m_currentThumbnailSize.width() / (float)m_currentThumbnailSize.height();
     }
@@ -274,28 +273,4 @@ int AalImageEncoderControl::qtEncodingQualityToJpegQuality(QMultimedia::Encoding
         break;
     }
     return jpegQuality;
-}
-
-QSize AalImageEncoderControl::selectSizeWithAspectRatio(const QList<QSize> &sizes, float targetAspectRatio)
-{
-    QSize selectedSize;
-    long selectedPixelCount = 0;
-    const float EPSILON = 0.02;
-
-    if (!sizes.empty()) {
-        // Loop over all sizes until we find the highest one that matches targetAspectRatio.
-        QList<QSize>::const_iterator it = sizes.begin();
-        while (it != sizes.end()) {
-            QSize size = *it;
-            const float aspectRatio = (float)size.width() / (float)size.height();
-            const long pixelCount = (long)size.width() * (long)size.height();
-            if (fabs(aspectRatio - targetAspectRatio) < EPSILON && pixelCount > selectedPixelCount) {
-                selectedSize = size;
-                selectedPixelCount = pixelCount;
-            }
-            ++it;
-        }
-    }
-
-    return selectedSize;
 }

@@ -20,8 +20,6 @@
 
 #include <QDebug>
 
-#include <cmath>
-
 #include <hybris/camera/camera_compatibility_layer_capabilities.h>
 
 AalViewfinderSettingsControl::AalViewfinderSettingsControl(AalCameraService *service, QObject *parent)
@@ -217,22 +215,9 @@ QSize AalViewfinderSettingsControl::chooseOptimalSize(const QList<QSize> &sizes)
         if (m_aspectRatio == 0) {
             // There are resolutions supported, choose one non-optimal one):
             return sizes[1];
+        } else {
+            return m_service->selectSizeWithAspectRatio(sizes, m_aspectRatio);
         }
-
-        QSize largestSize;
-        QList<QSize>::const_iterator it = sizes.begin();
-        while (it != sizes.end()) {
-            QSize size = *it;
-            const float ratio = (float)size.width() / (float)size.height();
-            const float EPSILON = 0.02;
-            if (fabs(ratio - m_aspectRatio) < EPSILON) {
-                if (size.width() * size.height() > largestSize.width() * largestSize.height()) {
-                    largestSize = size;
-                }
-            }
-            ++it;
-        }
-        return largestSize;
     }
 
     return QSize();

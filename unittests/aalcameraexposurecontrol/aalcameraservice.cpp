@@ -82,3 +82,10 @@ void AalCameraService::initControls(CameraControl *camControl, CameraControlList
 void AalCameraService::updateCaptureReady()
 {
 }
+
+QSize AalCameraService::selectSizeWithAspectRatio(const QList<QSize> &sizes, float targetAspectRatio) const
+{
+    Q_UNUSED(sizes);
+    Q_UNUSED(targetAspectRatio);
+    return QSize();
+}

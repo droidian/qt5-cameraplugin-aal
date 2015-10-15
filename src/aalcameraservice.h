@@ -18,6 +18,7 @@
 #define AALCAMERASERVICE_H
 
 #include <QMediaService>
+#include <QSize>
 
 class AalCameraControl;
 class AalCameraFlashControl;
@@ -79,6 +80,7 @@ public:
     void enableVideoMode();
 
     bool isRecording() const;
+    QSize selectSizeWithAspectRatio(const QList<QSize> &sizes, float targetAspectRatio) const;
 
     static AalCameraService *instance() { return m_service; }
 

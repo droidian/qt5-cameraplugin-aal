@@ -33,6 +33,7 @@
 #include <hybris/camera/camera_compatibility_layer.h>
 
 #include <QDebug>
+#include <cmath>
 
 AalCameraService *AalCameraService::m_service = 0;
 
@@ -294,4 +295,28 @@ void AalCameraService::initControls(CameraControl *camControl, CameraControlList
         m_viewfinderControl->setAspectRatio(m_videoEncoderControl->getAspectRatio());
     m_videoOutput->init(camControl, listener);
     m_exposureControl->init(camControl, listener);
+}
+
+QSize AalCameraService::selectSizeWithAspectRatio(const QList<QSize> &sizes, float targetAspectRatio) const
+{
+    QSize selectedSize;
+    long selectedPixelCount = 0;
+    const float EPSILON = 0.02;
+
+    if (!sizes.empty()) {
+        // Loop over all sizes until we find the highest one that matches targetAspectRatio.
+        QList<QSize>::const_iterator it = sizes.begin();
+        while (it != sizes.end()) {
+            QSize size = *it;
+            const float aspectRatio = (float)size.width() / (float)size.height();
+            const long pixelCount = (long)size.width() * (long)size.height();
+            if (fabs(aspectRatio - targetAspectRatio) < EPSILON && pixelCount > selectedPixelCount) {
+                selectedSize = size;
+                selectedPixelCount = pixelCount;
+            }
+            ++it;
+        }
+    }
+
+    return selectedSize;
 }

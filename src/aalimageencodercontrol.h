@@ -60,7 +60,6 @@ private:
     void getThumbnailSize(int width, int height);
     QMultimedia::EncodingQuality jpegQualityToQtEncodingQuality(int jpegQuality);
     int qtEncodingQualityToJpegQuality(QMultimedia::EncodingQuality quality);
-    QSize selectSizeWithAspectRatio(const QList<QSize> &sizes, float targetAspectRatio);
 };
 
 #endif
