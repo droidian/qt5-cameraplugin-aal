@@ -16,9 +16,12 @@
 
 #include "aalvideoencodersettingscontrol.h"
 #include "aalcameraservice.h"
+#include "aalcameracontrol.h"
 #include "aalviewfindersettingscontrol.h"
 
 #include <hybris/camera/camera_compatibility_layer_capabilities.h>
+
+#include <QCamera>
 
 const QSize AalVideoEncoderSettingsControl::DEFAULT_SIZE = QSize(1280,720);
 const int AalVideoEncoderSettingsControl::DEFAULT_FPS = 30;
@@ -49,8 +52,12 @@ void AalVideoEncoderSettingsControl::setVideoSettings(const QVideoEncoderSetting
     if (supportedFrameRates(settings, &continuous).contains(settings.frameRate()))
         m_settings.setFrameRate(settings.frameRate());
 
-    if (supportedResolutions(settings, &continuous).contains(settings.resolution()))
+    if (supportedResolutions(settings, &continuous).contains(settings.resolution())) {
         m_settings.setResolution(settings.resolution());
+        if (m_service->cameraControl()->captureMode() == QCamera::CaptureVideo) {
+            m_service->viewfinderControl()->setAspectRatio(getAspectRatio());
+        }
+    }
 
     // FIXME support more options
 }
@@ -136,6 +143,9 @@ void AalVideoEncoderSettingsControl::init(CameraControl *control, CameraControlL
 
     if (!m_availableSizes.contains(m_settings.resolution()) && !m_availableSizes.empty()) {
         m_settings.setResolution(m_availableSizes[0]);
+        if (m_service->cameraControl()->captureMode() == QCamera::CaptureVideo) {
+            m_service->viewfinderControl()->setAspectRatio(getAspectRatio());
+        }
     }
 }
 

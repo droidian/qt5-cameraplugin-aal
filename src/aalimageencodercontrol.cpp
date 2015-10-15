@@ -151,8 +151,6 @@ bool AalImageEncoderControl::setSize(const QSize &size)
     m_encoderSettings.setResolution(m_currentSize);
     if (m_service->cameraControl()->captureMode() == QCamera::CaptureStillImage) {
         m_service->viewfinderControl()->setAspectRatio(getAspectRatio());
-    } else {
-        m_service->viewfinderControl()->setAspectRatio(m_service->videoEncoderControl()->getAspectRatio());
     }
 
     // Select m_currentThumbnailSize so that its aspect ratio is the same
