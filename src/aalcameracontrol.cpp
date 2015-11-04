@@ -41,7 +41,6 @@ void AalCameraControl::setState(QCamera::State state)
 {
     if (m_state == state)
         return;
-    qDebug() << "CONTROL AalCameraControl setState:" << state;
 
     if (state == QCamera::ActiveState) {
         bool ok = m_service->connectCamera();

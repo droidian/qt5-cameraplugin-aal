@@ -107,8 +107,6 @@ void AalVideoRendererControl::init(CameraControl *control, CameraControlListener
 
 void AalVideoRendererControl::startPreview()
 {
-    qWarning() << "CONTROL: startPreview" << m_frameCount << m_viewFinderRunning << m_textureId;
-
     if (m_frameCount > 0)
         return;
     if (m_viewFinderRunning)
@@ -131,7 +129,6 @@ void AalVideoRendererControl::startPreview()
 
 void AalVideoRendererControl::stopPreview()
 {
-    qWarning() << "CONTROL: stopPreview" << m_frameCount << m_viewFinderRunning << m_textureId;
     if (!m_viewFinderRunning || !m_surface)
         return;
 

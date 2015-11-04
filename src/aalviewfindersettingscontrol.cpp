@@ -91,7 +91,6 @@ QVariant AalViewfinderSettingsControl::viewfinderParameter(ViewfinderParameter p
 
 void AalViewfinderSettingsControl::setSize(const QSize &size)
 {
-    qWarning() << "AalViewfinderSettingsControl::setSize:" << size;
     if (size == m_currentSize)
         return;
 
@@ -106,7 +105,6 @@ void AalViewfinderSettingsControl::setSize(const QSize &size)
         qWarning() << "Supported sizes are: " << m_availableSizes;
         return;
     }
-    qWarning() << "AalViewfinderSettingsControl::setSize: GOING FOR IT" << size;
 
     m_currentSize = size;
 
@@ -160,7 +158,6 @@ void AalViewfinderSettingsControl::setAspectRatio(float ratio)
 
     // Choose optimal resolution based on the current camera's aspect ratio
     QSize size = chooseOptimalSize(m_availableSizes);
-    qDebug() << "AalViewfinderSettingsControl::setAspectRatio" << ratio << size;
     setSize(size);
 }
 
@@ -210,7 +207,6 @@ void AalViewfinderSettingsControl::sizeCB(void *ctx, int width, int height)
 
 QSize AalViewfinderSettingsControl::chooseOptimalSize(const QList<QSize> &sizes) const
 {
-    qDebug() << "AalViewfinderSettingsControl:: CHOOOOSE OPTIMAL" << sizes << m_aspectRatio;
     if (!sizes.empty()) {
         if (m_aspectRatio == 0) {
             // There are resolutions supported, choose one non-optimal one):

@@ -33,7 +33,6 @@
 #include <QDateTime>
 #include <QGuiApplication>
 #include <QScreen>
-#include <QDebug>
 
 #include <cmath>
 
@@ -65,7 +64,6 @@ bool AalImageCaptureControl::isReadyForCapture() const
 int AalImageCaptureControl::capture(const QString &fileName)
 {
     m_lastRequestId++;
-    qDebug() << "(AalImageCaptureControl::capture) CAP" << m_lastRequestId << fileName;
     if (!m_ready || !m_service->androidControl()) {
         emit error(m_lastRequestId, QCameraImageCapture::NotReadyError,
                    QLatin1String("Camera not ready to capture"));
@@ -78,7 +76,6 @@ int AalImageCaptureControl::capture(const QString &fileName)
     } else {
         m_pendingCaptureFile = fileName;
     }
-    qDebug() << "(AalImageCaptureControl::capture) filepath:" << m_pendingCaptureFile;
     bool diskOk = m_storageManager.checkDirectory(m_pendingCaptureFile);
     if (!diskOk) {
         emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
@@ -109,19 +106,14 @@ int AalImageCaptureControl::capture(const QString &fileName)
                                     processingMethod.toLocal8Bit().constData());
     }
 
-    qDebug() << "(AalImageCaptureControl::capture) android_camera_take_snapshot:";
     android_camera_take_snapshot(m_service->androidControl());
 
-    qDebug() << "(AalImageCaptureControl::capture) updateCaptureReady:";
     m_service->updateCaptureReady();
 
-    qDebug() << "(AalImageCaptureControl::capture) createPreview:";
     m_service->videoOutputControl()->createPreview();
 
-    qDebug() << "(AalImageCaptureControl::capture) clearAllMetaData:";
     m_service->metadataWriterControl()->clearAllMetaData();
 
-    qDebug() << "(AalImageCaptureControl::capture) RETURN:";
     return m_lastRequestId;
 }
 
@@ -139,7 +131,6 @@ void AalImageCaptureControl::shutterCB(void *context)
 void AalImageCaptureControl::saveJpegCB(void *data, uint32_t data_size, void *context)
 {
     Q_UNUSED(context);
-    qDebug() << "(STAT AalImageCaptureControl::capture) saveJpegCB:" << data_size;
     AalCameraService::instance()->imageCaptureControl()->saveJpeg(data, data_size);
 }
 

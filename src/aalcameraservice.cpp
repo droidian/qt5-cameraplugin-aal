@@ -143,8 +143,6 @@ StorageManager *AalCameraService::storageManager()
 
 bool AalCameraService::connectCamera()
 {
-    qDebug() << "CONNECT CAMERA" << m_androidControl;
-
     if (m_androidControl)
         return true;
 
@@ -180,7 +178,6 @@ bool AalCameraService::connectCamera()
 
 void AalCameraService::disconnectCamera()
 {
-    qDebug() << "DIS-CONNECT CAMERA" << m_androidControl;
     stopPreview();
 
     if (m_androidControl) {
@@ -196,21 +193,15 @@ void AalCameraService::disconnectCamera()
 
 void AalCameraService::startPreview()
 {
-    qDebug() << "START PREVIEW" << m_androidControl << m_videoOutput;
     if (m_videoOutput) {
-        qDebug() << "STARTING PREVIEW";
         m_videoOutput->startPreview();
-        qDebug() << "STARTED PREVIEW";
     }
 }
 
 void AalCameraService::stopPreview()
 {
-    qDebug() << "STOP PREVIEW" << m_androidControl << m_videoOutput;
     if (m_videoOutput) {
-        qDebug() << "STOPPING PREVIEW";
         m_videoOutput->stopPreview();
-        qDebug() << "STOPPED PREVIEW";
     }
 }
 
@@ -286,7 +277,6 @@ void AalCameraService::initControls(CameraControl *camControl, CameraControlList
     m_focusControl->init(camControl, listener);
     m_zoomControl->init(camControl, listener);
     m_videoEncoderControl->init(camControl, listener);
-    qDebug() << "INIT CONTROLS" << m_imageEncoderControl->getAspectRatio();
 
     m_viewfinderControl->init(camControl, listener);
     if (m_cameraControl->captureMode() == QCamera::CaptureStillImage)

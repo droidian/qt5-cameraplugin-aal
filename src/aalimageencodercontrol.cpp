@@ -67,7 +67,6 @@ void AalImageEncoderControl::setImageSettings(const QImageEncoderSettings &setti
         }
 
         // resolution
-        qDebug() << "(AalImageEncoderControl::setImageSettings) settings resol:" << settings.resolution().isNull() << settings.resolution();
         if (!settings.resolution().isNull()) {
             setSize(settings.resolution());
         }
@@ -125,7 +124,6 @@ void AalImageEncoderControl::init(CameraControl *control)
 
     if (!m_currentSize.isValid() || !m_availableSizes.contains(m_currentSize)) {
         setSize(m_availableSizes.last());
-        qDebug() << "(AalImageEncoderControl::init) Chose resolution: " << m_currentSize;
     } else {
         setSize(m_currentSize);
     }
@@ -134,7 +132,6 @@ void AalImageEncoderControl::init(CameraControl *control)
 bool AalImageEncoderControl::setSize(const QSize &size)
 {
     CameraControl *cc = m_service->androidControl();
-    qDebug() << "(AalImageEncoderControl::setSize) settings resol:" << size << cc;
     if (!cc) {
         m_currentSize = size;
         m_encoderSettings.setResolution(m_currentSize);
@@ -158,15 +155,11 @@ bool AalImageEncoderControl::setSize(const QSize &size)
     float imageAspectRatio = getAspectRatio();
     float thumbnailAspectRatio;
 
-    qDebug() << "(AalImageEncoderControl::setSize) AVAIL THUMB:" << m_availableThumbnailSizes;
     // Set the optimal thumbnail image resolution that will be saved to the JPEG file
     if (!m_availableThumbnailSizes.empty()) {
-        qDebug() << "(AalImageEncoderControl::setSize) previous thumb size:" << m_currentThumbnailSize;
         m_currentThumbnailSize = m_service->selectSizeWithAspectRatio(m_availableThumbnailSizes, imageAspectRatio);
-        qDebug() << "(AalImageEncoderControl::setSize) selected thumb size:" << m_currentThumbnailSize;
         thumbnailAspectRatio = (float)m_currentThumbnailSize.width() / (float)m_currentThumbnailSize.height();
     }
-    qWarning() << "(AalImageEncoderControl::setSize) ** ARATIOS" << imageAspectRatio << thumbnailAspectRatio;
 
     // Thumbnails will appear squashed or stretched if not the same aspect ratio as the original image.
     // This will most likely be an incorrect size list supplied to qtubuntu-camera from the camera driver.
