@@ -82,6 +82,9 @@ void AalVideoDeviceSelectorControl::setSelectedDevice(int index)
         return;
 
     m_service->disconnectCamera();
+    m_service->viewfinderControl()->resetAllSettings();
+    m_service->imageEncoderControl()->resetAllSettings();
+    m_service->videoEncoderControl()->resetAllSettings();
     m_currentDevice = index;
     if (m_service->isCameraActive()) {
         m_service->connectCamera();
