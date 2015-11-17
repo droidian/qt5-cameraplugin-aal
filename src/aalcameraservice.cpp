@@ -271,19 +271,14 @@ void AalCameraService::updateCaptureReady()
 void AalCameraService::initControls(CameraControl *camControl, CameraControlListener *listener)
 {
     m_cameraControl->init(camControl, listener);
+    m_videoOutput->init(camControl, listener);
+    m_viewfinderControl->init(camControl, listener);
     m_imageEncoderControl->init(camControl);
     m_imageCaptureControl->init(camControl, listener);
     m_flashControl->init(camControl);
     m_focusControl->init(camControl, listener);
     m_zoomControl->init(camControl, listener);
     m_videoEncoderControl->init(camControl, listener);
-
-    m_viewfinderControl->init(camControl, listener);
-    if (m_cameraControl->captureMode() == QCamera::CaptureStillImage)
-        m_viewfinderControl->setAspectRatio(m_imageEncoderControl->getAspectRatio());
-    else
-        m_viewfinderControl->setAspectRatio(m_videoEncoderControl->getAspectRatio());
-    m_videoOutput->init(camControl, listener);
     m_exposureControl->init(camControl, listener);
 }
 
