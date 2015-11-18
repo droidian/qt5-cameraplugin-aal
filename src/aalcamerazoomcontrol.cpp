@@ -84,77 +84,37 @@ void AalCameraZoomControl::zoomTo(qreal optical, qreal digital)
     Q_EMIT currentDigitalZoomChanged(m_currentDigialZoom);
 }
 
-/*!
- * \brief AalCameraZoomControl::enablePhotoMode
- */
-void AalCameraZoomControl::enablePhotoMode()
-{
-    Q_ASSERT(m_service->androidControl());
-
-    if (!m_service->androidControl()) {
-        return;
-    }
-
-    resetCurrentZoom();
-
-    int maxZoom = 1;
-    android_camera_get_max_zoom(m_service->androidControl(), &maxZoom);
-    setMaxZoom(maxZoom);
-}
-
-/*!
- * \brief AalCameraZoomControl::enableVideoMode disabled zooming, as some HW has
- * issues zooming when focus mode is continuous focus
- * https://bugs.launchpad.net/camera-app/+bug/1191088
- */
-void AalCameraZoomControl::enableVideoMode()
-{
-    Q_ASSERT(m_service->androidControl());
-
-    if (!m_service->androidControl()) {
-        return;
-    }
-
-    resetCurrentZoom();
-
-    int maxZoom = 1;
-    android_camera_get_max_zoom(m_service->androidControl(), &maxZoom);
-    setMaxZoom(maxZoom);
-}
-
 void AalCameraZoomControl::init(CameraControl *control, CameraControlListener *listener)
 {
     Q_UNUSED(control);
     Q_UNUSED(listener);
 
-    if (m_service->cameraControl()->captureMode() == QCamera::CaptureStillImage)
-        enablePhotoMode();
-    else
-        enableVideoMode();
+    resetZoom();
 }
 
 /*!
- * \brief AalCameraZoomControl::resetCurrentZoom sets the current zoom value to 1
+ * \brief AalCameraZoomControl::reset sets the current zoom value to 1 and the
+ * maximum zoom value to the maximum zoom level that the hardware reports as
+ * supporting
  */
-void AalCameraZoomControl::resetCurrentZoom()
+void AalCameraZoomControl::resetZoom()
 {
+    if (!m_service->androidControl()) {
+        return;
+    }
+
     if (m_currentDigialZoom != 1) {
         m_currentDigialZoom = 1;
         Q_EMIT currentDigitalZoomChanged(m_currentDigialZoom);
     }
 
-    if (m_service->androidControl())
-        android_camera_set_zoom(m_service->androidControl(), m_currentDigialZoom);
-}
+    android_camera_set_zoom(m_service->androidControl(), m_currentDigialZoom);
 
-/*!
- * \brief AalCameraZoomControl::setMaxZoom
- * \param maxValue
- */
-void AalCameraZoomControl::setMaxZoom(int maxValue)
-{
-    if (maxValue < 1)
+    int maxValue = 1;
+    android_camera_get_max_zoom(m_service->androidControl(), &maxValue);
+    if (maxValue < 1) {
         return;
+    }
 
     if (maxValue != m_maximalDigitalZoom) {
         m_maximalDigitalZoom = maxValue;
