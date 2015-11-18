@@ -109,8 +109,17 @@ void AalCameraZoomControl::enablePhotoMode()
  */
 void AalCameraZoomControl::enableVideoMode()
 {
+    Q_ASSERT(m_service->androidControl());
+
+    if (!m_service->androidControl()) {
+        return;
+    }
+
     resetCurrentZoom();
-    setMaxZoom(1);
+
+    int maxZoom = 1;
+    android_camera_get_max_zoom(m_service->androidControl(), &maxZoom);
+    setMaxZoom(maxZoom);
 }
 
 void AalCameraZoomControl::init(CameraControl *control, CameraControlListener *listener)
