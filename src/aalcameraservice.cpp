@@ -210,7 +210,7 @@ void AalCameraService::enablePhotoMode()
 {
     m_imageEncoderControl->enablePhotoMode();
     m_focusControl->enablePhotoMode();
-    m_zoomControl->enablePhotoMode();
+    m_zoomControl->resetZoom();
     m_viewfinderControl->setAspectRatio(m_imageCaptureControl->getAspectRatio());
 }
 
@@ -220,7 +220,7 @@ void AalCameraService::enablePhotoMode()
 void AalCameraService::enableVideoMode()
 {
     m_focusControl->enableVideoMode();
-    m_zoomControl->enableVideoMode();
+    m_zoomControl->resetZoom();
     m_viewfinderControl->setAspectRatio(m_videoEncoderControl->getAspectRatio());
 }
 

@@ -62,13 +62,7 @@ void tst_AalCameraZoomControl::zoomTo()
     QCOMPARE(m_zoomControl->currentDigitalZoom(), 3.0);
     QCOMPARE(spy.count(), 1);
 
-    // video mode resets to 1
-    m_zoomControl->enableVideoMode();
-    QCOMPARE(m_zoomControl->currentDigitalZoom(), 1.0);
-    QCOMPARE(spy.count(), 2);
-
-    // video does not support zoom
-    m_zoomControl->zoomTo(2.0, zoom);
+    m_zoomControl->resetZoom();
     QCOMPARE(m_zoomControl->currentDigitalZoom(), 1.0);
     QCOMPARE(spy.count(), 2);
 }
