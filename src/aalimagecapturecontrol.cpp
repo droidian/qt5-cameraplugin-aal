@@ -33,6 +33,7 @@
 #include <QDateTime>
 #include <QGuiApplication>
 #include <QScreen>
+#include <QSettings>
 
 #include <cmath>
 
@@ -203,7 +204,12 @@ float AalImageCaptureControl::getAspectRatio() const
 
 void AalImageCaptureControl::shutter()
 {
-    m_audioPlayer->play();
+    QSettings settings;
+    bool playShutterSound = settings.value("playShutterSound", true).toBool();
+    qDebug() << "+++++++++++++++ Play shutter sound" << playShutterSound;
+    if (playShutterSound) {
+        m_audioPlayer->play();
+    }
     Q_EMIT imageExposed(m_lastRequestId);
 }
 
