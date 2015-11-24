@@ -204,9 +204,7 @@ float AalImageCaptureControl::getAspectRatio() const
 
 void AalImageCaptureControl::shutter()
 {
-    QSettings settings;
-    bool playShutterSound = settings.value("playShutterSound", true).toBool();
-    qDebug() << "+++++++++++++++ Play shutter sound" << playShutterSound;
+    bool playShutterSound = m_settings.value("playShutterSound", true).toBool();
     if (playShutterSound) {
         m_audioPlayer->play();
     }

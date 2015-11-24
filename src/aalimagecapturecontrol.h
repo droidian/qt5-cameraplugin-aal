@@ -18,6 +18,7 @@
 #define AALIMAGECAPTURECONTROL_H
 
 #include <QCameraImageCaptureControl>
+#include <QSettings>
 #include <QString>
 #include <QTemporaryFile>
 #include <storagemanager.h>
@@ -85,6 +86,7 @@ private:
     QList<float> m_prioritizedAspectRatios;
     QString m_galleryPath;
     QMediaPlayer *m_audioPlayer;
+    QSettings m_settings;
 };
 
 #endif
