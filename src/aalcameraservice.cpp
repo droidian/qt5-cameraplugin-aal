@@ -223,7 +223,7 @@ void AalCameraService::enablePhotoMode()
     m_imageEncoderControl->enablePhotoMode();
     m_focusControl->enablePhotoMode();
     m_viewfinderControl->setAspectRatio(m_imageEncoderControl->getAspectRatio());
-
+}
 
 /*!
  * \brief AalCameraService::enableVideoMode sets all controls into video mode
