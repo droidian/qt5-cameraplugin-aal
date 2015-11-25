@@ -64,7 +64,7 @@ void AalCameraFlashControl::setFlashMode(QCameraExposure::FlashModes mode)
 
 void AalCameraFlashControl::init(CameraControl *control)
 {
-    querySupportedFlashModes();
+    querySupportedFlashModes(control);
 
     if (setOnInit) {
         FlashMode mode = qt2Android(m_currentMode);
@@ -94,31 +94,32 @@ FlashMode AalCameraFlashControl::qt2Android(QCameraExposure::FlashModes mode)
 QCameraExposure::FlashModes AalCameraFlashControl::android2Qt(FlashMode mode)
 {
     switch(mode) {
-    case FLASH_MODE_OFF:
-        return QCameraExposure::FlashOff;
     case FLASH_MODE_ON:
         return QCameraExposure::FlashOn;
     case FLASH_MODE_TORCH:
         return QCameraExposure::FlashTorch;
     case FLASH_MODE_AUTO:
-    default:
         return QCameraExposure::FlashAuto;
+    case FLASH_MODE_OFF:
+    default:
+        return QCameraExposure::FlashOff;
     }
 }
 
 /*!
  * \brief AalCameraFlashControl::querySupportedFlashModes gets the supported
  * flash modes for the current camera
- * FIXME get the supported modes from libhybris
  */
-void AalCameraFlashControl::querySupportedFlashModes()
+void AalCameraFlashControl::querySupportedFlashModes(CameraControl *control)
 {
     m_supportedModes.clear();
-    if (m_service->isBackCameraUsed()) {
-        m_supportedModes << QCameraExposure::FlashOff << QCameraExposure::FlashOn
-                            << QCameraExposure::FlashAuto << QCameraExposure::FlashVideoLight
-                               << QCameraExposure::FlashTorch;
-    } else {
-        m_supportedModes << QCameraExposure::FlashOff;
-    }
+
+    android_camera_enumerate_supported_flash_modes(control, &AalCameraFlashControl::supportedFlashModesCallback, this);
 }
+
+void AalCameraFlashControl::supportedFlashModesCallback(void *context, FlashMode flashMode)
+{
+    AalCameraFlashControl *self = (AalCameraFlashControl*)context;
+    self->m_supportedModes << self->android2Qt(flashMode);
+}
+

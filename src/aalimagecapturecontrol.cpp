@@ -33,6 +33,7 @@
 #include <QDateTime>
 #include <QGuiApplication>
 #include <QScreen>
+#include <QSettings>
 
 #include <cmath>
 
@@ -165,7 +166,10 @@ bool AalImageCaptureControl::isCaptureRunning() const
 
 void AalImageCaptureControl::shutter()
 {
-    m_audioPlayer->play();
+    bool playShutterSound = m_settings.value("playShutterSound", true).toBool();
+    if (playShutterSound) {
+        m_audioPlayer->play();
+    }
     Q_EMIT imageExposed(m_lastRequestId);
 }
 
