@@ -9,16 +9,8 @@ PLUGIN_TYPE = mediaservice
 target.path += $$[QT_INSTALL_PLUGINS]/$${PLUGIN_TYPE}
 INSTALLS = target
 
-INCLUDEPATH += /usr/include/libqtubuntu-media-signals
-LIBS += \
-    -lcamera \
-    -lmedia \
-    -lqtubuntu-media-signals \
-    -lpulse \
-    -lpulse-simple
-
 CONFIG += link_pkgconfig
-PKGCONFIG += exiv2
+PKGCONFIG += exiv2 libqtubuntu-media-signals libmedia libcamera hybris-egl-platform libpulse-simple
 
 OTHER_FILES += aalcamera.json
 

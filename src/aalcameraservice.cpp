@@ -33,6 +33,7 @@
 #include <hybris/camera/camera_compatibility_layer.h>
 
 #include <QDebug>
+#include <cmath>
 
 AalCameraService *AalCameraService::m_service = 0;
 
@@ -171,16 +172,13 @@ bool AalCameraService::connectCamera()
 
     m_androidListener->context = m_androidControl;
     initControls(m_androidControl, m_androidListener);
-    m_videoOutput->startPreview();
 
     return true;
 }
 
 void AalCameraService::disconnectCamera()
 {
-    if (m_service->videoOutputControl()) {
-        m_service->videoOutputControl()->stopPreview();
-    }
+    stopPreview();
 
     if (m_androidControl) {
         android_camera_disconnect(m_androidControl);
@@ -190,6 +188,20 @@ void AalCameraService::disconnectCamera()
     if (m_androidListener) {
         delete m_androidListener;
         m_androidListener = 0;
+    }
+}
+
+void AalCameraService::startPreview()
+{
+    if (m_videoOutput) {
+        m_videoOutput->startPreview();
+    }
+}
+
+void AalCameraService::stopPreview()
+{
+    if (m_videoOutput) {
+        m_videoOutput->stopPreview();
     }
 }
 
@@ -210,8 +222,8 @@ void AalCameraService::enablePhotoMode()
 {
     m_imageEncoderControl->enablePhotoMode();
     m_focusControl->enablePhotoMode();
-    m_viewfinderControl->setAspectRatio(m_imageCaptureControl->getAspectRatio());
-}
+    m_viewfinderControl->setAspectRatio(m_imageEncoderControl->getAspectRatio());
+
 
 /*!
  * \brief AalCameraService::enableVideoMode sets all controls into video mode
@@ -220,15 +232,6 @@ void AalCameraService::enableVideoMode()
 {
     m_focusControl->enableVideoMode();
     m_viewfinderControl->setAspectRatio(m_videoEncoderControl->getAspectRatio());
-}
-
-/*!
- * \brief AalCameraService::isReady return if the camera is ready for capturing
- * \return
- */
-bool AalCameraService::isReady() const
-{
-    return m_imageCaptureControl->isReadyForCapture();
 }
 
 /*!
@@ -266,17 +269,37 @@ void AalCameraService::updateCaptureReady()
 void AalCameraService::initControls(CameraControl *camControl, CameraControlListener *listener)
 {
     m_cameraControl->init(camControl, listener);
+    m_videoOutput->init(camControl, listener);
+    m_viewfinderControl->init(camControl, listener);
     m_imageEncoderControl->init(camControl);
     m_imageCaptureControl->init(camControl, listener);
     m_flashControl->init(camControl);
     m_focusControl->init(camControl, listener);
     m_zoomControl->init(camControl, listener);
     m_videoEncoderControl->init(camControl, listener);
-    if (m_cameraControl->captureMode() == QCamera::CaptureStillImage)
-        m_viewfinderControl->setAspectRatio(m_imageCaptureControl->getAspectRatio());
-    else
-        m_viewfinderControl->setAspectRatio(m_videoEncoderControl->getAspectRatio());
-    m_viewfinderControl->init(camControl, listener);
-    m_videoOutput->init(camControl, listener);
     m_exposureControl->init(camControl, listener);
+}
+
+QSize AalCameraService::selectSizeWithAspectRatio(const QList<QSize> &sizes, float targetAspectRatio) const
+{
+    QSize selectedSize;
+    long selectedPixelCount = 0;
+    const float EPSILON = 0.02;
+
+    if (!sizes.empty()) {
+        // Loop over all sizes until we find the highest one that matches targetAspectRatio.
+        QList<QSize>::const_iterator it = sizes.begin();
+        while (it != sizes.end()) {
+            QSize size = *it;
+            const float aspectRatio = (float)size.width() / (float)size.height();
+            const long pixelCount = (long)size.width() * (long)size.height();
+            if (fabs(aspectRatio - targetAspectRatio) < EPSILON && pixelCount > selectedPixelCount) {
+                selectedSize = size;
+                selectedPixelCount = pixelCount;
+            }
+            ++it;
+        }
+    }
+
+    return selectedSize;
 }

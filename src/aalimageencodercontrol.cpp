@@ -15,12 +15,17 @@
  */
 
 #include "aalimageencodercontrol.h"
+#include "aalcameracontrol.h"
+#include "aalviewfindersettingscontrol.h"
+#include "aalvideoencodersettingscontrol.h"
+#include "aalimagecapturecontrol.h"
 #include "aalcameraservice.h"
 
 #include <hybris/camera/camera_compatibility_layer_capabilities.h>
 
 #include <unistd.h>
 
+#include <QCamera>
 #include <QDebug>
 
 AalImageEncoderControl::AalImageEncoderControl(AalCameraService *service, QObject *parent)
@@ -63,7 +68,7 @@ void AalImageEncoderControl::setImageSettings(const QImageEncoderSettings &setti
 
         // resolution
         if (!settings.resolution().isNull()) {
-            m_encoderSettings.setResolution(settings.resolution());
+            setSize(settings.resolution());
         }
 
         // encoding options
@@ -94,6 +99,11 @@ QList<QSize> AalImageEncoderControl::supportedThumbnailResolutions(const QImageE
     return m_availableThumbnailSizes;
 }
 
+float AalImageEncoderControl::getAspectRatio() const
+{
+    return (float)m_currentSize.width() / (float)m_currentSize.height();
+}
+
 void AalImageEncoderControl::init(CameraControl *control)
 {
     Q_ASSERT(control != NULL);
@@ -106,47 +116,60 @@ void AalImageEncoderControl::init(CameraControl *control)
     int jpegQuality;
     android_camera_get_jpeg_quality(control, &jpegQuality);
     m_encoderSettings.setQuality(jpegQualityToQtEncodingQuality(jpegQuality));
+
+    if (m_availableSizes.empty()) {
+        qWarning() << "(AalImageEncoderControl::init) No supported resolutions detected for currently selected camera device." << endl;
+        return;
+    }
+
+    if (!m_currentSize.isValid() || !m_availableSizes.contains(m_currentSize)) {
+        setSize(m_availableSizes.last());
+    } else {
+        setSize(m_currentSize);
+    }
 }
 
-void AalImageEncoderControl::setSize(const QSize &size)
+bool AalImageEncoderControl::setSize(const QSize &size)
 {
     CameraControl *cc = m_service->androidControl();
     if (!cc) {
         m_currentSize = size;
-        return;
+        m_encoderSettings.setResolution(m_currentSize);
+        return true;
     }
 
     if (!m_availableSizes.contains(size)) {
-        qWarning() << "Size " << size << "is not supported by the camera";
-        qWarning() << "Supported sizes are: " << m_availableSizes;
-        return;
+        qWarning() << "(AalImageEncoderControl::setSize) Size " << size << "is not supported by the camera";
+        qWarning() << "(AalImageEncoderControl::setSize) Supported sizes are: " << m_availableSizes;
+        return false;
     }
 
     m_currentSize = size;
-
-    android_camera_set_picture_size(cc, size.width(), size.height());
-}
-
-/*!
- * \brief AalImageEncoderControl::setThumbnailSize sets the resolution of JPEG thumbnail
- */
-void AalImageEncoderControl::setThumbnailSize(const QSize &size)
-{
-    CameraControl *cc = m_service->androidControl();
-    if (!cc) {
-        m_currentThumbnailSize = size;
-        return;
+    m_encoderSettings.setResolution(m_currentSize);
+    if (m_service->cameraControl()->captureMode() == QCamera::CaptureStillImage) {
+        m_service->viewfinderControl()->setAspectRatio(getAspectRatio());
     }
 
-    if (!m_availableThumbnailSizes.contains(size)) {
-        qWarning() << "Thumbnail size " << size << "is not supported by the camera";
-        qWarning() << "Supported thumbnail sizes are: " << m_availableThumbnailSizes;
-        return;
+    // Select m_currentThumbnailSize so that its aspect ratio is the same
+    // as m_currentSize's aspect ratio
+    float imageAspectRatio = getAspectRatio();
+    float thumbnailAspectRatio;
+
+    // Set the optimal thumbnail image resolution that will be saved to the JPEG file
+    if (!m_availableThumbnailSizes.empty()) {
+        m_currentThumbnailSize = m_service->selectSizeWithAspectRatio(m_availableThumbnailSizes, imageAspectRatio);
+        thumbnailAspectRatio = (float)m_currentThumbnailSize.width() / (float)m_currentThumbnailSize.height();
     }
 
-    m_currentThumbnailSize = size;
+    // Thumbnails will appear squashed or stretched if not the same aspect ratio as the original image.
+    // This will most likely be an incorrect size list supplied to qtubuntu-camera from the camera driver.
+    if (imageAspectRatio != thumbnailAspectRatio) {
+        qWarning() << "(AalImageEncoderControl::setSize) ** Image and thumbnail aspect ratios are different. Thumbnails will look wrong!";
+    }
 
-    android_camera_set_thumbnail_size(cc, size.width(), size.height());
+    android_camera_set_picture_size(cc, m_currentSize.width(), m_currentSize.height());
+    android_camera_set_thumbnail_size(cc, m_currentThumbnailSize.width(), m_currentThumbnailSize.height());
+    return true;
 }
 
 void AalImageEncoderControl::resetAllSettings()

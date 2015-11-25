@@ -42,14 +42,25 @@ void AalCameraControl::setState(QCamera::State state)
     if (m_state == state)
         return;
 
-    if (m_state == QCamera::ActiveState) {
-        m_service->disconnectCamera();
-    } else {
+    if (state == QCamera::ActiveState) {
         bool ok = m_service->connectCamera();
         if (!ok) {
             Q_EMIT error(QCamera::CameraError, QLatin1String("Unable to connect to camera"));
             return;
         }
+        m_service->startPreview();
+    } else if (state == QCamera::LoadedState) {
+        if (m_state == QCamera::UnloadedState) {
+            bool ok = m_service->connectCamera();
+            if (!ok) {
+                Q_EMIT error(QCamera::CameraError, QLatin1String("Unable to connect to camera"));
+                return;
+            }
+        } else {
+            m_service->disconnectCamera();
+        }
+    } else if (state == QCamera::UnloadedState) {
+        m_service->disconnectCamera();
     }
 
     m_state = state;
@@ -106,9 +117,7 @@ void AalCameraControl::init(CameraControl *control, CameraControlListener *liste
 
 void AalCameraControl::handleError()
 {
-    setState(QCamera::LoadedState);
     Q_EMIT error(QCamera::CameraError, QLatin1String("Unknown error in camera"));
-    setState(QCamera::ActiveState);
 }
 
 void AalCameraControl::errorCB(void *context)

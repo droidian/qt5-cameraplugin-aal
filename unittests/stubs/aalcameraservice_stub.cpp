@@ -65,6 +65,14 @@ void AalCameraService::disconnectCamera()
 {
 }
 
+void AalCameraService::startPreview()
+{
+}
+
+void AalCameraService::stopPreview()
+{
+}
+
 void AalCameraService::initControls(CameraControl *camControl, CameraControlListener *listener)
 {
     delete m_androidControl;

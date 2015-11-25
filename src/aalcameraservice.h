@@ -18,6 +18,7 @@
 #define AALCAMERASERVICE_H
 
 #include <QMediaService>
+#include <QSize>
 
 class AalCameraControl;
 class AalCameraFlashControl;
@@ -69,6 +70,8 @@ public:
 
     bool connectCamera();
     void disconnectCamera();
+    void startPreview();
+    void stopPreview();
 
     bool isCameraActive() const;
     bool isBackCameraUsed() const;
@@ -76,8 +79,8 @@ public:
     void enablePhotoMode();
     void enableVideoMode();
 
-    bool isReady() const;
     bool isRecording() const;
+    QSize selectSizeWithAspectRatio(const QList<QSize> &sizes, float targetAspectRatio) const;
 
     static AalCameraService *instance() { return m_service; }
 

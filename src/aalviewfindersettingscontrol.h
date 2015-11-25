@@ -35,7 +35,6 @@ public:
     void setViewfinderParameter(ViewfinderParameter parameter, const QVariant & value);
     QVariant viewfinderParameter(ViewfinderParameter parameter) const;
 
-    void setSize(const QSize &size);
     QSize currentSize() const;
     const QList<QSize> &supportedSizes() const;
 
@@ -47,6 +46,7 @@ public:
     static void sizeCB(void* ctx, int width, int height);
 
 private:
+    void setSize(const QSize &size);
     QSize chooseOptimalSize(const QList<QSize> &sizes) const;
 
     AalCameraService *m_service;

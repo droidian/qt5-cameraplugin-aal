@@ -100,6 +100,7 @@ void AalCameraFocusControl::setFocusMode(QCameraFocus::FocusModes mode)
         return;
 
     m_focusRunning = false;
+    m_service->updateCaptureReady();
     AutoFocusMode focusMode = qt2Android(mode);
     m_focusMode = mode;
     if (m_service->androidControl()) {
@@ -154,6 +155,7 @@ void AalCameraFocusControl::init(CameraControl *control, CameraControlListener *
     AutoFocusMode mode = qt2Android(m_focusMode);
     android_camera_set_auto_focus_mode(control, mode);
     m_focusRunning = false;
+    m_service->updateCaptureReady();
 }
 
 void AalCameraFocusControl::startFocus()

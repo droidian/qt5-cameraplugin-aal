@@ -54,6 +54,14 @@ void AalCameraService::disconnectCamera()
 {
 }
 
+void AalCameraService::startPreview()
+{
+}
+
+void AalCameraService::stopPreview()
+{
+}
+
 bool AalCameraService::isCameraActive() const
 {
     return true;
@@ -65,11 +73,6 @@ void AalCameraService::initControls(CameraControl *camControl, CameraControlList
     Q_UNUSED(listener);
 }
 
-bool AalCameraService::isReady() const
-{
-    return true;
-}
-
 bool AalCameraService::isRecording() const
 {
     return false;
@@ -77,4 +80,11 @@ bool AalCameraService::isRecording() const
 
 void AalCameraService::updateCaptureReady()
 {
+}
+
+QSize AalCameraService::selectSizeWithAspectRatio(const QList<QSize> &sizes, float targetAspectRatio) const
+{
+    Q_UNUSED(sizes);
+    Q_UNUSED(targetAspectRatio);
+    return QSize();
 }
