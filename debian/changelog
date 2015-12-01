@@ -1,3 +1,11 @@
+qtubuntu-camera (0.3.3+16.04.20151201-0ubuntu1) xenial; urgency=medium
+
+  [ Timo Jyrinki ]
+  * Support the new AudioRole API in addition to the old (LP: #1493851)
+    (LP: #1450346) (LP: #1450346, #1493851)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Tue, 01 Dec 2015 06:13:33 +0000
+
 qtubuntu-camera (0.3.3+15.10.20150903-0ubuntu1) wily; urgency=medium
 
   [ Alfonso Sanchez-Beato ]
