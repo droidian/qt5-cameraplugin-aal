@@ -37,16 +37,12 @@ public:
     qreal requestedOpticalZoom() const;
     void zoomTo(qreal optical, qreal digital);
 
-    void enablePhotoMode();
-    void enableVideoMode();
+    void resetZoom();
 
 public Q_SLOTS:
     void init(CameraControl *control, CameraControlListener *listener);
 
 private:
-    void resetCurrentZoom();
-    void setMaxZoom(int maxValue);
-
     AalCameraService *m_service;
 
     int m_currentDigialZoom;

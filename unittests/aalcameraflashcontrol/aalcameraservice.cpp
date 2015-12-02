@@ -57,6 +57,14 @@ void AalCameraService::disconnectCamera()
 {
 }
 
+void AalCameraService::startPreview()
+{
+}
+
+void AalCameraService::stopPreview()
+{
+}
+
 void AalCameraService::initControls(CameraControl *camControl, CameraControlListener *listener)
 {
     Q_UNUSED(camControl);
@@ -75,4 +83,11 @@ bool AalCameraService::isBackCameraUsed() const
 
 void AalCameraService::updateCaptureReady()
 {
+}
+
+QSize AalCameraService::selectSizeWithAspectRatio(const QList<QSize> &sizes, float targetAspectRatio) const
+{
+    Q_UNUSED(sizes);
+    Q_UNUSED(targetAspectRatio);
+    return QSize();
 }

@@ -129,9 +129,6 @@ void AalVideoRendererControl::startPreview()
 
 void AalVideoRendererControl::stopPreview()
 {
-    if (!m_viewFinderRunning || !m_surface)
-        return;
-
     m_viewFinderRunning = false;
 
     CameraControl *cc = m_service->androidControl();
@@ -139,7 +136,7 @@ void AalVideoRendererControl::stopPreview()
         android_camera_stop_preview(cc);
     }
 
-    if (m_surface->isActive())
+    if (m_surface && m_surface->isActive())
         m_surface->stop();
 
     m_frameCount = 0;

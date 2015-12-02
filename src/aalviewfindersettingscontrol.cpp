@@ -20,8 +20,6 @@
 
 #include <QDebug>
 
-#include <cmath>
-
 #include <hybris/camera/camera_compatibility_layer_capabilities.h>
 
 AalViewfinderSettingsControl::AalViewfinderSettingsControl(AalCameraService *service, QObject *parent)
@@ -111,15 +109,9 @@ void AalViewfinderSettingsControl::setSize(const QSize &size)
     m_currentSize = size;
 
     AalVideoRendererControl *videoRenderer = m_service->videoOutputControl();
-    bool vfRunning = videoRenderer->isViewfinderRunning();
-
-    if (vfRunning)
-        videoRenderer->stopPreview();
-
+    videoRenderer->stopPreview();
     android_camera_set_preview_size(cc, m_currentSize.width(), m_currentSize.height());
-
-    if (vfRunning)
-        videoRenderer->startPreview();
+    videoRenderer->startPreview();
 }
 
 QSize AalViewfinderSettingsControl::currentSize() const
@@ -172,7 +164,9 @@ void AalViewfinderSettingsControl::init(CameraControl *control, CameraControlLis
     }
 
     // Choose optimal resolution based on the current camera's aspect ratio
-    m_currentSize = chooseOptimalSize(m_availableSizes);
+    if (m_currentSize.isEmpty()) {
+        m_currentSize = chooseOptimalSize(m_availableSizes);
+    }
     android_camera_set_preview_size(control, m_currentSize.width(), m_currentSize.height());
 
     android_camera_get_preview_fps_range(control, &m_minFPS, &m_maxFPS);
@@ -211,16 +205,8 @@ QSize AalViewfinderSettingsControl::chooseOptimalSize(const QList<QSize> &sizes)
         if (m_aspectRatio == 0) {
             // There are resolutions supported, choose one non-optimal one):
             return sizes[1];
-        }
-
-        QList<QSize>::const_iterator it = sizes.begin();
-        while (it != sizes.end()) {
-            const float ratio = (float)(*it).width() / (float)(*it).height();
-            const float EPSILON = 10e-3;
-            if (fabs(ratio - m_aspectRatio) < EPSILON) {
-                return *it;
-            }
-            ++it;
+        } else {
+            return m_service->selectSizeWithAspectRatio(sizes, m_aspectRatio);
         }
     }
 

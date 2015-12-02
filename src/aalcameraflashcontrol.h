@@ -37,17 +37,18 @@ public:
     bool isFlashReady() const;
     void setFlashMode(QCameraExposure::FlashModes mode);
 
+    static void supportedFlashModesCallback(void *context, FlashMode flashMode);
+
 public Q_SLOTS:
     void init(CameraControl *control);
 
 private:
     FlashMode qt2Android(QCameraExposure::FlashModes mode);
     QCameraExposure::FlashModes android2Qt(FlashMode mode);
-    void querySupportedFlashModes();
+    void querySupportedFlashModes(CameraControl *control);
 
     AalCameraService *m_service;
     QCameraExposure::FlashModes m_currentMode;
-    bool setOnInit;
     QSet<QCameraExposure::FlashModes> m_supportedModes;
 };
 
