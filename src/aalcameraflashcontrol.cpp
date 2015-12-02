@@ -26,8 +26,7 @@
 AalCameraFlashControl::AalCameraFlashControl(AalCameraService *service, QObject *parent)
     : QCameraFlashControl(parent),
       m_service(service),
-      m_currentMode(QCameraExposure::FlashManual),
-      setOnInit(false)
+      m_currentMode(QCameraExposure::FlashManual)
 {
 }
 
@@ -57,20 +56,14 @@ void AalCameraFlashControl::setFlashMode(QCameraExposure::FlashModes mode)
     if (m_service->androidControl()) {
         android_camera_set_flash_mode(m_service->androidControl(), fmode);
     }
-    else {
-        setOnInit = true;
-    }
 }
 
 void AalCameraFlashControl::init(CameraControl *control)
 {
     querySupportedFlashModes(control);
 
-    if (setOnInit) {
-        FlashMode mode = qt2Android(m_currentMode);
-        android_camera_set_flash_mode(control, mode);
-        setOnInit = false;
-    }
+    FlashMode mode = qt2Android(m_currentMode);
+    android_camera_set_flash_mode(control, mode);
 
     Q_EMIT flashReady(true);
 }
@@ -97,7 +90,7 @@ QCameraExposure::FlashModes AalCameraFlashControl::android2Qt(FlashMode mode)
     case FLASH_MODE_ON:
         return QCameraExposure::FlashOn;
     case FLASH_MODE_TORCH:
-        return QCameraExposure::FlashTorch;
+        return QCameraExposure::FlashVideoLight;
     case FLASH_MODE_AUTO:
         return QCameraExposure::FlashAuto;
     case FLASH_MODE_OFF:

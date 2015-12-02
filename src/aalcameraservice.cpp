@@ -220,6 +220,7 @@ bool AalCameraService::isBackCameraUsed() const
  */
 void AalCameraService::enablePhotoMode()
 {
+    m_flashControl->init(m_service->androidControl());
     m_imageEncoderControl->enablePhotoMode();
     m_focusControl->enablePhotoMode();
     m_viewfinderControl->setAspectRatio(m_imageEncoderControl->getAspectRatio());
@@ -230,6 +231,7 @@ void AalCameraService::enablePhotoMode()
  */
 void AalCameraService::enableVideoMode()
 {
+    m_flashControl->init(m_service->androidControl());
     m_focusControl->enableVideoMode();
     m_viewfinderControl->setAspectRatio(m_videoEncoderControl->getAspectRatio());
 }
