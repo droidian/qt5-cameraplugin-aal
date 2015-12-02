@@ -49,7 +49,6 @@ private:
 
     AalCameraService *m_service;
     QCameraExposure::FlashModes m_currentMode;
-    bool setOnInit;
     QSet<QCameraExposure::FlashModes> m_supportedModes;
 };
 

@@ -83,6 +83,9 @@ void AalCameraControl::setCaptureMode(QCamera::CaptureModes mode)
     if (m_captureMode == mode)
         return;
 
+    if (m_service->androidControl() == 0)
+        return;
+
     if (m_service->isRecording())
         return;
 
