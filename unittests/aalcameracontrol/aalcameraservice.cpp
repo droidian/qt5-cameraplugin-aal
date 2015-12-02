@@ -18,15 +18,18 @@
 
 AalCameraService *AalCameraService::m_service = 0;
 
+class CameraControl {};
+
 AalCameraService::AalCameraService(QObject *parent) :
     QMediaService(parent),
-    m_androidControl(0),
+    m_androidControl(new CameraControl()),
     m_androidListener(0)
 {
 }
 
 AalCameraService::~AalCameraService()
 {
+    delete m_androidControl;
 }
 
 QMediaControl *AalCameraService::requestControl(const char *name)
