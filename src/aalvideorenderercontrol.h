@@ -40,7 +40,7 @@ public:
     const QImage &preview() const;
     void createPreview();
 
-    bool isViewfinderRunning() const;
+    bool isPreviewStarted() const;
 
 public Q_SLOTS:
     void init(CameraControl *control, CameraControlListener *listener);
@@ -61,10 +61,9 @@ private:
     AalCameraService *m_service;
 
     bool m_viewFinderRunning;
+    bool m_previewStarted;
     GLuint m_textureId;
     QImage m_preview;
-
-    int m_frameCount;
 };
 
 #endif

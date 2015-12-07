@@ -57,7 +57,7 @@ void AalCameraControl::setState(QCamera::State state)
                 return;
             }
         } else {
-            m_service->disconnectCamera();
+            m_service->stopPreview();
         }
     } else if (state == QCamera::UnloadedState) {
         m_service->disconnectCamera();

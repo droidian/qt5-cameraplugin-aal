@@ -16,11 +16,13 @@
 
 #include "aalvideodeviceselectorcontrol.h"
 #include "aalcameraservice.h"
+#include "aalcameracontrol.h"
 #include "aalimageencodercontrol.h"
 #include "aalvideoencodersettingscontrol.h"
 #include "aalviewfindersettingscontrol.h"
 
 #include <QDebug>
+#include <QtMultimedia/QCamera>
 
 #include <hybris/camera/camera_compatibility_layer_capabilities.h>
 
@@ -81,12 +83,16 @@ void AalVideoDeviceSelectorControl::setSelectedDevice(int index)
     if (m_service->isRecording())
         return;
 
+    m_service->stopPreview();
     m_service->disconnectCamera();
     m_service->viewfinderControl()->resetAllSettings();
     m_service->imageEncoderControl()->resetAllSettings();
     m_service->videoEncoderControl()->resetAllSettings();
     m_currentDevice = index;
-    if (m_service->isCameraActive()) {
+    QCamera::State state = m_service->cameraControl()->state();
+    if (state == QCamera::LoadedState) {
+        m_service->connectCamera();
+    } else if (state == QCamera::ActiveState) {
         m_service->connectCamera();
         m_service->startPreview();
     }

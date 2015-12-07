@@ -108,10 +108,14 @@ void AalViewfinderSettingsControl::setSize(const QSize &size)
 
     m_currentSize = size;
 
-    AalVideoRendererControl *videoRenderer = m_service->videoOutputControl();
-    videoRenderer->stopPreview();
+    bool wasPreviewStarted = m_service->isPreviewStarted();
+    if (wasPreviewStarted) {
+        m_service->stopPreview();
+    }
     android_camera_set_preview_size(cc, m_currentSize.width(), m_currentSize.height());
-    videoRenderer->startPreview();
+    if (wasPreviewStarted) {
+        m_service->startPreview();
+    }
 }
 
 QSize AalViewfinderSettingsControl::currentSize() const
