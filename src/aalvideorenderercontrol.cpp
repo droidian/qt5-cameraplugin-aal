@@ -194,7 +194,9 @@ void AalVideoRendererControl::updateViewfinderFrame()
         }
     }
 
-    m_surface->present(frame);
+    if (m_surface->isActive()) {
+        m_surface->present(frame);
+    }
 }
 
 void AalVideoRendererControl::onTextureCreated(GLuint textureID)
