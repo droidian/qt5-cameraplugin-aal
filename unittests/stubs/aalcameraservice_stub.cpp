@@ -73,6 +73,10 @@ void AalCameraService::stopPreview()
 {
 }
 
+void AalCameraService::onApplicationStateChanged()
+{
+}
+
 void AalCameraService::initControls(CameraControl *camControl, CameraControlListener *listener)
 {
     delete m_androidControl;

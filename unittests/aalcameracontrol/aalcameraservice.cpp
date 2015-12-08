@@ -65,6 +65,11 @@ void AalCameraService::stopPreview()
 {
 }
 
+bool AalCameraService::isPreviewStarted() const
+{
+    return true;
+}
+
 bool AalCameraService::isCameraActive() const
 {
     return true;
@@ -75,6 +80,10 @@ void AalCameraService::enablePhotoMode()
 }
 
 void AalCameraService::enableVideoMode()
+{
+}
+
+void AalCameraService::onApplicationStateChanged()
 {
 }
 

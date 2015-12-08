@@ -19,6 +19,7 @@
 
 #include <QMediaService>
 #include <QSize>
+#include <QtMultimedia/QCamera>
 
 class AalCameraControl;
 class AalCameraFlashControl;
@@ -72,6 +73,7 @@ public:
     void disconnectCamera();
     void startPreview();
     void stopPreview();
+    bool isPreviewStarted() const;
 
     bool isCameraActive() const;
     bool isBackCameraUsed() const;
@@ -86,6 +88,9 @@ public:
 
 public Q_SLOTS:
     void updateCaptureReady();
+
+protected Q_SLOTS:
+    void onApplicationStateChanged();
 
 private:
     void initControls(CameraControl *camControl, CameraControlListener *listener);
@@ -110,6 +115,8 @@ private:
     CameraControlListener *m_androidListener;
 
     StorageManager *m_storageManager;
+    bool m_restoreStateWhenApplicationActive;
+    QCamera::State m_cameraStateWhenApplicationActive;
 };
 
 #endif
