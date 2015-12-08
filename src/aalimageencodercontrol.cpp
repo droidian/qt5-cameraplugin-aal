@@ -123,7 +123,14 @@ void AalImageEncoderControl::init(CameraControl *control)
     }
 
     if (!m_currentSize.isValid() || !m_availableSizes.contains(m_currentSize)) {
-        setSize(m_availableSizes.last());
+        QSize greatestSize;
+        foreach (const QSize &size, m_availableSizes) {
+            if (size.width() * size.height() > greatestSize.width() * greatestSize.height()) {
+                greatestSize = size;
+            }
+        }
+
+        setSize(greatestSize);
     } else {
         setSize(m_currentSize);
     }
