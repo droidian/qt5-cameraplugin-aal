@@ -163,7 +163,7 @@ bool AalVideoRendererControl::isPreviewStarted() const
 void AalVideoRendererControl::updateViewfinderFrame()
 {
     if (!m_service->viewfinderControl()) {
-        qWarning() << "Can't draw video frame without a QCameraViewfinderSettingsControl";
+        qWarning() << "Can't draw video frame without a viewfinder settings control";
         return;
     }
     if (!m_service->androidControl()) {
