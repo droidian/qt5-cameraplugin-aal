@@ -103,6 +103,17 @@ void android_camera_enumerate_supported_scene_modes(CameraControl* control, scen
     cb(ctx, SCENE_MODE_ACTION);
 }
 
+void android_camera_enumerate_supported_flash_modes(CameraControl* control, flash_mode_callback cb, void* ctx)
+{
+    Q_UNUSED(cb);
+    Q_UNUSED(ctx);
+    crashTest(control);
+    cb(ctx, FLASH_MODE_ON);
+    cb(ctx, FLASH_MODE_AUTO);
+    cb(ctx, FLASH_MODE_TORCH);
+    cb(ctx, FLASH_MODE_OFF);
+}
+
 void android_camera_set_scene_mode(CameraControl* control, SceneMode mode)
 {
     Q_UNUSED(mode);

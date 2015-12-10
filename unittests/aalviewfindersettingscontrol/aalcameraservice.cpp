@@ -15,6 +15,7 @@
  */
 
 #include "aalcameraservice.h"
+#include <cmath>
 
 AalCameraService *AalCameraService::m_service = 0;
 
@@ -54,6 +55,14 @@ void AalCameraService::disconnectCamera()
 {
 }
 
+void AalCameraService::startPreview()
+{
+}
+
+void AalCameraService::stopPreview()
+{
+}
+
 void AalCameraService::initControls(CameraControl *camControl, CameraControlListener *listener)
 {
     Q_UNUSED(camControl);
@@ -73,3 +82,28 @@ bool AalCameraService::isBackCameraUsed() const
 void AalCameraService::updateCaptureReady()
 {
 }
+
+QSize AalCameraService::selectSizeWithAspectRatio(const QList<QSize> &sizes, float targetAspectRatio) const
+{
+    QSize selectedSize;
+    long selectedPixelCount = 0;
+    const float EPSILON = 0.02;
+
+    if (!sizes.empty()) {
+        // Loop over all sizes until we find the highest one that matches targetAspectRatio.
+        QList<QSize>::const_iterator it = sizes.begin();
+        while (it != sizes.end()) {
+            QSize size = *it;
+            const float aspectRatio = (float)size.width() / (float)size.height();
+            const long pixelCount = (long)size.width() * (long)size.height();
+            if (fabs(aspectRatio - targetAspectRatio) < EPSILON && pixelCount > selectedPixelCount) {
+                selectedSize = size;
+                selectedPixelCount = pixelCount;
+            }
+            ++it;
+        }
+    }
+
+    return selectedSize;
+}
+

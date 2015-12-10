@@ -18,6 +18,7 @@
 #define AALIMAGECAPTURECONTROL_H
 
 #include <QCameraImageCaptureControl>
+#include <QSettings>
 #include <QString>
 #include <QTemporaryFile>
 #include <storagemanager.h>
@@ -52,10 +53,6 @@ public:
 
     bool isCaptureRunning() const;
 
-    /// Find the highest optimal aspect ratio resolution, which depends
-    /// on the type of camera currently selected:
-    float getAspectRatio() const;
-
 public Q_SLOTS:
     void init(CameraControl *control, CameraControlListener *listener);
     void onPreviewReady();
@@ -64,9 +61,6 @@ private Q_SLOTS:
     void shutter();
 
 private:
-    QSize chooseOptimalSize(const QList<QSize> &sizes, bool updateAspectRatio = true);
-    float getScreenAspectRatio();
-    void getPriorityAspectRatios();
     void saveJpeg(void* data, uint32_t dataSize);
     bool updateJpegMetadata(void* data, uint32_t dataSize, QTemporaryFile* destination);
 
@@ -76,15 +70,13 @@ private:
     StorageManager m_storageManager;
     bool m_ready;
     QString m_pendingCaptureFile;
-    int m_photoWidth;
-    int m_photoHeight;
-    float m_aspectRatio;
     float m_screenAspectRatio;
     /// Maintains a list of highest priority aspect ratio to lowest, for the
     /// currently selected camera
     QList<float> m_prioritizedAspectRatios;
     QString m_galleryPath;
     QMediaPlayer *m_audioPlayer;
+    QSettings m_settings;
 };
 
 #endif

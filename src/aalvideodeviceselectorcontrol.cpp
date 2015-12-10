@@ -86,8 +86,10 @@ void AalVideoDeviceSelectorControl::setSelectedDevice(int index)
     m_service->imageEncoderControl()->resetAllSettings();
     m_service->videoEncoderControl()->resetAllSettings();
     m_currentDevice = index;
-    if (m_service->isCameraActive())
+    if (m_service->isCameraActive()) {
         m_service->connectCamera();
+        m_service->startPreview();
+    }
 
     Q_EMIT selectedDeviceChanged(m_currentDevice);
     Q_EMIT selectedDeviceChanged(deviceName(m_currentDevice));

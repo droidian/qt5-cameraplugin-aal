@@ -1,3 +1,40 @@
+qtubuntu-camera (0.3.3+16.04.20151202.1-0ubuntu1) xenial; urgency=medium
+
+  [ Florian Boucault ]
+  * New release: Support the new AudioRole API in addition to the old
+    (LP: #1493851) (LP: #1450346) Make it possible to set resolution at
+    application startup by not Don't reset the zoom level when only
+    switching recording mode. Allow disabling shutter sound via the
+    running process having set a QSettings key. Query the supported
+    flash modes directly from Android instead of hardcoding them. Enable
+    zoom when in video recording mode, if supported by hardware. Ensure
+    the flash is correctly set on recording mode switch added:
+    .qmake.conf (LP: #1450346, #1493851)
+
+  [ Timo Jyrinki ]
+  * New release: Support the new AudioRole API in addition to the old
+    (LP: #1493851) (LP: #1450346) Make it possible to set resolution at
+    application startup by not Don't reset the zoom level when only
+    switching recording mode. Allow disabling shutter sound via the
+    running process having set a QSettings key. Query the supported
+    flash modes directly from Android instead of hardcoding them. Enable
+    zoom when in video recording mode, if supported by hardware. Ensure
+    the flash is correctly set on recording mode switch added:
+    .qmake.conf (LP: #1450346, #1493851)
+
+  [ Ugo Riboni ]
+  * New release: Support the new AudioRole API in addition to the old
+    (LP: #1493851) (LP: #1450346) Make it possible to set resolution at
+    application startup by not Don't reset the zoom level when only
+    switching recording mode. Allow disabling shutter sound via the
+    running process having set a QSettings key. Query the supported
+    flash modes directly from Android instead of hardcoding them. Enable
+    zoom when in video recording mode, if supported by hardware. Ensure
+    the flash is correctly set on recording mode switch added:
+    .qmake.conf (LP: #1450346, #1493851)
+
+ -- Florian Boucault <florian.boucault@canonical.com>  Wed, 02 Dec 2015 10:41:30 +0000
+
 qtubuntu-camera (0.3.3+16.04.20151201-0ubuntu1) xenial; urgency=medium
 
   [ Timo Jyrinki ]

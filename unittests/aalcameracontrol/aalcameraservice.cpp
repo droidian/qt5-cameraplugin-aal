@@ -18,15 +18,18 @@
 
 AalCameraService *AalCameraService::m_service = 0;
 
+class CameraControl {};
+
 AalCameraService::AalCameraService(QObject *parent) :
     QMediaService(parent),
-    m_androidControl(0),
+    m_androidControl(new CameraControl()),
     m_androidListener(0)
 {
 }
 
 AalCameraService::~AalCameraService()
 {
+    delete m_androidControl;
 }
 
 QMediaControl *AalCameraService::requestControl(const char *name)
@@ -51,6 +54,14 @@ bool AalCameraService::connectCamera()
 }
 
 void AalCameraService::disconnectCamera()
+{
+}
+
+void AalCameraService::startPreview()
+{
+}
+
+void AalCameraService::stopPreview()
 {
 }
 
@@ -80,4 +91,11 @@ bool AalCameraService::isRecording() const
 
 void AalCameraService::updateCaptureReady()
 {
+}
+
+QSize AalCameraService::selectSizeWithAspectRatio(const QList<QSize> &sizes, float targetAspectRatio) const
+{
+    Q_UNUSED(sizes);
+    Q_UNUSED(targetAspectRatio);
+    return QSize();
 }
