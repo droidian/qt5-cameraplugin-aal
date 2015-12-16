@@ -117,6 +117,7 @@ private:
     StorageManager *m_storageManager;
     bool m_restoreStateWhenApplicationActive;
     QCamera::State m_cameraStateWhenApplicationActive;
+    Qt::ApplicationState m_previousApplicationState;
 };
 
 #endif
