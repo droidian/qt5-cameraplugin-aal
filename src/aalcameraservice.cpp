@@ -62,6 +62,7 @@ AalCameraService::AalCameraService(QObject *parent):
     m_exposureControl = new AalCameraExposureControl(this);
 
     QGuiApplication* application = qobject_cast<QGuiApplication*>(QGuiApplication::instance());
+    m_previousApplicationState = application->applicationState();
     connect(application, &QGuiApplication::applicationStateChanged,
             this, &AalCameraService::onApplicationStateChanged);
 }
@@ -281,15 +282,18 @@ void AalCameraService::onApplicationStateChanged()
 {
     QGuiApplication* application = qobject_cast<QGuiApplication*>(QGuiApplication::instance());
     Qt::ApplicationState applicationState = application->applicationState();
+
     if (applicationState == Qt::ApplicationActive) {
         if (m_restoreStateWhenApplicationActive) {
             m_cameraControl->setState(m_cameraStateWhenApplicationActive);
         }
-    } else {
+    } else if (m_previousApplicationState == Qt::ApplicationActive) {
         m_cameraStateWhenApplicationActive = m_cameraControl->state();
         m_restoreStateWhenApplicationActive = true;
         m_cameraControl->setState(QCamera::UnloadedState);
     }
+
+    m_previousApplicationState = applicationState;
 }
 
 /*!
