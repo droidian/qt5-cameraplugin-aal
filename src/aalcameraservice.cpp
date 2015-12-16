@@ -287,12 +287,10 @@ void AalCameraService::onApplicationStateChanged()
         if (m_restoreStateWhenApplicationActive) {
             m_cameraControl->setState(m_cameraStateWhenApplicationActive);
         }
-    } else {
-        if (applicationState == Qt::ApplicationInactive && m_previousApplicationState == Qt::ApplicationActive) {
-            m_cameraStateWhenApplicationActive = m_cameraControl->state();
-            m_restoreStateWhenApplicationActive = true;
-            m_cameraControl->setState(QCamera::UnloadedState);
-        }
+    } else if (m_previousApplicationState == Qt::ApplicationActive) {
+        m_cameraStateWhenApplicationActive = m_cameraControl->state();
+        m_restoreStateWhenApplicationActive = true;
+        m_cameraControl->setState(QCamera::UnloadedState);
     }
 
     m_previousApplicationState = applicationState;
