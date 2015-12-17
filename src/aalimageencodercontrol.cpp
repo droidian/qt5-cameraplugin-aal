@@ -164,7 +164,11 @@ bool AalImageEncoderControl::setSize(const QSize &size)
 
     // Set the optimal thumbnail image resolution that will be saved to the JPEG file
     if (!m_availableThumbnailSizes.empty()) {
-        m_currentThumbnailSize = m_service->selectSizeWithAspectRatio(m_availableThumbnailSizes, imageAspectRatio);
+        if (imageAspectRatio >= 1.0) {
+            m_currentThumbnailSize = QSize(128, (int)(128.0f / imageAspectRatio));
+        } else {
+            m_currentThumbnailSize = QSize((int)(128.0f * imageAspectRatio), 128);
+        }
         thumbnailAspectRatio = (float)m_currentThumbnailSize.width() / (float)m_currentThumbnailSize.height();
     }
 
