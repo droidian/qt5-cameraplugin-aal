@@ -164,6 +164,9 @@ bool AalImageEncoderControl::setSize(const QSize &size)
 
     // Set the optimal thumbnail image resolution that will be saved to the JPEG file
     if (!m_availableThumbnailSizes.empty()) {
+        // Because EXIF thumbnails must be at most 64KB by specification, make sure that
+        // we request thumbnails that are no bigger than 128x128x4 bytes.
+        // Fixes bug https://bugs.launchpad.net/ubuntu/+source/camera-app/+bug/1519766
         if (imageAspectRatio >= 1.0) {
             m_currentThumbnailSize = QSize(128, (int)(128.0f / imageAspectRatio));
         } else {
