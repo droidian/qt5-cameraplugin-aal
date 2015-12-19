@@ -37,7 +37,7 @@ QCameraExposure::FlashModes AalCameraFlashControl::flashMode() const
 
 bool AalCameraFlashControl::isFlashModeSupported(QCameraExposure::FlashModes mode) const
 {
-    return m_supportedModes.contains(mode);
+    return m_supportedModes.isEmpty() || m_supportedModes.contains(mode);
 }
 
 bool AalCameraFlashControl::isFlashReady() const
