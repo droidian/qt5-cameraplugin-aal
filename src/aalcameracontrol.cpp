@@ -45,7 +45,7 @@ void AalCameraControl::setState(QCamera::State state)
     if (state == QCamera::ActiveState) {
         bool ok = m_service->connectCamera();
         if (!ok) {
-            Q_EMIT error(QCamera::CameraError, QLatin1String("Unable to connect to camera"));
+            Q_EMIT error(QCamera::ServiceMissingError, QLatin1String("Unable to connect to camera"));
             return;
         }
         m_service->startPreview();
@@ -53,7 +53,7 @@ void AalCameraControl::setState(QCamera::State state)
         if (m_state == QCamera::UnloadedState) {
             bool ok = m_service->connectCamera();
             if (!ok) {
-                Q_EMIT error(QCamera::CameraError, QLatin1String("Unable to connect to camera"));
+                Q_EMIT error(QCamera::ServiceMissingError, QLatin1String("Unable to connect to camera"));
                 return;
             }
         } else {
