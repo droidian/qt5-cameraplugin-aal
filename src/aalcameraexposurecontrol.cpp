@@ -42,14 +42,11 @@ void AalCameraExposureControl::init(CameraControl *control, CameraControlListene
 {
     Q_UNUSED(listener);
 
-    m_requestedExposureMode = QCameraExposure::ExposureAuto;
-    m_actualExposureMode = QCameraExposure::ExposureAuto;
-
     m_supportedExposureModes.clear();
     android_camera_enumerate_supported_scene_modes(control, &AalCameraExposureControl::supportedSceneModesCallback, this);
 
-    Q_EMIT requestedValueChanged(QCameraExposureControl::ExposureMode);
-    Q_EMIT actualValueChanged(QCameraExposureControl::ExposureMode);
+    setValue(QCameraExposureControl::ExposureMode, m_requestedExposureMode);
+
     Q_EMIT parameterRangeChanged(QCameraExposureControl::ExposureMode);
 }
 
@@ -65,12 +62,13 @@ bool AalCameraExposureControl::setValue(ExposureParameter parameter, const QVari
         return false;
     }
 
-    if ((parameter == QCameraExposureControl::ExposureMode) &&
-    (m_service->androidControl() != NULL)) {
-        m_requestedExposureMode = value.value<QCameraExposure::ExposureMode>();
-        Q_EMIT requestedValueChanged(QCameraExposureControl::ExposureMode);
+    if (parameter == QCameraExposureControl::ExposureMode) {
+        if (value.value<QCameraExposure::ExposureMode>() != m_requestedExposureMode) {
+            m_requestedExposureMode = value.value<QCameraExposure::ExposureMode>();
+            Q_EMIT requestedValueChanged(QCameraExposureControl::ExposureMode);
+        }
 
-        if (m_supportedExposureModes.contains(value)) {
+        if (m_service->androidControl() != NULL && m_supportedExposureModes.contains(value)) {
             SceneMode sceneMode = m_androidToQtExposureModes.key(m_requestedExposureMode);
             android_camera_set_scene_mode(m_service->androidControl(), sceneMode);
             m_actualExposureMode = m_requestedExposureMode;
