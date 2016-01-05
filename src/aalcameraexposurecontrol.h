@@ -44,7 +44,7 @@ public:
 private:
     QMap<SceneMode, QCameraExposure::ExposureMode> m_androidToQtExposureModes;
     AalCameraService *m_service;
-    QVariantList m_supportedExposureModes;
+    QList<QCameraExposure::ExposureMode> m_supportedExposureModes;
     QCameraExposure::ExposureMode m_requestedExposureMode;
     QCameraExposure::ExposureMode m_actualExposureMode;
 };
