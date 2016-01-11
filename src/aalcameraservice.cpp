@@ -185,6 +185,10 @@ bool AalCameraService::connectCamera()
 
 void AalCameraService::disconnectCamera()
 {
+    if (m_imageCaptureControl->isCaptureRunning()) {
+        m_imageCaptureControl->cancelCapture();
+    }
+
     stopPreview();
 
     if (m_androidControl) {
