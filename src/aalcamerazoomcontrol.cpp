@@ -26,15 +26,15 @@
 AalCameraZoomControl::AalCameraZoomControl(AalCameraService *service, QObject *parent)
     : QCameraZoomControl(parent),
       m_service(service),
-      m_currentDigialZoom(0),
-      m_maximalDigitalZoom(1),
+      m_currentDigitalZoom(0),
+      m_maximumDigitalZoom(1),
       m_pendingZoom(-1)
 {
 }
 
 qreal AalCameraZoomControl::currentDigitalZoom() const
 {
-    return (qreal)m_currentDigialZoom;
+    return (qreal)m_currentDigitalZoom;
 }
 
 qreal AalCameraZoomControl::currentOpticalZoom() const
@@ -44,7 +44,7 @@ qreal AalCameraZoomControl::currentOpticalZoom() const
 
 qreal AalCameraZoomControl::maximumDigitalZoom() const
 {
-    return (qreal)m_maximalDigitalZoom;
+    return (qreal)m_maximumDigitalZoom;
 }
 
 qreal AalCameraZoomControl::maximumOpticalZoom() const
@@ -69,19 +69,19 @@ void AalCameraZoomControl::zoomTo(qreal optical, qreal digital)
     if (!m_service->androidControl())
         return;
 
-    if (digital < 0.0 || digital > m_maximalDigitalZoom) {
+    if (digital < 0.0 || digital > m_maximumDigitalZoom) {
         qWarning() << "Invalid zoom value:" << digital;
         return;
     }
 
     m_pendingZoom = static_cast<int>(digital);
 
-    if (m_pendingZoom == m_currentDigialZoom)
+    if (m_pendingZoom == m_currentDigitalZoom)
         return;
 
     android_camera_set_zoom(m_service->androidControl(), m_pendingZoom);
-    m_currentDigialZoom = m_pendingZoom;
-    Q_EMIT currentDigitalZoomChanged(m_currentDigialZoom);
+    m_currentDigitalZoom = m_pendingZoom;
+    Q_EMIT currentDigitalZoomChanged(m_currentDigitalZoom);
 }
 
 void AalCameraZoomControl::init(CameraControl *control, CameraControlListener *listener)
@@ -103,12 +103,12 @@ void AalCameraZoomControl::resetZoom()
         return;
     }
 
-    if (m_currentDigialZoom != 0) {
-        m_currentDigialZoom = 0;
-        Q_EMIT currentDigitalZoomChanged(m_currentDigialZoom);
+    if (m_currentDigitalZoom != 0) {
+        m_currentDigitalZoom = 0;
+        Q_EMIT currentDigitalZoomChanged(m_currentDigitalZoom);
     }
 
-    android_camera_set_zoom(m_service->androidControl(), m_currentDigialZoom);
+    android_camera_set_zoom(m_service->androidControl(), m_currentDigitalZoom);
 
     int maxValue = 1;
     android_camera_get_max_zoom(m_service->androidControl(), &maxValue);
@@ -116,8 +116,8 @@ void AalCameraZoomControl::resetZoom()
         return;
     }
 
-    if (maxValue != m_maximalDigitalZoom) {
-        m_maximalDigitalZoom = maxValue;
-        Q_EMIT maximumDigitalZoomChanged(m_maximalDigitalZoom);
+    if (maxValue != m_maximumDigitalZoom) {
+        m_maximumDigitalZoom = maxValue;
+        Q_EMIT maximumDigitalZoomChanged(m_maximumDigitalZoom);
     }
 }
