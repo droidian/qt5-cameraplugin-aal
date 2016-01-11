@@ -45,8 +45,8 @@ public Q_SLOTS:
 private:
     AalCameraService *m_service;
 
-    int m_currentDigialZoom;
-    int m_maximalDigitalZoom;
+    int m_currentDigitalZoom;
+    int m_maximumDigitalZoom;
     int m_pendingZoom;
 };
 
