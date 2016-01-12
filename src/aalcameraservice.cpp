@@ -294,6 +294,7 @@ void AalCameraService::onApplicationStateChanged()
     } else if (m_previousApplicationState == Qt::ApplicationActive) {
         m_cameraStateWhenApplicationActive = m_cameraControl->state();
         m_restoreStateWhenApplicationActive = true;
+        m_mediaRecorderControl->setState(QMediaRecorder::StoppedState);
         m_cameraControl->setState(QCamera::UnloadedState);
     }
 
