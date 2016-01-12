@@ -44,6 +44,7 @@ AalImageCaptureControl::AalImageCaptureControl(AalCameraService *service, QObjec
     m_lastRequestId(0),
     m_ready(false),
     m_pendingCaptureFile(),
+    m_captureCancelled(false),
     m_screenAspectRatio(0.0),
     m_audioPlayer(new QMediaPlayer(this))
 {
@@ -75,6 +76,7 @@ int AalImageCaptureControl::capture(const QString &fileName)
         return m_lastRequestId;
     }
 
+    m_captureCancelled = false;
     QFileInfo fi(fileName);
     if (fileName.isEmpty() || fi.isDir()) {
         m_pendingCaptureFile = m_storageManager.nextPhotoFileName(fileName);
@@ -124,6 +126,8 @@ int AalImageCaptureControl::capture(const QString &fileName)
 
 void AalImageCaptureControl::cancelCapture()
 {
+    m_captureCancelled = true;
+    m_pendingCaptureFile.clear();
 }
 
 void AalImageCaptureControl::shutterCB(void *context)
@@ -224,6 +228,11 @@ bool AalImageCaptureControl::updateJpegMetadata(void* data, uint32_t dataSize, Q
 
 void AalImageCaptureControl::saveJpeg(void *data, uint32_t dataSize)
 {
+    if (m_captureCancelled) {
+        m_captureCancelled = false;
+        return;
+    }
+
     if (m_pendingCaptureFile.isNull() || !m_service->androidControl())
         return;
 

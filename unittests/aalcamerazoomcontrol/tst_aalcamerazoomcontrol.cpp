@@ -52,18 +52,18 @@ void tst_AalCameraZoomControl::zoomTo()
     QSignalSpy spy(m_zoomControl, SIGNAL(currentDigitalZoomChanged(qreal)));
 
     int zoom = 3.0;
-    m_zoomControl->zoomTo(1.0, zoom);
-    QCOMPARE(m_zoomControl->currentDigitalZoom(), 1.0);
+    m_zoomControl->zoomTo(0.0, zoom);
+    QCOMPARE(m_zoomControl->currentDigitalZoom(), 0.0);
     QCOMPARE(spy.count(), 0);
 
     m_service->connectCamera();
     zoom = 3.0;
-    m_zoomControl->zoomTo(1.0, zoom);
+    m_zoomControl->zoomTo(0.0, zoom);
     QCOMPARE(m_zoomControl->currentDigitalZoom(), 3.0);
     QCOMPARE(spy.count(), 1);
 
     m_zoomControl->resetZoom();
-    QCOMPARE(m_zoomControl->currentDigitalZoom(), 1.0);
+    QCOMPARE(m_zoomControl->currentDigitalZoom(), 0.0);
     QCOMPARE(spy.count(), 2);
 }
 

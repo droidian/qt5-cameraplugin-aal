@@ -55,9 +55,9 @@ void AalVideoRendererControl::stopPreview()
 {
 }
 
-bool AalVideoRendererControl::isViewfinderRunning() const
+bool AalVideoRendererControl::isPreviewStarted() const
 {
-    return m_viewFinderRunning;
+    return true;
 }
 
 void AalVideoRendererControl::updateViewfinderFrame()

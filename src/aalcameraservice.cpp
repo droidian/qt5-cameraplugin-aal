@@ -32,6 +32,7 @@
 
 #include <hybris/camera/camera_compatibility_layer.h>
 
+#include <QtGui/QGuiApplication>
 #include <QDebug>
 #include <cmath>
 
@@ -40,7 +41,8 @@ AalCameraService *AalCameraService::m_service = 0;
 AalCameraService::AalCameraService(QObject *parent):
     QMediaService(parent),
     m_androidControl(0),
-    m_androidListener(0)
+    m_androidListener(0),
+    m_restoreStateWhenApplicationActive(false)
 {
     m_service = this;
 
@@ -58,6 +60,11 @@ AalCameraService::AalCameraService(QObject *parent):
     m_videoOutput = new AalVideoRendererControl(this);
     m_viewfinderControl = new AalViewfinderSettingsControl(this);
     m_exposureControl = new AalCameraExposureControl(this);
+
+    QGuiApplication* application = qobject_cast<QGuiApplication*>(QGuiApplication::instance());
+    m_previousApplicationState = application->applicationState();
+    connect(application, &QGuiApplication::applicationStateChanged,
+            this, &AalCameraService::onApplicationStateChanged);
 }
 
 AalCameraService::~AalCameraService()
@@ -178,6 +185,10 @@ bool AalCameraService::connectCamera()
 
 void AalCameraService::disconnectCamera()
 {
+    if (m_imageCaptureControl->isCaptureRunning()) {
+        m_imageCaptureControl->cancelCapture();
+    }
+
     stopPreview();
 
     if (m_androidControl) {
@@ -202,6 +213,15 @@ void AalCameraService::stopPreview()
 {
     if (m_videoOutput) {
         m_videoOutput->stopPreview();
+    }
+}
+
+bool AalCameraService::isPreviewStarted() const
+{
+    if (m_videoOutput) {
+        return m_videoOutput->isPreviewStarted();
+    } else {
+        return false;
     }
 }
 
@@ -256,10 +276,29 @@ void AalCameraService::updateCaptureReady()
         ready = false;
     if (m_focusControl->isFocusBusy())
         ready = false;
-    if (!m_videoOutput->isViewfinderRunning())
+    if (!isPreviewStarted())
         ready = false;
 
     m_imageCaptureControl->setReady(ready);
+}
+
+void AalCameraService::onApplicationStateChanged()
+{
+    QGuiApplication* application = qobject_cast<QGuiApplication*>(QGuiApplication::instance());
+    Qt::ApplicationState applicationState = application->applicationState();
+
+    if (applicationState == Qt::ApplicationActive) {
+        if (m_restoreStateWhenApplicationActive) {
+            m_cameraControl->setState(m_cameraStateWhenApplicationActive);
+        }
+    } else if (m_previousApplicationState == Qt::ApplicationActive) {
+        m_cameraStateWhenApplicationActive = m_cameraControl->state();
+        m_restoreStateWhenApplicationActive = true;
+        m_mediaRecorderControl->setState(QMediaRecorder::StoppedState);
+        m_cameraControl->setState(QCamera::UnloadedState);
+    }
+
+    m_previousApplicationState = applicationState;
 }
 
 /*!
