@@ -212,7 +212,7 @@ FocusRegion AalCameraFocusControl::point2Region(const QPointF &point) const
     int centerX = (point.x() * (2* focusFullSize)) - focusFullSize;
     int maxCenterPosition = focusFullSize - focusRegionSize;
     centerX = std::max(std::min(centerX, maxCenterPosition), -maxCenterPosition);
-    int centerY = -1 * ((point.y() * (2 * focusFullSize)) - focusFullSize);
+    int centerY = (point.y() * (2 * focusFullSize)) - focusFullSize;
     centerY = std::max(std::min(centerY, maxCenterPosition), -maxCenterPosition);
 
     FocusRegion region;
