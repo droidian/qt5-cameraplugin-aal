@@ -127,8 +127,8 @@ void tst_AalCameraFocusControl::point2Region_data()
     QTest::addColumn<int>("bottom");
 
     QTest::newRow("center") << (qreal)0.5 << (qreal)0.5 << -100 << 100 << -100 << 100;
-    QTest::newRow("topLeft") << (qreal)0.0 << (qreal)1.0 << -1000 << -800 << -1000 << -800;
-    QTest::newRow("bottomRight") << (qreal)1.0 << (qreal)0.0 << 800 << 1000 << 800 << 1000;
+    QTest::newRow("topLeft") << (qreal)0.0 << (qreal)1.0 << -1000 << -800 << 800 << 1000;
+    QTest::newRow("bottomRight") << (qreal)1.0 << (qreal)0.0 << 800 << 1000 << -1000 << -800;
 }
 
 void tst_AalCameraFocusControl::point2Region()
