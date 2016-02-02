@@ -90,36 +90,11 @@ int AalImageCaptureControl::capture(const QString &fileName)
         return m_lastRequestId;
     }
 
-    AalMetaDataWriterControl* metadataControl = m_service->metadataWriterControl();
-
-    int rotation = metadataControl->correctedOrientation();
-    android_camera_set_rotation(m_service->androidControl(), rotation);
-
-    QStringList availableMetadata = metadataControl->availableMetaData();
-    if (availableMetadata.contains("GPSLatitude") &&
-        availableMetadata.contains("GPSLongitude") &&
-        availableMetadata.contains("GPSTimeStamp")) {
-        float latitude = metadataControl->metaData("GPSLatitude").toFloat();
-        float longitude = metadataControl->metaData("GPSLongitude").toFloat();
-        float altitude = 0.0f;
-        if (availableMetadata.contains("GPSAltitude")) {
-            altitude = metadataControl->metaData("GPSAltitude").toFloat();
-        }
-        QDateTime timestamp = metadataControl->metaData("GPSTimeStamp").toDateTime();
-        QString processingMethod = metadataControl->metaData("GPSProcessingMethod").toString();
-        android_camera_set_location(m_service->androidControl(),
-                                    &latitude, &longitude, &altitude,
-                                    timestamp.toTime_t(),
-                                    processingMethod.toLocal8Bit().constData());
-    }
-
     android_camera_take_snapshot(m_service->androidControl());
 
     m_service->updateCaptureReady();
 
     m_service->videoOutputControl()->createPreview();
-
-    m_service->metadataWriterControl()->clearAllMetaData();
 
     return m_lastRequestId;
 }
@@ -195,17 +170,84 @@ bool AalImageCaptureControl::updateJpegMetadata(void* data, uint32_t dataSize, Q
         return false;
     }
 
+    AalMetaDataWriterControl* metadataControl = m_service->metadataWriterControl();
+
     try {
         image->readMetadata();
         Exiv2::ExifData ed = image->exifData();
         const QString now = QDateTime::currentDateTime().toString("yyyy:MM:dd HH:mm:ss");
         ed["Exif.Photo.DateTimeOriginal"].setValue(now.toStdString());
         ed["Exif.Photo.DateTimeDigitized"].setValue(now.toStdString());
+
+        AalMetaDataWriterControl* metadataControl = m_service->metadataWriterControl();
+        int rotation = metadataControl->correctedOrientation();
+        int orientation = rotationToExifOrientation(rotation);
+
+        // FIXME: this is not the correct orientation. there seem to be a 90 degree
+        // difference that was not there when android was writing it.
+        ed["Exif.Image.Orientation"] = uint16_t(orientation);
+
+        // FIXME: the latitude and longitude are for some reason rounded down to 5 decimals
+        // precision, while in QML we set them without this rounding. Figure out where the loss
+        // or precision happens.
+        QStringList availableMetadata = metadataControl->availableMetaData();
+        if (availableMetadata.contains("GPSLatitude") &&
+            availableMetadata.contains("GPSLongitude") &&
+            availableMetadata.contains("GPSTimeStamp")) {
+
+            // Write all GPS metadata according to version 2.2 of the EXIF spec,
+            // which is what Android did. See: http://www.exiv2.org/Exif2-2.PDF
+            const char version[4] = {2, 2, 0, 0};
+            Exiv2::DataValue versionValue(Exiv2::unsignedByte);
+            versionValue.read((const Exiv2::byte*)version, 4);
+            ed.add(Exiv2::ExifKey("Exif.GPSInfo.GPSVersionID"), &versionValue);
+
+            // According to the spec, the GPS processing method is a buffer of type Undefined, which
+            // does not need to be zero terminated. It should be prepended by an 8 byte, zero padded
+            // string specifying the encoding.
+            const char methodHeader[8] = {'A', 'S', 'C', 'I', 'I', 0, 0, 0};
+            QByteArray method = metadataControl->metaData("GPSProcessingMethod").toString().toLatin1();
+            method.prepend(methodHeader, 8);
+            Exiv2::DataValue methodValue(Exiv2::undefined);
+            methodValue.read((const Exiv2::byte*)method.constData(), method.size());
+            ed.add(Exiv2::ExifKey("Exif.GPSInfo.GPSProcessingMethod"), &methodValue);
+
+            double latitude = metadataControl->metaData("GPSLatitude").toDouble();
+            ed["Exif.GPSInfo.GPSLatitude"] = decimalToExifRational(latitude).toStdString();
+            ed["Exif.GPSInfo.GPSLatitudeRef"] = (latitude < 0 ) ? "S" : "N";
+
+            double longitude = metadataControl->metaData("GPSLongitude").toDouble();
+            ed["Exif.GPSInfo.GPSLongitude"] = decimalToExifRational(longitude).toStdString();
+            ed["Exif.GPSInfo.GPSLongitudeRef"] = (longitude < 0 ) ? "W" : "E";
+
+            if (availableMetadata.contains("GPSAltitude")) {
+                // Assume altitude precision to the meter
+                unsigned int altitude = floor(metadataControl->metaData("GPSAltitude").toDouble());
+                Exiv2::URationalValue::AutoPtr altitudeValue(new Exiv2::URationalValue);
+                altitudeValue->value_.push_back(std::make_pair(altitude,1));
+                ed.add(Exiv2::ExifKey("Exif.GPSInfo.GPSAltitude"), altitudeValue.get());
+
+                // Byte field of lenght 1. Value of 0 means the reference is sea level.
+                const char reference = 0;
+                Exiv2::DataValue referenceValue(Exiv2::unsignedByte);
+                referenceValue.read((const Exiv2::byte*) &reference, 1);
+                ed.add(Exiv2::ExifKey("Exif.GPSInfo.GPSAltitudeRef"), &referenceValue);
+            }
+
+            QDateTime stamp = metadataControl->metaData("GPSTimeStamp").toDateTime();
+            ed["Exif.GPSInfo.GPSTimeStamp"] = stamp.toString("HH/1 mm/1 ss/1").toStdString();
+            ed["Exif.GPSInfo.GPSDateStamp"] = stamp.toString("yyyy:MM:dd").toStdString();   
+        }
+
         image->setExifData(ed);
         image->writeMetadata();
     } catch(const Exiv2::AnyError&) {
         return false;
     }
+
+    // FIXME: this is ok now, but will be too late when this code goes to a thread.
+    // We need to copy this metadata and keep it around.
+    m_service->metadataWriterControl()->clearAllMetaData();
 
     if (!destination->open()) {
         return false;
@@ -224,6 +266,29 @@ bool AalImageCaptureControl::updateJpegMetadata(void* data, uint32_t dataSize, Q
         destination->close();
         return false;
     }
+}
+
+int AalImageCaptureControl::rotationToExifOrientation(int rotation)
+{
+    if (rotation == 0) return 0;
+    else if (rotation == 180) return 2;
+    else if (rotation == 90) return 5;
+    else if (rotation == -90 || rotation == 270) return 7;
+    else {
+        qWarning() << "Can not convert rotation of" << rotation << "degrees to EXIF orientation";
+        return 0;
+    }
+}
+
+QString AalImageCaptureControl::decimalToExifRational(double decimal)
+{
+    decimal = fabs(decimal);
+    unsigned int degrees = floor(decimal);
+    unsigned int minutes = floor((decimal - degrees) * 60);
+    double seconds = (decimal - degrees - minutes / 60) * 3600;
+    seconds = floor(seconds * 100);
+
+    return QString("%1/1 %2/1 %3/100").arg(degrees).arg(minutes).arg(seconds);
 }
 
 void AalImageCaptureControl::saveJpeg(void *data, uint32_t dataSize)

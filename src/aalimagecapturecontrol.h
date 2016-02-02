@@ -63,6 +63,8 @@ private Q_SLOTS:
 private:
     void saveJpeg(void* data, uint32_t dataSize);
     bool updateJpegMetadata(void* data, uint32_t dataSize, QTemporaryFile* destination);
+    int rotationToExifOrientation(int rotation);
+    QString decimalToExifRational(double decimal);
 
     AalCameraService *m_service;
     AalCameraControl *m_cameraControl;
