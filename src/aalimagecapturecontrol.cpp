@@ -78,6 +78,10 @@ int AalImageCaptureControl::capture(const QString &fileName)
     m_targetFileName = fileName;
     m_captureCancelled = false;
 
+    AalMetaDataWriterControl* metadataControl = m_service->metadataWriterControl();
+    int rotation = metadataControl->correctedOrientation();
+    android_camera_set_rotation(m_service->androidControl(), rotation);
+
     android_camera_take_snapshot(m_service->androidControl());
 
     m_service->updateCaptureReady();
@@ -164,7 +168,6 @@ void AalImageCaptureControl::saveJpeg(const QByteArray& data)
     Q_FOREACH(QString key, metadataControl->availableMetaData()) {
         metadata.insert(key, metadataControl->metaData(key));
     }
-    metadata.insert("CorrectedOrientation", metadataControl->correctedOrientation());
     m_service->metadataWriterControl()->clearAllMetaData();
 
     QString fileName = m_targetFileName;

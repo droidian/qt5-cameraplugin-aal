@@ -37,7 +37,6 @@ public:
 private:
     QString fileNameGenerator(const QString &base, const QString &extension);
     bool updateJpegMetadata(QByteArray data, QVariantMap metadata, QTemporaryFile* destination);
-    int rotationToExifOrientation(int rotation);
     QString decimalToExifRational(double decimal);
 
     QString m_directory;

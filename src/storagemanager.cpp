@@ -113,12 +113,6 @@ bool StorageManager::updateJpegMetadata(QByteArray data, QVariantMap metadata, Q
         ed["Exif.Photo.DateTimeOriginal"].setValue(now.toStdString());
         ed["Exif.Photo.DateTimeDigitized"].setValue(now.toStdString());
 
-        // FIXME: this is not the correct orientation. there seem to be a 90 degree
-        // difference that was not there when android was writing it.
-        int rotation = metadata.value("CorrectedOrientation").toInt();
-        int orientation = rotationToExifOrientation(rotation);
-        ed["Exif.Image.Orientation"] = uint16_t(orientation);
-
         // FIXME: the latitude and longitude are for some reason rounded down to 5 decimals
         // precision, while in QML we set them without this rounding. Figure out where the loss
         // or precision happens.
@@ -238,18 +232,6 @@ QString StorageManager::saveJpegImage(QByteArray data, QVariantMap metadata, QSt
     }
 
     return captureFile;
-}
-
-int StorageManager::rotationToExifOrientation(int rotation)
-{
-    if (rotation == 0) return 0;
-    else if (rotation == 180) return 2;
-    else if (rotation == 90) return 5;
-    else if (rotation == -90 || rotation == 270) return 7;
-    else {
-        qWarning() << "Can not convert rotation of" << rotation << "degrees to EXIF orientation";
-        return 0;
-    }
 }
 
 QString StorageManager::decimalToExifRational(double decimal)
