@@ -189,8 +189,10 @@ bool StorageManager::updateJpegMetadata(QByteArray data, QVariantMap metadata, Q
     }
 }
 
-QString StorageManager::saveJpegImage(QByteArray data, QVariantMap metadata, QString fileName)
+SaveToDiskResult StorageManager::saveJpegImage(QByteArray data, QVariantMap metadata, QString fileName)
 {
+    SaveToDiskResult result;
+
     QString captureFile;
     QFileInfo fi(fileName);
     if (fileName.isEmpty() || fi.isDir()) {
@@ -198,40 +200,39 @@ QString StorageManager::saveJpegImage(QByteArray data, QVariantMap metadata, QSt
     } else {
         captureFile = fileName;
     }
+    result.fileName = captureFile;
+
     bool diskOk = checkDirectory(captureFile);
     if (!diskOk) {
-//        emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
-//                   QString("Won't be able to save file %1 to disk").arg(m_pendingCaptureFile));
-        return QString();
+        result.errorMessage = QString("Won't be able to save file %1 to disk").arg(captureFile);
+        return result;
     }
 
     QTemporaryFile file;
     if (!updateJpegMetadata(data, metadata, &file)) {
         qWarning() << "Failed to update EXIF timestamps. Picture will be saved as UTC timezone.";
         if (!file.open()) {
-//            emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
-//                       QString("Could not open temprary file %1").arg(file.fileName()));
-            return QString();
+            result.errorMessage = QString("Could not open temprary file %1").arg(file.fileName());
+            return result;
         }
 
         const qint64 writtenSize = file.write(data);
         file.close();
         if (writtenSize != data.size()) {
-//            emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
-//                       QString("Could not write file %1").arg(file.fileName()));
-            return QString();
+            result.errorMessage = QString("Could not write file %1").arg(fileName);
+            return result;
         }
     }
 
     QFile finalFile(file.fileName());
     bool ok = finalFile.rename(captureFile);
     if (!ok) {
-//        emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
-//                   QString("Could not save image to %1").arg(m_pendingCaptureFile));
-        return QString();
+        result.errorMessage = QString("Could not save image to %1").arg(fileName);
+        return result;
     }
 
-    return captureFile;
+    result.success = true;
+    return result;
 }
 
 QString StorageManager::decimalToExifRational(double decimal)
@@ -243,4 +244,8 @@ QString StorageManager::decimalToExifRational(double decimal)
     seconds = floor(seconds * 100);
 
     return QString("%1/1 %2/1 %3/100").arg(degrees).arg(minutes).arg(seconds);
+}
+
+SaveToDiskResult::SaveToDiskResult() : success(false)
+{
 }

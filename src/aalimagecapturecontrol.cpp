@@ -179,30 +179,29 @@ void AalImageCaptureControl::saveJpeg(const QByteArray& data)
     }
     m_service->updateCaptureReady();
 
-    StringFutureWatcher* watcher = new StringFutureWatcher;
+    DiskWriteWatcher* watcher = new DiskWriteWatcher;
     QObject::connect(watcher, &QFutureWatcher<QString>::finished, this, &AalImageCaptureControl::onImageFileSaved);
     m_pendingSaveOperations.insert(watcher, m_lastRequestId);
 
-    QFuture<QString> future = QtConcurrent::run(m_storageManager, &StorageManager::saveJpegImage,
-                                                data, metadata, fileName);
+    QFuture<SaveToDiskResult> future = QtConcurrent::run(m_storageManager, &StorageManager::saveJpegImage,
+                                                         data, metadata, fileName);
     watcher->setFuture(future);
 }
 
 void AalImageCaptureControl::onImageFileSaved()
 {
-    StringFutureWatcher* watcher = static_cast<StringFutureWatcher*>(sender());
+    DiskWriteWatcher* watcher = static_cast<DiskWriteWatcher*>(sender());
 
     if (m_pendingSaveOperations.contains(watcher)) {
         int requestID = m_pendingSaveOperations.take(watcher);
 
-        QString fileName = watcher->result();
+        SaveToDiskResult result = watcher->result();
         delete watcher;
 
-        if (!fileName.isEmpty()) {
-            Q_EMIT imageSaved(requestID, fileName);
+        if (result.success) {
+            Q_EMIT imageSaved(requestID, result.fileName);
         } else {
-            // emit error as empty file name means the save failed
-            // FIXME: better way to report errors
+            Q_EMIT error(requestID, QCameraImageCapture::ResourceError, result.errorMessage);
         }
     }
 }

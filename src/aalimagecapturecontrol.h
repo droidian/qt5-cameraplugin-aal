@@ -31,7 +31,7 @@ class CameraControl;
 class CameraControlListener;
 class QMediaPlayer;
 
-typedef QFutureWatcher<QString> StringFutureWatcher;
+typedef QFutureWatcher<SaveToDiskResult> DiskWriteWatcher;
 
 class AalImageCaptureControl : public QCameraImageCaptureControl
 {
@@ -82,7 +82,7 @@ private:
     QMediaPlayer *m_audioPlayer;
     QSettings m_settings;
 
-    QMap<StringFutureWatcher*, int> m_pendingSaveOperations;
+    QMap<DiskWriteWatcher*, int> m_pendingSaveOperations;
 };
 
 #endif
