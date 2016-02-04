@@ -43,7 +43,6 @@ AalImageCaptureControl::AalImageCaptureControl(AalCameraService *service, QObjec
     m_lastRequestId(0),
     m_ready(false),
     m_targetFileName(),
-    m_pendingCaptureFile(),
     m_captureCancelled(false),
     m_screenAspectRatio(0.0),
     m_audioPlayer(new QMediaPlayer(this))
@@ -91,7 +90,7 @@ int AalImageCaptureControl::capture(const QString &fileName)
 void AalImageCaptureControl::cancelCapture()
 {
     m_captureCancelled = true;
-    m_pendingCaptureFile.clear();
+    m_targetFileName.clear();
 }
 
 void AalImageCaptureControl::shutterCB(void *context)
@@ -167,7 +166,6 @@ void AalImageCaptureControl::saveJpeg(const QByteArray& data)
     }
     metadata.insert("CorrectedOrientation", metadataControl->correctedOrientation());
     m_service->metadataWriterControl()->clearAllMetaData();
-    m_pendingCaptureFile.clear();
 
     QString fileName = m_targetFileName;
     m_targetFileName.clear();
@@ -185,7 +183,6 @@ void AalImageCaptureControl::saveJpeg(const QByteArray& data)
     QFuture<QString> future = QtConcurrent::run(m_storageManager, &StorageManager::saveJpegImage,
                                                 data, metadata, fileName);
     watcher->setFuture(future);
-
 }
 
 void AalImageCaptureControl::onImageFileSaved()

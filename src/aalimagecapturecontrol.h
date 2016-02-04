@@ -73,7 +73,6 @@ private:
     StorageManager m_storageManager;
     bool m_ready;
     QString m_targetFileName;
-    QString m_pendingCaptureFile;
     bool m_captureCancelled;
     float m_screenAspectRatio;
     /// Maintains a list of highest priority aspect ratio to lowest, for the
