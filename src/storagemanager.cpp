@@ -113,9 +113,6 @@ bool StorageManager::updateJpegMetadata(QByteArray data, QVariantMap metadata, Q
         ed["Exif.Photo.DateTimeOriginal"].setValue(now.toStdString());
         ed["Exif.Photo.DateTimeDigitized"].setValue(now.toStdString());
 
-        // FIXME: the latitude and longitude are for some reason rounded down to 5 decimals
-        // precision, while in QML we set them without this rounding. Figure out where the loss
-        // or precision happens.
         if (metadata.contains("GPSLatitude") &&
             metadata.contains("GPSLongitude") &&
             metadata.contains("GPSTimeStamp")) {
