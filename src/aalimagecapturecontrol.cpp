@@ -140,7 +140,7 @@ void AalImageCaptureControl::setReady(bool ready)
 
 bool AalImageCaptureControl::isCaptureRunning() const
 {
-    return !m_pendingCaptureFile.isNull();
+    return !m_targetFileName.isEmpty();
 }
 
 void AalImageCaptureControl::shutter()
