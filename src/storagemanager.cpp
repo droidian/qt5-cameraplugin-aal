@@ -15,12 +15,16 @@
  */
 
 #include "storagemanager.h"
+
 #include <QDateTime>
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
 #include <QStandardPaths>
 #include <QCoreApplication>
+
+#include <exiv2/exiv2.hpp>
+#include <cmath>
 
 const QLatin1String photoBase = QLatin1String("image");
 const QLatin1String videoBase = QLatin1String("video");
@@ -86,4 +90,175 @@ QString StorageManager::fileNameGenerator(const QString &base, const QString& ex
             .arg(base)
             .arg(date)
             .arg(extension);
+}
+
+bool StorageManager::updateJpegMetadata(QByteArray data, QVariantMap metadata, QTemporaryFile* destination)
+{
+    if (data.isEmpty() || destination == 0) return false;
+
+    Exiv2::Image::AutoPtr image;
+    try {
+        image = Exiv2::ImageFactory::open(static_cast<const Exiv2::byte*>((const unsigned char*)data.constData()), data.size());
+        if (!image.get()) {
+            return false;
+        }
+    } catch(const Exiv2::AnyError&) {
+        return false;
+    }
+
+    try {
+        image->readMetadata();
+        Exiv2::ExifData ed = image->exifData();
+        const QString now = QDateTime::currentDateTime().toString("yyyy:MM:dd HH:mm:ss");
+        ed["Exif.Photo.DateTimeOriginal"].setValue(now.toStdString());
+        ed["Exif.Photo.DateTimeDigitized"].setValue(now.toStdString());
+
+        // FIXME: this is not the correct orientation. there seem to be a 90 degree
+        // difference that was not there when android was writing it.
+        int rotation = metadata.value("CorrectedOrientation").toInt();
+        int orientation = rotationToExifOrientation(rotation);
+        ed["Exif.Image.Orientation"] = uint16_t(orientation);
+
+        // FIXME: the latitude and longitude are for some reason rounded down to 5 decimals
+        // precision, while in QML we set them without this rounding. Figure out where the loss
+        // or precision happens.
+        if (metadata.contains("GPSLatitude") &&
+            metadata.contains("GPSLongitude") &&
+            metadata.contains("GPSTimeStamp")) {
+
+            // Write all GPS metadata according to version 2.2 of the EXIF spec,
+            // which is what Android did. See: http://www.exiv2.org/Exif2-2.PDF
+            const char version[4] = {2, 2, 0, 0};
+            Exiv2::DataValue versionValue(Exiv2::unsignedByte);
+            versionValue.read((const Exiv2::byte*)version, 4);
+            ed.add(Exiv2::ExifKey("Exif.GPSInfo.GPSVersionID"), &versionValue);
+
+            // According to the spec, the GPS processing method is a buffer of type Undefined, which
+            // does not need to be zero terminated. It should be prepended by an 8 byte, zero padded
+            // string specifying the encoding.
+            const char methodHeader[8] = {'A', 'S', 'C', 'I', 'I', 0, 0, 0};
+            QByteArray method = metadata.value("GPSProcessingMethod").toString().toLatin1();
+            method.prepend(methodHeader, 8);
+            Exiv2::DataValue methodValue(Exiv2::undefined);
+            methodValue.read((const Exiv2::byte*)method.constData(), method.size());
+            ed.add(Exiv2::ExifKey("Exif.GPSInfo.GPSProcessingMethod"), &methodValue);
+
+            double latitude = metadata.value("GPSLatitude").toDouble();
+            ed["Exif.GPSInfo.GPSLatitude"] = decimalToExifRational(latitude).toStdString();
+            ed["Exif.GPSInfo.GPSLatitudeRef"] = (latitude < 0 ) ? "S" : "N";
+
+            double longitude = metadata.value("GPSLongitude").toDouble();
+            ed["Exif.GPSInfo.GPSLongitude"] = decimalToExifRational(longitude).toStdString();
+            ed["Exif.GPSInfo.GPSLongitudeRef"] = (longitude < 0 ) ? "W" : "E";
+
+            if (metadata.contains("GPSAltitude")) {
+                // Assume altitude precision to the meter
+                unsigned int altitude = floor(metadata.value("GPSAltitude").toDouble());
+                Exiv2::URationalValue::AutoPtr altitudeValue(new Exiv2::URationalValue);
+                altitudeValue->value_.push_back(std::make_pair(altitude,1));
+                ed.add(Exiv2::ExifKey("Exif.GPSInfo.GPSAltitude"), altitudeValue.get());
+
+                // Byte field of lenght 1. Value of 0 means the reference is sea level.
+                const char reference = 0;
+                Exiv2::DataValue referenceValue(Exiv2::unsignedByte);
+                referenceValue.read((const Exiv2::byte*) &reference, 1);
+                ed.add(Exiv2::ExifKey("Exif.GPSInfo.GPSAltitudeRef"), &referenceValue);
+            }
+
+            QDateTime stamp = metadata.value("GPSTimeStamp").toDateTime();
+            ed["Exif.GPSInfo.GPSTimeStamp"] = stamp.toString("HH/1 mm/1 ss/1").toStdString();
+            ed["Exif.GPSInfo.GPSDateStamp"] = stamp.toString("yyyy:MM:dd").toStdString();
+        }
+
+        image->setExifData(ed);
+        image->writeMetadata();
+    } catch(const Exiv2::AnyError&) {
+        return false;
+    }
+
+    if (!destination->open()) {
+        return false;
+    }
+
+    try {
+        Exiv2::BasicIo& io = image->io();
+        char* modifiedMetadata = reinterpret_cast<char*>(io.mmap());
+        const long size = io.size();
+        const qint64 writtenSize = destination->write(modifiedMetadata, size);
+        io.munmap();
+        destination->close();
+        return (writtenSize == size);
+
+    } catch(const Exiv2::AnyError&) {
+        destination->close();
+        return false;
+    }
+}
+
+QString StorageManager::saveJpegImage(QByteArray data, QVariantMap metadata, QString fileName)
+{
+    QString captureFile;
+    QFileInfo fi(fileName);
+    if (fileName.isEmpty() || fi.isDir()) {
+        captureFile = nextPhotoFileName(fileName);
+    } else {
+        captureFile = fileName;
+    }
+    bool diskOk = checkDirectory(captureFile);
+    if (!diskOk) {
+//        emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
+//                   QString("Won't be able to save file %1 to disk").arg(m_pendingCaptureFile));
+        return QString();
+    }
+
+    QTemporaryFile file;
+    if (!updateJpegMetadata(data, metadata, &file)) {
+        qWarning() << "Failed to update EXIF timestamps. Picture will be saved as UTC timezone.";
+        if (!file.open()) {
+//            emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
+//                       QString("Could not open temprary file %1").arg(file.fileName()));
+            return QString();
+        }
+
+        const qint64 writtenSize = file.write(data);
+        file.close();
+        if (writtenSize != data.size()) {
+//            emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
+//                       QString("Could not write file %1").arg(file.fileName()));
+            return QString();
+        }
+    }
+
+    QFile finalFile(file.fileName());
+    bool ok = finalFile.rename(captureFile);
+    if (!ok) {
+//        emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
+//                   QString("Could not save image to %1").arg(m_pendingCaptureFile));
+        return QString();
+    }
+
+    return captureFile;
+}
+
+int StorageManager::rotationToExifOrientation(int rotation)
+{
+    if (rotation == 0) return 0;
+    else if (rotation == 180) return 2;
+    else if (rotation == 90) return 5;
+    else if (rotation == -90 || rotation == 270) return 7;
+    else {
+        qWarning() << "Can not convert rotation of" << rotation << "degrees to EXIF orientation";
+        return 0;
+    }
+}
+
+QString StorageManager::decimalToExifRational(double decimal)
+{
+    decimal = fabs(decimal);
+    unsigned int degrees = floor(decimal);
+    unsigned int minutes = floor((decimal - degrees) * 60);
+    double seconds = (decimal - degrees - minutes / 60) * 3600;
+    seconds = floor(seconds * 100);
+
+    return QString("%1/1 %2/1 %3/100").arg(degrees).arg(minutes).arg(seconds);
 }

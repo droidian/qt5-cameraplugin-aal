@@ -66,3 +66,12 @@ void AalImageCaptureControl::setReady(bool ready)
 void AalImageCaptureControl::shutter()
 {
 }
+
+void AalImageCaptureControl::onImageFileSaved()
+{
+}
+
+void AalImageCaptureControl::saveJpeg(const QByteArray& data)
+{
+}
+

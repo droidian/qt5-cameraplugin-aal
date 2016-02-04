@@ -18,6 +18,9 @@
 #define STORAGEMANAGER_H
 
 #include <QString>
+#include <QVariantMap>
+#include <QByteArray>
+#include <QTemporaryFile>
 
 class StorageManager
 {
@@ -29,8 +32,13 @@ public:
 
     bool checkDirectory(const QString &path) const;
 
+    QString saveJpegImage(QByteArray data, QVariantMap metadata, QString fileName);
+
 private:
     QString fileNameGenerator(const QString &base, const QString &extension);
+    bool updateJpegMetadata(QByteArray data, QVariantMap metadata, QTemporaryFile* destination);
+    int rotationToExifOrientation(int rotation);
+    QString decimalToExifRational(double decimal);
 
     QString m_directory;
 };

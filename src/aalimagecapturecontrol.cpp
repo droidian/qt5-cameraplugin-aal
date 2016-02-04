@@ -23,9 +23,9 @@
 
 #include <hybris/camera/camera_compatibility_layer.h>
 #include <hybris/camera/camera_compatibility_layer_capabilities.h>
-#include <exiv2/exiv2.hpp>
 
 #include <QDir>
+#include <QObject>
 #include <QFile>
 #include <QFileInfo>
 #include <QMediaPlayer>
@@ -34,8 +34,7 @@
 #include <QGuiApplication>
 #include <QScreen>
 #include <QSettings>
-
-#include <cmath>
+#include <QtConcurrent/QtConcurrent>
 
 AalImageCaptureControl::AalImageCaptureControl(AalCameraService *service, QObject *parent)
    : QCameraImageCaptureControl(parent),
@@ -43,6 +42,7 @@ AalImageCaptureControl::AalImageCaptureControl(AalCameraService *service, QObjec
     m_cameraControl(service->cameraControl()),
     m_lastRequestId(0),
     m_ready(false),
+    m_targetFileName(),
     m_pendingCaptureFile(),
     m_captureCancelled(false),
     m_screenAspectRatio(0.0),
@@ -76,19 +76,8 @@ int AalImageCaptureControl::capture(const QString &fileName)
         return m_lastRequestId;
     }
 
+    m_targetFileName = fileName;
     m_captureCancelled = false;
-    QFileInfo fi(fileName);
-    if (fileName.isEmpty() || fi.isDir()) {
-        m_pendingCaptureFile = m_storageManager.nextPhotoFileName(fileName);
-    } else {
-        m_pendingCaptureFile = fileName;
-    }
-    bool diskOk = m_storageManager.checkDirectory(m_pendingCaptureFile);
-    if (!diskOk) {
-        emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
-                   QString("Won't be able to save file %1 to disk").arg(m_pendingCaptureFile));
-        return m_lastRequestId;
-    }
 
     android_camera_take_snapshot(m_service->androidControl());
 
@@ -115,7 +104,14 @@ void AalImageCaptureControl::shutterCB(void *context)
 void AalImageCaptureControl::saveJpegCB(void *data, uint32_t data_size, void *context)
 {
     Q_UNUSED(context);
-    AalCameraService::instance()->imageCaptureControl()->saveJpeg(data, data_size);
+
+    // Copy the data buffer so that it is safe to pass it off to another thread,
+    // since it will be destroyed once this function returns
+    QByteArray dataCopy((const char*)data, data_size);
+
+    QMetaObject::invokeMethod(AalCameraService::instance()->imageCaptureControl(),
+                              "saveJpeg", Qt::QueuedConnection,
+                              Q_ARG(QByteArray, dataCopy));
 }
 
 void AalImageCaptureControl::init(CameraControl *control, CameraControlListener *listener)
@@ -156,186 +152,57 @@ void AalImageCaptureControl::shutter()
     Q_EMIT imageExposed(m_lastRequestId);
 }
 
-bool AalImageCaptureControl::updateJpegMetadata(void* data, uint32_t dataSize, QTemporaryFile* destination)
-{
-    if (data == 0 || destination == 0) return false;
-
-    Exiv2::Image::AutoPtr image;
-    try {
-        image = Exiv2::ImageFactory::open(static_cast<Exiv2::byte*>(data), dataSize);
-        if (!image.get()) {
-            return false;
-        }
-    } catch(const Exiv2::AnyError&) {
-        return false;
-    }
-
-    AalMetaDataWriterControl* metadataControl = m_service->metadataWriterControl();
-
-    try {
-        image->readMetadata();
-        Exiv2::ExifData ed = image->exifData();
-        const QString now = QDateTime::currentDateTime().toString("yyyy:MM:dd HH:mm:ss");
-        ed["Exif.Photo.DateTimeOriginal"].setValue(now.toStdString());
-        ed["Exif.Photo.DateTimeDigitized"].setValue(now.toStdString());
-
-        AalMetaDataWriterControl* metadataControl = m_service->metadataWriterControl();
-        int rotation = metadataControl->correctedOrientation();
-        int orientation = rotationToExifOrientation(rotation);
-
-        // FIXME: this is not the correct orientation. there seem to be a 90 degree
-        // difference that was not there when android was writing it.
-        ed["Exif.Image.Orientation"] = uint16_t(orientation);
-
-        // FIXME: the latitude and longitude are for some reason rounded down to 5 decimals
-        // precision, while in QML we set them without this rounding. Figure out where the loss
-        // or precision happens.
-        QStringList availableMetadata = metadataControl->availableMetaData();
-        if (availableMetadata.contains("GPSLatitude") &&
-            availableMetadata.contains("GPSLongitude") &&
-            availableMetadata.contains("GPSTimeStamp")) {
-
-            // Write all GPS metadata according to version 2.2 of the EXIF spec,
-            // which is what Android did. See: http://www.exiv2.org/Exif2-2.PDF
-            const char version[4] = {2, 2, 0, 0};
-            Exiv2::DataValue versionValue(Exiv2::unsignedByte);
-            versionValue.read((const Exiv2::byte*)version, 4);
-            ed.add(Exiv2::ExifKey("Exif.GPSInfo.GPSVersionID"), &versionValue);
-
-            // According to the spec, the GPS processing method is a buffer of type Undefined, which
-            // does not need to be zero terminated. It should be prepended by an 8 byte, zero padded
-            // string specifying the encoding.
-            const char methodHeader[8] = {'A', 'S', 'C', 'I', 'I', 0, 0, 0};
-            QByteArray method = metadataControl->metaData("GPSProcessingMethod").toString().toLatin1();
-            method.prepend(methodHeader, 8);
-            Exiv2::DataValue methodValue(Exiv2::undefined);
-            methodValue.read((const Exiv2::byte*)method.constData(), method.size());
-            ed.add(Exiv2::ExifKey("Exif.GPSInfo.GPSProcessingMethod"), &methodValue);
-
-            double latitude = metadataControl->metaData("GPSLatitude").toDouble();
-            ed["Exif.GPSInfo.GPSLatitude"] = decimalToExifRational(latitude).toStdString();
-            ed["Exif.GPSInfo.GPSLatitudeRef"] = (latitude < 0 ) ? "S" : "N";
-
-            double longitude = metadataControl->metaData("GPSLongitude").toDouble();
-            ed["Exif.GPSInfo.GPSLongitude"] = decimalToExifRational(longitude).toStdString();
-            ed["Exif.GPSInfo.GPSLongitudeRef"] = (longitude < 0 ) ? "W" : "E";
-
-            if (availableMetadata.contains("GPSAltitude")) {
-                // Assume altitude precision to the meter
-                unsigned int altitude = floor(metadataControl->metaData("GPSAltitude").toDouble());
-                Exiv2::URationalValue::AutoPtr altitudeValue(new Exiv2::URationalValue);
-                altitudeValue->value_.push_back(std::make_pair(altitude,1));
-                ed.add(Exiv2::ExifKey("Exif.GPSInfo.GPSAltitude"), altitudeValue.get());
-
-                // Byte field of lenght 1. Value of 0 means the reference is sea level.
-                const char reference = 0;
-                Exiv2::DataValue referenceValue(Exiv2::unsignedByte);
-                referenceValue.read((const Exiv2::byte*) &reference, 1);
-                ed.add(Exiv2::ExifKey("Exif.GPSInfo.GPSAltitudeRef"), &referenceValue);
-            }
-
-            QDateTime stamp = metadataControl->metaData("GPSTimeStamp").toDateTime();
-            ed["Exif.GPSInfo.GPSTimeStamp"] = stamp.toString("HH/1 mm/1 ss/1").toStdString();
-            ed["Exif.GPSInfo.GPSDateStamp"] = stamp.toString("yyyy:MM:dd").toStdString();   
-        }
-
-        image->setExifData(ed);
-        image->writeMetadata();
-    } catch(const Exiv2::AnyError&) {
-        return false;
-    }
-
-    // FIXME: this is ok now, but will be too late when this code goes to a thread.
-    // We need to copy this metadata and keep it around.
-    m_service->metadataWriterControl()->clearAllMetaData();
-
-    if (!destination->open()) {
-        return false;
-    }
-
-    try {
-        Exiv2::BasicIo& io = image->io();
-        char* modifiedMetadata = reinterpret_cast<char*>(io.mmap());
-        const long size = io.size();
-        const qint64 writtenSize = destination->write(modifiedMetadata, size);
-        io.munmap();
-        destination->close();
-        return (writtenSize == size);
-
-    } catch(const Exiv2::AnyError&) {
-        destination->close();
-        return false;
-    }
-}
-
-int AalImageCaptureControl::rotationToExifOrientation(int rotation)
-{
-    if (rotation == 0) return 0;
-    else if (rotation == 180) return 2;
-    else if (rotation == 90) return 5;
-    else if (rotation == -90 || rotation == 270) return 7;
-    else {
-        qWarning() << "Can not convert rotation of" << rotation << "degrees to EXIF orientation";
-        return 0;
-    }
-}
-
-QString AalImageCaptureControl::decimalToExifRational(double decimal)
-{
-    decimal = fabs(decimal);
-    unsigned int degrees = floor(decimal);
-    unsigned int minutes = floor((decimal - degrees) * 60);
-    double seconds = (decimal - degrees - minutes / 60) * 3600;
-    seconds = floor(seconds * 100);
-
-    return QString("%1/1 %2/1 %3/100").arg(degrees).arg(minutes).arg(seconds);
-}
-
-void AalImageCaptureControl::saveJpeg(void *data, uint32_t dataSize)
+void AalImageCaptureControl::saveJpeg(const QByteArray& data)
 {
     if (m_captureCancelled) {
         m_captureCancelled = false;
         return;
     }
 
-    if (m_pendingCaptureFile.isNull() || !m_service->androidControl())
-        return;
-
-    QTemporaryFile file;
-    if (!updateJpegMetadata(data, dataSize, &file)) {
-        qWarning() << "Failed to update EXIF timestamps. Picture will be saved as UTC timezone.";
-        if (!file.open()) {
-            emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
-                       QString("Could not open temprary file %1").arg(file.fileName()));
-            m_pendingCaptureFile.clear();
-            m_service->updateCaptureReady();
-            return;
-        }
-
-        const qint64 writtenSize = file.write(static_cast<const char*>(data), dataSize);
-        file.close();
-        if (writtenSize != dataSize) {
-            emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
-                       QString("Could not write file %1").arg(file.fileName()));
-            m_pendingCaptureFile.clear();
-            m_service->updateCaptureReady();
-            return;
-        }
+    // Copy the metadata so that we can clear its container
+    QVariantMap metadata;
+    AalMetaDataWriterControl* metadataControl = m_service->metadataWriterControl();
+    Q_FOREACH(QString key, metadataControl->availableMetaData()) {
+        metadata.insert(key, metadataControl->metaData(key));
     }
-
-    QFile finalFile(file.fileName());
-    bool ok = finalFile.rename(m_pendingCaptureFile);
-    if (!ok) {
-        emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
-                   QString("Could not save image to %1").arg(m_pendingCaptureFile));
-        m_pendingCaptureFile.clear();
-        m_service->updateCaptureReady();
-        return;
-    }
-
-    Q_EMIT imageSaved(m_lastRequestId, m_pendingCaptureFile);
+    metadata.insert("CorrectedOrientation", metadataControl->correctedOrientation());
+    m_service->metadataWriterControl()->clearAllMetaData();
     m_pendingCaptureFile.clear();
 
-    android_camera_start_preview(m_service->androidControl());
+    QString fileName = m_targetFileName;
+    m_targetFileName.clear();
+
+    // Restart the viewfinder and notify that the camera is ready to capture again
+    if (m_service->androidControl()) {
+        android_camera_start_preview(m_service->androidControl());
+    }
     m_service->updateCaptureReady();
+
+    StringFutureWatcher* watcher = new StringFutureWatcher;
+    QObject::connect(watcher, &QFutureWatcher<QString>::finished, this, &AalImageCaptureControl::onImageFileSaved);
+    m_pendingSaveOperations.insert(watcher, m_lastRequestId);
+
+    QFuture<QString> future = QtConcurrent::run(m_storageManager, &StorageManager::saveJpegImage,
+                                                data, metadata, fileName);
+    watcher->setFuture(future);
+
+}
+
+void AalImageCaptureControl::onImageFileSaved()
+{
+    StringFutureWatcher* watcher = static_cast<StringFutureWatcher*>(sender());
+
+    if (m_pendingSaveOperations.contains(watcher)) {
+        int requestID = m_pendingSaveOperations.take(watcher);
+
+        QString fileName = watcher->result();
+        delete watcher;
+
+        if (!fileName.isEmpty()) {
+            Q_EMIT imageSaved(requestID, fileName);
+        } else {
+            // emit error as empty file name means the save failed
+            // FIXME: better way to report errors
+        }
+    }
 }

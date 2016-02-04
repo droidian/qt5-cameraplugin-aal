@@ -20,7 +20,7 @@
 #include <QCameraImageCaptureControl>
 #include <QSettings>
 #include <QString>
-#include <QTemporaryFile>
+#include <QFutureWatcher>
 #include <storagemanager.h>
 
 #include <stdint.h>
@@ -30,6 +30,8 @@ class AalCameraControl;
 class CameraControl;
 class CameraControlListener;
 class QMediaPlayer;
+
+typedef QFutureWatcher<QString> StringFutureWatcher;
 
 class AalImageCaptureControl : public QCameraImageCaptureControl
 {
@@ -56,21 +58,21 @@ public:
 public Q_SLOTS:
     void init(CameraControl *control, CameraControlListener *listener);
     void onPreviewReady();
+    void onImageFileSaved();
 
 private Q_SLOTS:
     void shutter();
+    void saveJpeg(const QByteArray& data);
 
 private:
-    void saveJpeg(void* data, uint32_t dataSize);
     bool updateJpegMetadata(void* data, uint32_t dataSize, QTemporaryFile* destination);
-    int rotationToExifOrientation(int rotation);
-    QString decimalToExifRational(double decimal);
 
     AalCameraService *m_service;
     AalCameraControl *m_cameraControl;
     int m_lastRequestId;
     StorageManager m_storageManager;
     bool m_ready;
+    QString m_targetFileName;
     QString m_pendingCaptureFile;
     bool m_captureCancelled;
     float m_screenAspectRatio;
@@ -80,6 +82,8 @@ private:
     QString m_galleryPath;
     QMediaPlayer *m_audioPlayer;
     QSettings m_settings;
+
+    QMap<StringFutureWatcher*, int> m_pendingSaveOperations;
 };
 
 #endif

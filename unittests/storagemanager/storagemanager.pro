@@ -4,6 +4,9 @@ TARGET = tst_storagemanager
 
 QT += testlib
 
+CONFIG += link_pkgconfig
+PKGCONFIG += exiv2
+
 SOURCES += tst_storagemanager.cpp \
     ../../src/storagemanager.cpp
 
