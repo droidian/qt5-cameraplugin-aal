@@ -19,10 +19,6 @@
 #include <hybris/camera/camera_compatibility_layer.h>
 #include <hybris/camera/camera_compatibility_layer_capabilities.h>
 
-StorageManager::StorageManager()
-{
-}
-
 AalImageCaptureControl::AalImageCaptureControl(AalCameraService *service, QObject *parent)
     : QCameraImageCaptureControl(parent)
 {
@@ -54,7 +50,7 @@ void AalImageCaptureControl::init(CameraControl *control, CameraControlListener 
     Q_UNUSED(listener);
 }
 
-void AalImageCaptureControl::onPreviewReady()
+void AalImageCaptureControl::onPreviewReady(int captureID, QImage preview)
 {
 }
 

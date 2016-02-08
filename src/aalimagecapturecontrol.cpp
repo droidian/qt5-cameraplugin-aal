@@ -54,6 +54,9 @@ AalImageCaptureControl::AalImageCaptureControl(AalCameraService *service, QObjec
 #else
     m_audioPlayer->setAudioRole(QAudio::NotificationRole);
 #endif
+
+    QObject::connect(&m_storageManager, &StorageManager::previewReady,
+                     this, &AalImageCaptureControl::onPreviewReady);
 }
 
 AalImageCaptureControl::~AalImageCaptureControl()
@@ -85,8 +88,6 @@ int AalImageCaptureControl::capture(const QString &fileName)
     android_camera_take_snapshot(m_service->androidControl());
 
     m_service->updateCaptureReady();
-
-    m_service->videoOutputControl()->createPreview();
 
     return m_lastRequestId;
 }
@@ -127,10 +128,10 @@ void AalImageCaptureControl::init(CameraControl *control, CameraControlListener 
     connect(m_service->videoOutputControl(), SIGNAL(previewReady()), this, SLOT(onPreviewReady()));
 }
 
-void AalImageCaptureControl::onPreviewReady()
+void AalImageCaptureControl::onPreviewReady(int captureID, QImage preview)
 {
     // The preview image was fully captured, notify the UI layer
-    Q_EMIT imageCaptured(m_lastRequestId, m_service->videoOutputControl()->preview());
+    Q_EMIT imageCaptured(captureID, preview);
 }
 
 void AalImageCaptureControl::setReady(bool ready)
@@ -183,8 +184,8 @@ void AalImageCaptureControl::saveJpeg(const QByteArray& data)
     QObject::connect(watcher, &QFutureWatcher<QString>::finished, this, &AalImageCaptureControl::onImageFileSaved);
     m_pendingSaveOperations.insert(watcher, m_lastRequestId);
 
-    QFuture<SaveToDiskResult> future = QtConcurrent::run(m_storageManager, &StorageManager::saveJpegImage,
-                                                         data, metadata, fileName);
+    QFuture<SaveToDiskResult> future = QtConcurrent::run(&m_storageManager, &StorageManager::saveJpegImage,
+                                                         data, metadata, fileName, m_lastRequestId);
     watcher->setFuture(future);
 }
 

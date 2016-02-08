@@ -19,7 +19,7 @@
 
 #include "storagemanager.h"
 
-StorageManager::StorageManager()
+StorageManager::StorageManager(QObject* parent)
 {
 }
 

@@ -32,7 +32,7 @@ const QLatin1String photoExtension = QLatin1String("jpg");
 const QLatin1String videoExtension = QLatin1String("mp4");
 const QLatin1String dateFormat = QLatin1String("yyyyMMdd_HHmmsszzz");
 
-StorageManager::StorageManager()
+StorageManager::StorageManager(QObject* parent) : QObject(parent)
 {
 }
 
@@ -186,7 +186,7 @@ bool StorageManager::updateJpegMetadata(QByteArray data, QVariantMap metadata, Q
     }
 }
 
-SaveToDiskResult StorageManager::saveJpegImage(QByteArray data, QVariantMap metadata, QString fileName)
+SaveToDiskResult StorageManager::saveJpegImage(QByteArray data, QVariantMap metadata, QString fileName, int captureID)
 {
     SaveToDiskResult result;
 
@@ -204,6 +204,9 @@ SaveToDiskResult StorageManager::saveJpegImage(QByteArray data, QVariantMap meta
         result.errorMessage = QString("Won't be able to save file %1 to disk").arg(captureFile);
         return result;
     }
+
+    QImage image(data, "jpg");
+    Q_EMIT previewReady(captureID, image);
 
     QTemporaryFile file;
     if (!updateJpegMetadata(data, metadata, &file)) {

@@ -21,6 +21,7 @@
 #include <QVariantMap>
 #include <QByteArray>
 #include <QTemporaryFile>
+#include <QImage>
 
 class SaveToDiskResult
 {
@@ -31,17 +32,23 @@ public:
     QString errorMessage;
 };
 
-class StorageManager
+class StorageManager : public QObject
 {
+    Q_OBJECT
+
 public:
-    StorageManager();
+    explicit StorageManager(QObject* parent = 0);
 
     QString nextPhotoFileName(const QString &directoy = QString());
     QString nextVideoFileName(const QString &directoy = QString());
 
     bool checkDirectory(const QString &path) const;
 
-    SaveToDiskResult saveJpegImage(QByteArray data, QVariantMap metadata, QString fileName);
+    SaveToDiskResult saveJpegImage(QByteArray data, QVariantMap metadata,
+                                   QString fileName, int captureID);
+
+Q_SIGNALS:
+    void previewReady(int captureID, QImage image);
 
 private:
     QString fileNameGenerator(const QString &base, const QString &extension);
