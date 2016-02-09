@@ -45,7 +45,8 @@ public:
     bool checkDirectory(const QString &path) const;
 
     SaveToDiskResult saveJpegImage(QByteArray data, QVariantMap metadata,
-                                   QString fileName, int captureID);
+                                   QString fileName, QSize previewResolution,
+                                   int captureID);
 
 Q_SIGNALS:
     void previewReady(int captureID, QImage image);

@@ -19,6 +19,7 @@
 #include "aalimageencodercontrol.h"
 #include "aalmetadatawritercontrol.h"
 #include "aalvideorenderercontrol.h"
+#include "aalviewfindersettingscontrol.h"
 #include "storagemanager.h"
 
 #include <hybris/camera/camera_compatibility_layer.h>
@@ -174,6 +175,9 @@ void AalImageCaptureControl::saveJpeg(const QByteArray& data)
     QString fileName = m_targetFileName;
     m_targetFileName.clear();
 
+    AalViewfinderSettingsControl* viewfinder = m_service->viewfinderControl();
+    QSize resolution = viewfinder->viewfinderParameter(QCameraViewfinderSettingsControl::Resolution).toSize();
+
     // Restart the viewfinder and notify that the camera is ready to capture again
     if (m_service->androidControl()) {
         android_camera_start_preview(m_service->androidControl());
@@ -185,7 +189,7 @@ void AalImageCaptureControl::saveJpeg(const QByteArray& data)
     m_pendingSaveOperations.insert(watcher, m_lastRequestId);
 
     QFuture<SaveToDiskResult> future = QtConcurrent::run(&m_storageManager, &StorageManager::saveJpegImage,
-                                                         data, metadata, fileName, m_lastRequestId);
+                                                         data, metadata, fileName, resolution, m_lastRequestId);
     watcher->setFuture(future);
 }
 

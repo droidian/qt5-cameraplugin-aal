@@ -22,6 +22,8 @@
 #include <QFileInfo>
 #include <QStandardPaths>
 #include <QCoreApplication>
+#include <QBuffer>
+#include <QImageReader>
 
 #include <exiv2/exiv2.hpp>
 #include <cmath>
@@ -186,7 +188,8 @@ bool StorageManager::updateJpegMetadata(QByteArray data, QVariantMap metadata, Q
     }
 }
 
-SaveToDiskResult StorageManager::saveJpegImage(QByteArray data, QVariantMap metadata, QString fileName, int captureID)
+SaveToDiskResult StorageManager::saveJpegImage(QByteArray data, QVariantMap metadata, QString fileName,
+                                               QSize previewResolution, int captureID)
 {
     SaveToDiskResult result;
 
@@ -205,7 +208,11 @@ SaveToDiskResult StorageManager::saveJpegImage(QByteArray data, QVariantMap meta
         return result;
     }
 
-    QImage image(data, "jpg");
+    QBuffer buffer(&data);
+    QImageReader reader(&buffer, "jpg");
+    reader.setScaledSize(previewResolution);
+    reader.setQuality(25);
+    QImage image = reader.read();
     Q_EMIT previewReady(captureID, image);
 
     QTemporaryFile file;
