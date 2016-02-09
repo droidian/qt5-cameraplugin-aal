@@ -210,6 +210,17 @@ SaveToDiskResult StorageManager::saveJpegImage(QByteArray data, QVariantMap meta
 
     QBuffer buffer(&data);
     QImageReader reader(&buffer, "jpg");
+
+    // Read the actual size of the image without decoding it, then check if the viewfinder is
+    // at an angle with respect to the original image and swap the downscaling size components
+    // around so that the image is not deformed.
+    QSize actualSize = reader.size();
+    float actualRatio = ((float) actualSize.width()) / actualSize.height();
+    float previewRatio = ((float) previewResolution.width()) / previewResolution.height();
+    if ((actualRatio > 1.0 && previewRatio < 1.0) ||
+        (actualRatio < 1.0 && previewRatio > 1.0)) {
+        previewResolution.transpose();
+    }
     reader.setScaledSize(previewResolution);
     reader.setQuality(25);
     QImage image = reader.read();
