@@ -57,7 +57,7 @@ AalImageCaptureControl::AalImageCaptureControl(AalCameraService *service, QObjec
 #endif
 
     QObject::connect(&m_storageManager, &StorageManager::previewReady,
-                     this, &AalImageCaptureControl::onPreviewReady);
+                     this, &AalImageCaptureControl::imageCaptured);
 }
 
 AalImageCaptureControl::~AalImageCaptureControl()
@@ -127,12 +127,6 @@ void AalImageCaptureControl::init(CameraControl *control, CameraControlListener 
     listener->on_data_compressed_image_cb = &AalImageCaptureControl::saveJpegCB;
 
     connect(m_service->videoOutputControl(), SIGNAL(previewReady()), this, SLOT(onPreviewReady()));
-}
-
-void AalImageCaptureControl::onPreviewReady(int captureID, QImage preview)
-{
-    // The preview image was fully captured, notify the UI layer
-    Q_EMIT imageCaptured(captureID, preview);
 }
 
 void AalImageCaptureControl::setReady(bool ready)

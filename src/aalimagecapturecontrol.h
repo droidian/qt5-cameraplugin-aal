@@ -57,7 +57,6 @@ public:
 
 public Q_SLOTS:
     void init(CameraControl *control, CameraControlListener *listener);
-    void onPreviewReady(int requestID, QImage preview);
     void onImageFileSaved();
 
 private Q_SLOTS:

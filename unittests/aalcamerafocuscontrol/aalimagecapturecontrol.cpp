@@ -50,10 +50,6 @@ void AalImageCaptureControl::init(CameraControl *control, CameraControlListener 
     Q_UNUSED(listener);
 }
 
-void AalImageCaptureControl::onPreviewReady(int captureID, QImage preview)
-{
-}
-
 void AalImageCaptureControl::setReady(bool ready)
 {
     Q_UNUSED(ready);
