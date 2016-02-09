@@ -178,7 +178,7 @@ void AalImageCaptureControl::saveJpeg(const QByteArray& data)
     }
     m_service->updateCaptureReady();
 
-    DiskWriteWatcher* watcher = new DiskWriteWatcher;
+    DiskWriteWatcher* watcher = new DiskWriteWatcher(this);
     QObject::connect(watcher, &QFutureWatcher<QString>::finished, this, &AalImageCaptureControl::onImageFileSaved);
     m_pendingSaveOperations.insert(watcher, m_lastRequestId);
 
