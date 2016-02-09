@@ -21,6 +21,7 @@
 
 StorageManager::StorageManager(QObject* parent)
 {
+    Q_UNUSED(parent);
 }
 
 QString StorageManager::nextPhotoFileName(const QString &directory)

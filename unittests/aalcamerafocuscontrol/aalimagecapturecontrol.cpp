@@ -65,5 +65,6 @@ void AalImageCaptureControl::onImageFileSaved()
 
 void AalImageCaptureControl::saveJpeg(const QByteArray& data)
 {
+    Q_UNUSED(data);
 }
 
