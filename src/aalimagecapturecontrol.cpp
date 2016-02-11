@@ -19,13 +19,14 @@
 #include "aalimageencodercontrol.h"
 #include "aalmetadatawritercontrol.h"
 #include "aalvideorenderercontrol.h"
+#include "aalviewfindersettingscontrol.h"
 #include "storagemanager.h"
 
 #include <hybris/camera/camera_compatibility_layer.h>
 #include <hybris/camera/camera_compatibility_layer_capabilities.h>
-#include <exiv2/exiv2.hpp>
 
 #include <QDir>
+#include <QObject>
 #include <QFile>
 #include <QFileInfo>
 #include <QMediaPlayer>
@@ -34,8 +35,7 @@
 #include <QGuiApplication>
 #include <QScreen>
 #include <QSettings>
-
-#include <cmath>
+#include <QtConcurrent/QtConcurrent>
 
 AalImageCaptureControl::AalImageCaptureControl(AalCameraService *service, QObject *parent)
    : QCameraImageCaptureControl(parent),
@@ -43,7 +43,7 @@ AalImageCaptureControl::AalImageCaptureControl(AalCameraService *service, QObjec
     m_cameraControl(service->cameraControl()),
     m_lastRequestId(0),
     m_ready(false),
-    m_pendingCaptureFile(),
+    m_targetFileName(),
     m_captureCancelled(false),
     m_screenAspectRatio(0.0),
     m_audioPlayer(new QMediaPlayer(this))
@@ -55,6 +55,9 @@ AalImageCaptureControl::AalImageCaptureControl(AalCameraService *service, QObjec
 #else
     m_audioPlayer->setAudioRole(QAudio::NotificationRole);
 #endif
+
+    QObject::connect(&m_storageManager, &StorageManager::previewReady,
+                     this, &AalImageCaptureControl::imageCaptured);
 }
 
 AalImageCaptureControl::~AalImageCaptureControl()
@@ -76,50 +79,16 @@ int AalImageCaptureControl::capture(const QString &fileName)
         return m_lastRequestId;
     }
 
+    m_targetFileName = fileName;
     m_captureCancelled = false;
-    QFileInfo fi(fileName);
-    if (fileName.isEmpty() || fi.isDir()) {
-        m_pendingCaptureFile = m_storageManager.nextPhotoFileName(fileName);
-    } else {
-        m_pendingCaptureFile = fileName;
-    }
-    bool diskOk = m_storageManager.checkDirectory(m_pendingCaptureFile);
-    if (!diskOk) {
-        emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
-                   QString("Won't be able to save file %1 to disk").arg(m_pendingCaptureFile));
-        return m_lastRequestId;
-    }
 
     AalMetaDataWriterControl* metadataControl = m_service->metadataWriterControl();
-
     int rotation = metadataControl->correctedOrientation();
     android_camera_set_rotation(m_service->androidControl(), rotation);
-
-    QStringList availableMetadata = metadataControl->availableMetaData();
-    if (availableMetadata.contains("GPSLatitude") &&
-        availableMetadata.contains("GPSLongitude") &&
-        availableMetadata.contains("GPSTimeStamp")) {
-        float latitude = metadataControl->metaData("GPSLatitude").toFloat();
-        float longitude = metadataControl->metaData("GPSLongitude").toFloat();
-        float altitude = 0.0f;
-        if (availableMetadata.contains("GPSAltitude")) {
-            altitude = metadataControl->metaData("GPSAltitude").toFloat();
-        }
-        QDateTime timestamp = metadataControl->metaData("GPSTimeStamp").toDateTime();
-        QString processingMethod = metadataControl->metaData("GPSProcessingMethod").toString();
-        android_camera_set_location(m_service->androidControl(),
-                                    &latitude, &longitude, &altitude,
-                                    timestamp.toTime_t(),
-                                    processingMethod.toLocal8Bit().constData());
-    }
 
     android_camera_take_snapshot(m_service->androidControl());
 
     m_service->updateCaptureReady();
-
-    m_service->videoOutputControl()->createPreview();
-
-    m_service->metadataWriterControl()->clearAllMetaData();
 
     return m_lastRequestId;
 }
@@ -127,7 +96,7 @@ int AalImageCaptureControl::capture(const QString &fileName)
 void AalImageCaptureControl::cancelCapture()
 {
     m_captureCancelled = true;
-    m_pendingCaptureFile.clear();
+    m_targetFileName.clear();
 }
 
 void AalImageCaptureControl::shutterCB(void *context)
@@ -140,7 +109,14 @@ void AalImageCaptureControl::shutterCB(void *context)
 void AalImageCaptureControl::saveJpegCB(void *data, uint32_t data_size, void *context)
 {
     Q_UNUSED(context);
-    AalCameraService::instance()->imageCaptureControl()->saveJpeg(data, data_size);
+
+    // Copy the data buffer so that it is safe to pass it off to another thread,
+    // since it will be destroyed once this function returns
+    QByteArray dataCopy((const char*)data, data_size);
+
+    QMetaObject::invokeMethod(AalCameraService::instance()->imageCaptureControl(),
+                              "saveJpeg", Qt::QueuedConnection,
+                              Q_ARG(QByteArray, dataCopy));
 }
 
 void AalImageCaptureControl::init(CameraControl *control, CameraControlListener *listener)
@@ -153,12 +129,6 @@ void AalImageCaptureControl::init(CameraControl *control, CameraControlListener 
     connect(m_service->videoOutputControl(), SIGNAL(previewReady()), this, SLOT(onPreviewReady()));
 }
 
-void AalImageCaptureControl::onPreviewReady()
-{
-    // The preview image was fully captured, notify the UI layer
-    Q_EMIT imageCaptured(m_lastRequestId, m_service->videoOutputControl()->preview());
-}
-
 void AalImageCaptureControl::setReady(bool ready)
 {
     if (m_ready != ready) {
@@ -169,7 +139,7 @@ void AalImageCaptureControl::setReady(bool ready)
 
 bool AalImageCaptureControl::isCaptureRunning() const
 {
-    return !m_pendingCaptureFile.isNull();
+    return !m_targetFileName.isEmpty();
 }
 
 void AalImageCaptureControl::shutter()
@@ -181,96 +151,56 @@ void AalImageCaptureControl::shutter()
     Q_EMIT imageExposed(m_lastRequestId);
 }
 
-bool AalImageCaptureControl::updateJpegMetadata(void* data, uint32_t dataSize, QTemporaryFile* destination)
-{
-    if (data == 0 || destination == 0) return false;
-
-    Exiv2::Image::AutoPtr image;
-    try {
-        image = Exiv2::ImageFactory::open(static_cast<Exiv2::byte*>(data), dataSize);
-        if (!image.get()) {
-            return false;
-        }
-    } catch(const Exiv2::AnyError&) {
-        return false;
-    }
-
-    try {
-        image->readMetadata();
-        Exiv2::ExifData ed = image->exifData();
-        const QString now = QDateTime::currentDateTime().toString("yyyy:MM:dd HH:mm:ss");
-        ed["Exif.Photo.DateTimeOriginal"].setValue(now.toStdString());
-        ed["Exif.Photo.DateTimeDigitized"].setValue(now.toStdString());
-        image->setExifData(ed);
-        image->writeMetadata();
-    } catch(const Exiv2::AnyError&) {
-        return false;
-    }
-
-    if (!destination->open()) {
-        return false;
-    }
-
-    try {
-        Exiv2::BasicIo& io = image->io();
-        char* modifiedMetadata = reinterpret_cast<char*>(io.mmap());
-        const long size = io.size();
-        const qint64 writtenSize = destination->write(modifiedMetadata, size);
-        io.munmap();
-        destination->close();
-        return (writtenSize == size);
-
-    } catch(const Exiv2::AnyError&) {
-        destination->close();
-        return false;
-    }
-}
-
-void AalImageCaptureControl::saveJpeg(void *data, uint32_t dataSize)
+void AalImageCaptureControl::saveJpeg(const QByteArray& data)
 {
     if (m_captureCancelled) {
         m_captureCancelled = false;
         return;
     }
 
-    if (m_pendingCaptureFile.isNull() || !m_service->androidControl())
-        return;
-
-    QTemporaryFile file;
-    if (!updateJpegMetadata(data, dataSize, &file)) {
-        qWarning() << "Failed to update EXIF timestamps. Picture will be saved as UTC timezone.";
-        if (!file.open()) {
-            emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
-                       QString("Could not open temprary file %1").arg(file.fileName()));
-            m_pendingCaptureFile.clear();
-            m_service->updateCaptureReady();
-            return;
-        }
-
-        const qint64 writtenSize = file.write(static_cast<const char*>(data), dataSize);
-        file.close();
-        if (writtenSize != dataSize) {
-            emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
-                       QString("Could not write file %1").arg(file.fileName()));
-            m_pendingCaptureFile.clear();
-            m_service->updateCaptureReady();
-            return;
-        }
+    // Copy the metadata so that we can clear its container
+    QVariantMap metadata;
+    AalMetaDataWriterControl* metadataControl = m_service->metadataWriterControl();
+    Q_FOREACH(QString key, metadataControl->availableMetaData()) {
+        metadata.insert(key, metadataControl->metaData(key));
     }
+    m_service->metadataWriterControl()->clearAllMetaData();
 
-    QFile finalFile(file.fileName());
-    bool ok = finalFile.rename(m_pendingCaptureFile);
-    if (!ok) {
-        emit error(m_lastRequestId, QCameraImageCapture::ResourceError,
-                   QString("Could not save image to %1").arg(m_pendingCaptureFile));
-        m_pendingCaptureFile.clear();
-        m_service->updateCaptureReady();
-        return;
+    QString fileName = m_targetFileName;
+    m_targetFileName.clear();
+
+    AalViewfinderSettingsControl* viewfinder = m_service->viewfinderControl();
+    QSize resolution = viewfinder->viewfinderParameter(QCameraViewfinderSettingsControl::Resolution).toSize();
+
+    // Restart the viewfinder and notify that the camera is ready to capture again
+    if (m_service->androidControl()) {
+        android_camera_start_preview(m_service->androidControl());
     }
-
-    Q_EMIT imageSaved(m_lastRequestId, m_pendingCaptureFile);
-    m_pendingCaptureFile.clear();
-
-    android_camera_start_preview(m_service->androidControl());
     m_service->updateCaptureReady();
+
+    DiskWriteWatcher* watcher = new DiskWriteWatcher(this);
+    QObject::connect(watcher, &QFutureWatcher<QString>::finished, this, &AalImageCaptureControl::onImageFileSaved);
+    m_pendingSaveOperations.insert(watcher, m_lastRequestId);
+
+    QFuture<SaveToDiskResult> future = QtConcurrent::run(&m_storageManager, &StorageManager::saveJpegImage,
+                                                         data, metadata, fileName, resolution, m_lastRequestId);
+    watcher->setFuture(future);
+}
+
+void AalImageCaptureControl::onImageFileSaved()
+{
+    DiskWriteWatcher* watcher = static_cast<DiskWriteWatcher*>(sender());
+
+    if (m_pendingSaveOperations.contains(watcher)) {
+        int requestID = m_pendingSaveOperations.take(watcher);
+
+        SaveToDiskResult result = watcher->result();
+        delete watcher;
+
+        if (result.success) {
+            Q_EMIT imageSaved(requestID, result.fileName);
+        } else {
+            Q_EMIT error(requestID, QCameraImageCapture::ResourceError, result.errorMessage);
+        }
+    }
 }
