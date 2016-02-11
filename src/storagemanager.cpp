@@ -216,7 +216,6 @@ SaveToDiskResult StorageManager::saveJpegImage(QByteArray data, QVariantMap meta
     reader.setScaledSize(scaledSize);
     reader.setQuality(25);
     QImage image = reader.read();
-    image.save("/tmp/someimage.jpg", "jpg");
     Q_EMIT previewReady(captureID, image);
 
     QTemporaryFile file;
