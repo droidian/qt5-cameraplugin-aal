@@ -21,6 +21,10 @@
 #include <QMetaType>
 #include <qgl.h>
 
+#include <hybris/camera/camera_compatibility_layer.h>
+#include <hybris/camera/camera_compatibility_layer_capabilities.h>
+
+
 AalServicePlugin::AalServicePlugin()
 {
 }
@@ -42,13 +46,65 @@ void AalServicePlugin::release(QMediaService *service)
 
 QList<QByteArray> AalServicePlugin::devices(const QByteArray &service) const
 {
-    Q_UNUSED(service);
-    return QList<QByteArray>();
+    QList<QByteArray> deviceList;
+
+    if (QString::fromLatin1(service) != QLatin1String(Q_MEDIASERVICE_CAMERA)) {
+        return deviceList;
+    }
+
+    // Devices are identified in android only by their index, so we do the same
+    int cameras = android_camera_get_number_of_devices();
+    for (int deviceId = 0; deviceId < cameras; deviceId++) {
+        QString camera("%1");
+        camera = camera.arg(deviceId);
+        deviceList.append(camera.toLatin1());
+    }
+
+    return deviceList;
 }
 
 QString AalServicePlugin::deviceDescription(const QByteArray &service, const QByteArray &device)
 {
-    Q_UNUSED(service);
-    Q_UNUSED(device);
-    return QString();
+    if (QString::fromLatin1(service) != QLatin1String(Q_MEDIASERVICE_CAMERA)) {
+        return QString();
+    }
+
+    // Android does not provice a descriptive identifier for devices, so we just send back the index
+    // after checking that it is a valid one.
+    bool ok;
+    int deviceID = device.toInt(&ok, 10);
+    if (!ok || deviceID >= android_camera_get_number_of_devices()) {
+        qWarning() << "Requested description for invalid device ID:" << device;
+        return QString();
+    } else {
+        return QString("Camera %1").arg(QLatin1String(device));
+    }
+}
+
+int AalServicePlugin::cameraOrientation(const QByteArray & device) const
+{
+    int facing;
+    int orientation;
+
+    bool ok;
+    int deviceID = device.toInt(&ok, 10);
+    if (!ok) return 0;
+
+    int result = android_camera_get_device_info(deviceID, &facing, &orientation);
+    return (result != 0) ? 0 : orientation;
+}
+
+QCamera::Position AalServicePlugin::cameraPosition(const QByteArray & device) const
+{
+    int facing;
+    int orientation;
+
+    bool ok;
+    int deviceID = device.toInt(&ok, 10);
+    if (!ok) return QCamera::UnspecifiedPosition;
+
+    int result = android_camera_get_device_info(deviceID, &facing, &orientation);
+    return (result != 0) ? QCamera::UnspecifiedPosition :
+                           (facing == BACK_FACING_CAMERA_TYPE ? QCamera::BackFace :
+                                                                QCamera::FrontFace);
 }

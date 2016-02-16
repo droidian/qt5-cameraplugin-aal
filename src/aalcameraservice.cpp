@@ -27,6 +27,7 @@
 #include "aalvideoencodersettingscontrol.h"
 #include "aalvideorenderercontrol.h"
 #include "aalviewfindersettingscontrol.h"
+#include "aalcamerainfocontrol.h"
 #include "storagemanager.h"
 #include "aalcameraexposurecontrol.h"
 
@@ -60,6 +61,7 @@ AalCameraService::AalCameraService(QObject *parent):
     m_videoOutput = new AalVideoRendererControl(this);
     m_viewfinderControl = new AalViewfinderSettingsControl(this);
     m_exposureControl = new AalCameraExposureControl(this);
+    m_infoControl = new AalCameraInfoControl(this);
 
     QGuiApplication* application = qobject_cast<QGuiApplication*>(QGuiApplication::instance());
     m_previousApplicationState = application->applicationState();
@@ -84,6 +86,7 @@ AalCameraService::~AalCameraService()
     delete m_videoOutput;
     delete m_viewfinderControl;
     delete m_exposureControl;
+    delete m_infoControl;
     if (m_androidControl)
         android_camera_delete(m_androidControl);
     delete m_storageManager;
@@ -129,6 +132,9 @@ QMediaControl *AalCameraService::requestControl(const char *name)
 
     if (qstrcmp(name, QCameraExposureControl_iid) == 0)
         return m_exposureControl;
+
+    if (qstrcmp(name, QCameraInfoControl_iid) == 0)
+        return m_infoControl;
 
     return 0;
 }
