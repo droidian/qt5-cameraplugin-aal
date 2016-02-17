@@ -238,7 +238,9 @@ bool AalCameraService::isCameraActive() const
 
 bool AalCameraService::isBackCameraUsed() const
 {
-    return m_deviceSelectControl->selectedDevice() == 0;
+    int deviceIndex = m_deviceSelectControl->selectedDevice();
+    QString deviceName = m_deviceSelectControl->deviceName(deviceIndex);
+    return m_infoControl->cameraPosition(deviceName) == QCamera::BackFace;
 }
 
 /*!
