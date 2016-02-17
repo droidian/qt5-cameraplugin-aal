@@ -24,12 +24,10 @@ AalCameraInfoControl::AalCameraInfoControl(QObject *parent) : QCameraInfoControl
 
 QCamera::Position AalCameraInfoControl::cameraPosition(const QString &deviceName) const
 {
-    qWarning() << "REQUESTING position info for " << deviceName << QCameraInfo::availableCameras();
     return QCameraInfo(deviceName.toLatin1()).position();
 }
 
 int AalCameraInfoControl::cameraOrientation(const QString &deviceName) const
 {
-    qWarning() << "REQUESTING orientation info for " << deviceName << QCameraInfo::availableCameras();
     return QCameraInfo(deviceName.toLatin1()).orientation();
 }
