@@ -69,15 +69,18 @@ QString AalServicePlugin::deviceDescription(const QByteArray &service, const QBy
         return QString();
     }
 
-    // Android does not provice a descriptive identifier for devices, so we just send back the index
-    // after checking that it is a valid one.
+    // Android does not provice a descriptive identifier for devices, so we just
+    // send back the index plus some useful human readable information about position.
     bool ok;
     int deviceID = device.toInt(&ok, 10);
     if (!ok || deviceID >= android_camera_get_number_of_devices()) {
         qWarning() << "Requested description for invalid device ID:" << device;
         return QString();
     } else {
-        return QString("Camera %1").arg(QLatin1String(device));
+        QCamera::Position position = cameraPosition(device);
+        return QString("Camera %1%2").arg(QLatin1String(device))
+                                     .arg(position == QCamera::FrontFace ? " Front facing" :
+                                          (position == QCamera::BackFace ? " Back facing" : ""));
     }
 }
 
