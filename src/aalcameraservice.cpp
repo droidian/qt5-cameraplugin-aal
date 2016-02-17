@@ -159,21 +159,17 @@ bool AalCameraService::connectCamera()
     if (m_androidControl)
         return true;
 
-    CameraType device = BACK_FACING_CAMERA_TYPE;
-    if (!isBackCameraUsed())
-        device = FRONT_FACING_CAMERA_TYPE;
-
     m_androidListener = new CameraControlListener;
     memset(m_androidListener, 0, sizeof(*m_androidListener));
 
-    m_androidControl = android_camera_connect_to(device, m_androidListener);
-
-    // fallback if there is only one camera
-    if (!m_androidControl && m_deviceSelectControl->deviceCount() == 1) {
-        if (device == BACK_FACING_CAMERA_TYPE)
+    // if there is only one camera fallback directly to the ID of whatever device we have
+    if (m_deviceSelectControl->deviceCount() == 1) {
+        android_camera_connect_by_id(m_deviceSelectControl->selectedDevice(), m_androidListener);
+    } else {
+        CameraType device = BACK_FACING_CAMERA_TYPE;
+        if (!isBackCameraUsed())
             device = FRONT_FACING_CAMERA_TYPE;
-        else
-            device = BACK_FACING_CAMERA_TYPE;
+
         m_androidControl = android_camera_connect_to(device, m_androidListener);
     }
 
