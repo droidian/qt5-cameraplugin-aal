@@ -91,7 +91,9 @@ int AalServicePlugin::cameraOrientation(const QByteArray & device) const
 
     bool ok;
     int deviceID = device.toInt(&ok, 10);
-    if (!ok) return 0;
+    if (!ok) {
+        return 0;
+    }
 
     int result = android_camera_get_device_info(deviceID, &facing, &orientation);
     return (result != 0) ? 0 : orientation;
@@ -104,10 +106,15 @@ QCamera::Position AalServicePlugin::cameraPosition(const QByteArray & device) co
 
     bool ok;
     int deviceID = device.toInt(&ok, 10);
-    if (!ok) return QCamera::UnspecifiedPosition;
+    if (!ok) {
+        return QCamera::UnspecifiedPosition;
+    }
 
     int result = android_camera_get_device_info(deviceID, &facing, &orientation);
-    return (result != 0) ? QCamera::UnspecifiedPosition :
-                           (facing == BACK_FACING_CAMERA_TYPE ? QCamera::BackFace :
-                                                                QCamera::FrontFace);
+    if (result != 0) {
+        return QCamera::UnspecifiedPosition;
+    } else {
+        return facing == BACK_FACING_CAMERA_TYPE ? QCamera::BackFace :
+                                                   QCamera::FrontFace;
+    }
 }
