@@ -18,19 +18,43 @@
 #define STORAGEMANAGER_H
 
 #include <QString>
+#include <QVariantMap>
+#include <QByteArray>
+#include <QTemporaryFile>
+#include <QImage>
 
-class StorageManager
+class SaveToDiskResult
 {
 public:
-    StorageManager();
+    SaveToDiskResult();
+    bool success;
+    QString fileName;
+    QString errorMessage;
+};
+
+class StorageManager : public QObject
+{
+    Q_OBJECT
+
+public:
+    explicit StorageManager(QObject* parent = 0);
 
     QString nextPhotoFileName(const QString &directoy = QString());
     QString nextVideoFileName(const QString &directoy = QString());
 
     bool checkDirectory(const QString &path) const;
 
+    SaveToDiskResult saveJpegImage(QByteArray data, QVariantMap metadata,
+                                   QString fileName, QSize previewResolution,
+                                   int captureID);
+
+Q_SIGNALS:
+    void previewReady(int captureID, QImage image);
+
 private:
     QString fileNameGenerator(const QString &base, const QString &extension);
+    bool updateJpegMetadata(QByteArray data, QVariantMap metadata, QTemporaryFile* destination);
+    QString decimalToExifRational(double decimal);
 
     QString m_directory;
 };

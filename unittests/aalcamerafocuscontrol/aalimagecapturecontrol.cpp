@@ -19,10 +19,6 @@
 #include <hybris/camera/camera_compatibility_layer.h>
 #include <hybris/camera/camera_compatibility_layer_capabilities.h>
 
-StorageManager::StorageManager()
-{
-}
-
 AalImageCaptureControl::AalImageCaptureControl(AalCameraService *service, QObject *parent)
     : QCameraImageCaptureControl(parent)
 {
@@ -54,10 +50,6 @@ void AalImageCaptureControl::init(CameraControl *control, CameraControlListener 
     Q_UNUSED(listener);
 }
 
-void AalImageCaptureControl::onPreviewReady()
-{
-}
-
 void AalImageCaptureControl::setReady(bool ready)
 {
     Q_UNUSED(ready);
@@ -66,3 +58,13 @@ void AalImageCaptureControl::setReady(bool ready)
 void AalImageCaptureControl::shutter()
 {
 }
+
+void AalImageCaptureControl::onImageFileSaved()
+{
+}
+
+void AalImageCaptureControl::saveJpeg(const QByteArray& data)
+{
+    Q_UNUSED(data);
+}
+

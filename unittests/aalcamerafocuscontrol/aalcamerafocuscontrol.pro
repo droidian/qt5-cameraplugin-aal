@@ -10,10 +10,12 @@ INCLUDEPATH += ../mocks/aal
 
 HEADERS += ../../src/aalcamerafocuscontrol.h \
     ../../src/aalcameraservice.h \
-    ../../src/aalimagecapturecontrol.h
+    ../../src/aalimagecapturecontrol.h \
+    ../../src/storagemanager.h
 
 SOURCES += tst_aalcamerafocuscontrol.cpp \
     ../../src/aalcamerafocuscontrol.cpp \
+    storagemanager.cpp \
     aalcameraservice.cpp \
     aalimagecapturecontrol.cpp
 
