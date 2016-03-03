@@ -83,20 +83,18 @@ void AalCameraControl::setCaptureMode(QCamera::CaptureModes mode)
     if (m_captureMode == mode)
         return;
 
-    if (m_service->androidControl() == 0)
-        return;
-
     if (m_service->isRecording())
         return;
 
     m_captureMode = mode;
-    if (m_service->isCameraActive() && mode == QCamera::CaptureStillImage) {
-        m_service->enablePhotoMode();
-    } else {
-        m_service->enableVideoMode();
+    if (m_service->androidControl()) {
+        if (mode == QCamera::CaptureStillImage) {
+            m_service->enablePhotoMode();
+        } else {
+            m_service->enableVideoMode();
+        }
+        Q_EMIT captureModeChanged(mode);
     }
-
-    Q_EMIT captureModeChanged(mode);
 }
 
 bool AalCameraControl::isCaptureModeSupported(QCamera::CaptureModes mode) const
@@ -116,6 +114,13 @@ void AalCameraControl::init(CameraControl *control, CameraControlListener *liste
 {
     Q_UNUSED(control);
     listener->on_msg_error_cb = &AalCameraControl::errorCB;
+
+    if (m_captureMode == QCamera::CaptureStillImage) {
+        m_service->enablePhotoMode();
+    } else {
+        m_service->enableVideoMode();
+    }
+    Q_EMIT captureModeChanged(m_captureMode);
 }
 
 void AalCameraControl::handleError()
