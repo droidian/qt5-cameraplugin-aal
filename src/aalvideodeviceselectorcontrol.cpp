@@ -23,6 +23,7 @@
 
 #include <QDebug>
 #include <QtMultimedia/QCamera>
+#include <QtMultimedia/QCameraInfo>
 
 #include <hybris/camera/camera_compatibility_layer_capabilities.h>
 
@@ -41,28 +42,17 @@ int AalVideoDeviceSelectorControl::defaultDevice() const
 
 int AalVideoDeviceSelectorControl::deviceCount() const
 {
-    if (m_numberOfCameras < 0)
-        m_numberOfCameras = android_camera_get_number_of_devices();
-
-    return m_numberOfCameras;
+    return QCameraInfo::availableCameras().count();
 }
 
 QString AalVideoDeviceSelectorControl::deviceDescription(int index) const
 {
-    switch (index) {
-    case 0: return QLatin1String("Back camera");
-    case 1: return QLatin1String("Front camera");
-    default: return QLatin1String("");
-    }
+    return QCameraInfo::availableCameras().value(index).description();
 }
 
 QString AalVideoDeviceSelectorControl::deviceName(int index) const
 {
-    switch (index) {
-    case 0: return QLatin1String("Back");
-    case 1: return QLatin1String("Front");
-    default: return QLatin1String("");
-    }
+    return QCameraInfo::availableCameras().value(index).deviceName();
 }
 
 int AalVideoDeviceSelectorControl::selectedDevice() const

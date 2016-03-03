@@ -20,10 +20,12 @@
 #include <QMediaServiceProviderPlugin>
 
 class AalServicePlugin : public QMediaServiceProviderPlugin,
-                         public QMediaServiceSupportedDevicesInterface
+                         public QMediaServiceSupportedDevicesInterface,
+                         public QMediaServiceCameraInfoInterface
 {
     Q_OBJECT
     Q_INTERFACES(QMediaServiceSupportedDevicesInterface)
+    Q_INTERFACES(QMediaServiceCameraInfoInterface)
     Q_PLUGIN_METADATA(IID "org.qt-project.qt.mediaserviceproviderfactory/5.0" FILE "aalcamera.json")
 
 public:
@@ -34,6 +36,8 @@ public:
 
     QList<QByteArray> devices(const QByteArray &service) const;
     QString deviceDescription(const QByteArray &service, const QByteArray &device);
+    int cameraOrientation(const QByteArray & device) const;
+    QCamera::Position cameraPosition(const QByteArray & device) const;
 };
 
 #endif
