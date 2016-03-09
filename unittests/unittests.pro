@@ -7,7 +7,6 @@ SUBDIRS += \
     aalcameraflashcontrol \
     aalcamerafocuscontrol \
     aalcamerazoomcontrol \
-    aalimagecapturecontrol \
     aalmediarecordercontrol \
     aalvideodeviceselectorcontrol \
     aalviewfindersettingscontrol \

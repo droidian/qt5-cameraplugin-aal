@@ -1,3 +1,34 @@
+qtubuntu-camera (0.3.3+16.04.20160229-0ubuntu1) xenial; urgency=medium
+
+  [ Florian Boucault, Ugo Riboni ]
+  * New release: Performance improvements to minimize the time necessary
+    between when pressing the shutter button and being able to capture
+    the next pitcure. Remove sliding out the preview as a part of this.
+
+ -- Florian Boucault <florian.boucault@canonical.com>  Mon, 29 Feb 2016 12:14:51 +0000
+
+qtubuntu-camera (0.3.3+16.04.20160112-0ubuntu1) xenial; urgency=medium
+
+  [ Florian Boucault ]
+  * New release: Select the greatest photo resolution available by
+    default. Fixed QCamera::LoadedState so that it only disables the
+    viewfinder but keeps the camera stack loaded. Automatically set the
+    state to QCamera::UnloadedState when the application becomes
+    inactive. Restore state when application becomes active again. Limit
+    thumbnail sizes to be at most 128x128 which ensures it never exceeds
+    the EXIF metadata limit of 64KB.
+
+  [ Ugo Riboni ]
+  * New release: Select the greatest photo resolution available by
+    default. Fixed QCamera::LoadedState so that it only disables the
+    viewfinder but keeps the camera stack loaded. Automatically set the
+    state to QCamera::UnloadedState when the application becomes
+    inactive. Restore state when application becomes active again. Limit
+    thumbnail sizes to be at most 128x128 which ensures it never exceeds
+    the EXIF metadata limit of 64KB.
+
+ -- Florian Boucault <florian.boucault@canonical.com>  Tue, 12 Jan 2016 13:18:10 +0000
+
 qtubuntu-camera (0.3.3+16.04.20151202.1-0ubuntu1) xenial; urgency=medium
 
   [ Florian Boucault ]

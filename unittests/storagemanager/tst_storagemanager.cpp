@@ -22,6 +22,8 @@
 
 #define private public
 #include "storagemanager.h"
+#include "data_validjpeg.h"
+#include "data_noexifjpeg.h"
 
 const QLatin1String testPath("/tmp/aalCameraStorageManagerUnitTestDirectory0192837465/");
 
@@ -34,6 +36,7 @@ private slots:
     void checkDirectory();
     void fileNameGenerator_data();
     void fileNameGenerator();
+    void updateEXIF();
 
 private:
     void removeTestDirectory();
@@ -110,6 +113,25 @@ void tst_StorageManager::removeTestDirectory()
 
     if (dir.exists())
         dir.rmdir(testPath);
+}
+
+void tst_StorageManager::updateEXIF()
+{
+    StorageManager storage;
+    bool result;
+    QTemporaryFile tmp;
+    QVariantMap metadata;
+    QByteArray invalidJPEG("INVALID_IMAGE");
+    result = storage.updateJpegMetadata(invalidJPEG, metadata, &tmp);
+    QCOMPARE(result, false);
+    result = storage.updateJpegMetadata(invalidJPEG, metadata, 0);
+    QCOMPARE(result, false);
+    result = storage.updateJpegMetadata(invalidJPEG, metadata, &tmp);
+    QCOMPARE(result, false);
+    result = storage.updateJpegMetadata(QByteArray((char*)data_validjpeg, data_validjpeg_len), metadata, &tmp);
+    QCOMPARE(result, true);
+    result = storage.updateJpegMetadata(QByteArray((char*)data_noexifjpeg, data_noexifjpeg_len), metadata, &tmp);
+    QCOMPARE(result, true);
 }
 
 QTEST_GUILESS_MAIN(tst_StorageManager);
