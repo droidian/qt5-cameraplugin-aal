@@ -84,11 +84,13 @@ void AalCameraFocusControl::setCustomFocusPoint(const QPointF &point)
     if (m_focusPoint == point)
         return;
 
+    MeteringRegion meteringRegion;
     m_focusPoint = point;
-    m_focusRegion = point2Region(m_focusPoint);
+    point2Region(m_focusPoint, m_focusRegion, meteringRegion);
     Q_EMIT customFocusPointChanged(m_focusPoint);
 
     if (m_service->androidControl()) {
+        android_camera_set_metering_region(m_service->androidControl(), &meteringRegion);
         android_camera_set_focus_region(m_service->androidControl(), &m_focusRegion);
         startFocus();
     }
@@ -207,7 +209,7 @@ QCameraFocus::FocusModes AalCameraFocusControl::android2Qt(AutoFocusMode mode)
     }
 }
 
-FocusRegion AalCameraFocusControl::point2Region(const QPointF &point) const
+void AalCameraFocusControl::point2Region(const QPointF &point, FocusRegion& region, MeteringRegion& metering) const
 {
     int centerX = (point.x() * (2* focusFullSize)) - focusFullSize;
     int maxCenterPosition = focusFullSize - focusRegionSize;
@@ -215,12 +217,15 @@ FocusRegion AalCameraFocusControl::point2Region(const QPointF &point) const
     int centerY = (point.y() * (2 * focusFullSize)) - focusFullSize;
     centerY = std::max(std::min(centerY, maxCenterPosition), -maxCenterPosition);
 
-    FocusRegion region;
     region.left = centerX - focusRegionSize;
     region.right = centerX + focusRegionSize;
     region.top = centerY - focusRegionSize;
     region.bottom = centerY + focusRegionSize;
     region.weight = 5;
 
-    return region;
+    metering.left = region.left;
+    metering.right = region.right;
+    metering.top = region.top;
+    metering.bottom = region.bottom;
+    metering.weight = 5;
 }
