@@ -1,4 +1,4 @@
-qtubuntu-camera (0.3.3+16.04.20160229-0ubuntu2) UNRELEASED; urgency=medium
+qtubuntu-camera (0.3.3+16.04.20160321-0ubuntu1) UNRELEASED; urgency=medium
 
   * No change rebuild to update ABI with QtMultimedia. 
 
