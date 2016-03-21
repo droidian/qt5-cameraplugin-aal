@@ -1,6 +1,7 @@
 qtubuntu-camera (0.3.3+16.04.20160321-0ubuntu1) UNRELEASED; urgency=medium
 
-  * No change rebuild to update ABI with QtMultimedia. 
+  * Get rid of using the old QMediaPlayer::Alert role and use the new
+    QAudio::NotificationRole for vivid and xenial.
 
  -- Jim Hodapp <jim.hodapp@canonical.com>  Mon, 21 Mar 2016 09:46:13 -0400
 
