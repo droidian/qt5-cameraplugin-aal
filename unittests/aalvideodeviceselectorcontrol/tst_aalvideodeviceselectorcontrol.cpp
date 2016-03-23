@@ -21,6 +21,7 @@
 
 #define private public
 #include "aalvideodeviceselectorcontrol.h"
+#include "qcamerainfodata.h"
 
 class tst_AalVideoDeviceSelectorControl : public QObject
 {
@@ -52,6 +53,10 @@ void tst_AalVideoDeviceSelectorControl::selectDevice()
 {
     QSignalSpy spy(m_selectControl, SIGNAL(selectedDeviceChanged(int)));
     QSignalSpy spy2(m_selectControl, SIGNAL(selectedDeviceChanged(QString)));
+
+    QCameraInfoData::availableDevices.clear();
+    QCameraInfoData::availableDevices.append(CameraInfo("0", "Camera 0"));
+    QCameraInfoData::availableDevices.append(CameraInfo("1", "Camera 1"));
 
     m_selectControl->setSelectedDevice(1);
 

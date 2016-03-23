@@ -48,6 +48,12 @@ void AalCameraControl::setState(QCamera::State state)
             Q_EMIT error(QCamera::ServiceMissingError, QLatin1String("Unable to connect to camera"));
             return;
         }
+        if (m_captureMode == QCamera::CaptureStillImage) {
+            m_service->enablePhotoMode();
+        } else {
+            m_service->enableVideoMode();
+        }
+        Q_EMIT captureModeChanged(m_captureMode);
         m_service->startPreview();
     } else if (state == QCamera::LoadedState) {
         if (m_state == QCamera::UnloadedState) {
@@ -83,20 +89,18 @@ void AalCameraControl::setCaptureMode(QCamera::CaptureModes mode)
     if (m_captureMode == mode)
         return;
 
-    if (m_service->androidControl() == 0)
-        return;
-
     if (m_service->isRecording())
         return;
 
     m_captureMode = mode;
-    if (m_service->isCameraActive() && mode == QCamera::CaptureStillImage) {
-        m_service->enablePhotoMode();
-    } else {
-        m_service->enableVideoMode();
+    if (m_service->androidControl()) {
+        if (mode == QCamera::CaptureStillImage) {
+            m_service->enablePhotoMode();
+        } else {
+            m_service->enableVideoMode();
+        }
+        Q_EMIT captureModeChanged(mode);
     }
-
-    Q_EMIT captureModeChanged(mode);
 }
 
 bool AalCameraControl::isCaptureModeSupported(QCamera::CaptureModes mode) const

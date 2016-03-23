@@ -27,6 +27,7 @@
 #include "aalvideoencodersettingscontrol.h"
 #include "aalvideorenderercontrol.h"
 #include "aalviewfindersettingscontrol.h"
+#include "aalcamerainfocontrol.h"
 #include "storagemanager.h"
 #include "aalcameraexposurecontrol.h"
 
@@ -60,6 +61,7 @@ AalCameraService::AalCameraService(QObject *parent):
     m_videoOutput = new AalVideoRendererControl(this);
     m_viewfinderControl = new AalViewfinderSettingsControl(this);
     m_exposureControl = new AalCameraExposureControl(this);
+    m_infoControl = new AalCameraInfoControl(this);
 
     QGuiApplication* application = qobject_cast<QGuiApplication*>(QGuiApplication::instance());
     m_previousApplicationState = application->applicationState();
@@ -84,6 +86,7 @@ AalCameraService::~AalCameraService()
     delete m_videoOutput;
     delete m_viewfinderControl;
     delete m_exposureControl;
+    delete m_infoControl;
     if (m_androidControl)
         android_camera_delete(m_androidControl);
     delete m_storageManager;
@@ -130,6 +133,9 @@ QMediaControl *AalCameraService::requestControl(const char *name)
     if (qstrcmp(name, QCameraExposureControl_iid) == 0)
         return m_exposureControl;
 
+    if (qstrcmp(name, QCameraInfoControl_iid) == 0)
+        return m_infoControl;
+
     return 0;
 }
 
@@ -153,21 +159,18 @@ bool AalCameraService::connectCamera()
     if (m_androidControl)
         return true;
 
-    CameraType device = BACK_FACING_CAMERA_TYPE;
-    if (!isBackCameraUsed())
-        device = FRONT_FACING_CAMERA_TYPE;
-
     m_androidListener = new CameraControlListener;
     memset(m_androidListener, 0, sizeof(*m_androidListener));
 
-    m_androidControl = android_camera_connect_to(device, m_androidListener);
-
-    // fallback if there is only one camera
-    if (!m_androidControl && m_deviceSelectControl->deviceCount() == 1) {
-        if (device == BACK_FACING_CAMERA_TYPE)
+    // if there is only one camera fallback directly to the ID of whatever device we have
+    if (m_deviceSelectControl->deviceCount() == 1) {
+        m_androidControl = android_camera_connect_by_id(m_deviceSelectControl->selectedDevice(), m_androidListener);
+    } else {
+        CameraType device = BACK_FACING_CAMERA_TYPE;
+        if (!isBackCameraUsed()) {
             device = FRONT_FACING_CAMERA_TYPE;
-        else
-            device = BACK_FACING_CAMERA_TYPE;
+        }
+
         m_androidControl = android_camera_connect_to(device, m_androidListener);
     }
 
@@ -232,7 +235,9 @@ bool AalCameraService::isCameraActive() const
 
 bool AalCameraService::isBackCameraUsed() const
 {
-    return m_deviceSelectControl->selectedDevice() == 0;
+    int deviceIndex = m_deviceSelectControl->selectedDevice();
+    QString deviceName = m_deviceSelectControl->deviceName(deviceIndex);
+    return m_infoControl->cameraPosition(deviceName) == QCamera::BackFace;
 }
 
 /*!
