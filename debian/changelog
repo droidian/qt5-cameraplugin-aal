@@ -1,9 +1,3 @@
-qtubuntu-camera (0.3.3+16.04.20160229-0ubuntu2) UNRELEASED; urgency=medium
-
-  *  No change rebuild to update ABI with QtMultimedia.
-
- -- Jim Hodapp <jim.hodapp@canonical.com>  Fri, 18 Mar 2016 16:26:00 -0400
-
 qtubuntu-camera (0.3.3+16.04.20160229-0ubuntu1) xenial; urgency=medium
 
   [ Florian Boucault, Ugo Riboni ]
