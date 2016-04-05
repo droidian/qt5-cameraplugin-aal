@@ -143,12 +143,17 @@ void tst_AalCameraFocusControl::point2Region()
     AalCameraFocusControl focusControl(0);
 
     QPointF point(x, y);
-    FocusRegion region;
-    region = m_focusControl->point2Region(point);
-    QCOMPARE(region.left, left);
-    QCOMPARE(region.right, right);
-    QCOMPARE(region.top, top);
-    QCOMPARE(region.bottom, bottom);
+    FocusRegion focusRegion;
+    MeteringRegion meteringRegion;
+    m_focusControl->point2Region(point, focusRegion, meteringRegion);
+    QCOMPARE(focusRegion.left, left);
+    QCOMPARE(focusRegion.right, right);
+    QCOMPARE(focusRegion.top, top);
+    QCOMPARE(focusRegion.bottom, bottom);
+    QCOMPARE(focusRegion.left, meteringRegion.left);
+    QCOMPARE(focusRegion.right, meteringRegion.right);
+    QCOMPARE(focusRegion.top, meteringRegion.top);
+    QCOMPARE(focusRegion.bottom, meteringRegion.bottom);
 }
 
 
