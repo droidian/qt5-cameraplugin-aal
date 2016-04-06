@@ -1,3 +1,25 @@
+qtubuntu-camera (0.3.3+16.04.20160324-0ubuntu1) xenial; urgency=medium
+
+  [ Jim Hodapp ]
+  * Get rid of using the old QMediaPlayer::Alert role and use the new
+    QAudio::NotificationRole for vivid and xenial.
+
+ -- Timo Jyrinki <timo.jyrinki@canonical.com>  Thu, 24 Mar 2016 17:18:39 +0000
+
+qtubuntu-camera (0.3.3+16.04.20160323.2-0ubuntu1) xenial; urgency=medium
+
+  [ Florian Boucault, Jim Hodapp, Ugo Riboni ]
+  * New release: Make it possible to set camera's captureMode before the
+    camera stack is loaded. Implement qtmultimedia APIs to query the
+    system for available cameras, their orientation and facing and
+    replace some hardcoded logic to calls to these APIs. added:
+    src/aalcamerainfocontrol.cpp src/aalcamerainfocontrol.h
+    unittests/stubs/qcamerainfo_stub.cpp
+    unittests/stubs/qcamerainfodata.cpp
+    unittests/stubs/qcamerainfodata.h
+
+ -- Florian Boucault <florian.boucault@canonical.com>  Wed, 23 Mar 2016 19:06:38 +0000
+
 qtubuntu-camera (0.3.3+16.04.20160229-0ubuntu1) xenial; urgency=medium
 
   [ Florian Boucault, Ugo Riboni ]
