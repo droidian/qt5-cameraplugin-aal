@@ -1,3 +1,9 @@
+qtubuntu-camera (0.3.3+16.04.20160421-0ubuntu1) xenial; urgency=medium
+
+  * New release: Set the metering area to the same as the focus area.
+
+ -- Florian Boucault <florian.boucault@canonical.com>  Thu, 21 Apr 2016 11:20:22 +0000
+
 qtubuntu-camera (0.3.3+16.04.20160324-0ubuntu1) xenial; urgency=medium
 
   [ Jim Hodapp ]
