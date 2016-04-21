@@ -95,6 +95,15 @@ typedef struct
     int weight;
 } FocusRegion;
 
+typedef struct
+{
+    int top;
+    int left;
+    int bottom;
+    int right;
+    int weight;
+} MeteringRegion;
+
 typedef void (*size_callback)(void* ctx, int width, int height);
 typedef void (*scene_mode_callback)(void* ctx, SceneMode mode);
 typedef void (*flash_mode_callback)(void* ctx, FlashMode mode);
@@ -139,6 +148,7 @@ void android_camera_set_jpeg_quality(struct CameraControl* control, int quality)
 
 void android_camera_set_focus_region(CameraControl* control, FocusRegion* region);
 void android_camera_reset_focus_region(CameraControl* control);
+void android_camera_set_metering_region(CameraControl* control, MeteringRegion* region);
 
 // Set photo metadata
 void android_camera_set_rotation(CameraControl* control, int rotation);
