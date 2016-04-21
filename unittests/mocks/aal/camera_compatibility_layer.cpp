@@ -306,7 +306,18 @@ void android_camera_set_focus_region(CameraControl* control, FocusRegion* region
     crashTest(control);
 }
 
+void android_camera_set_metering_region(CameraControl* control, MeteringRegion* region)
+{
+    Q_UNUSED(region);
+    crashTest(control);
+}
+
 void android_camera_reset_focus_region(CameraControl* control)
+{
+    crashTest(control);
+}
+
+void android_camera_reset_metering_region(CameraControl* control)
 {
     crashTest(control);
 }

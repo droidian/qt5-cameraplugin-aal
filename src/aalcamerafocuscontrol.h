@@ -54,7 +54,7 @@ public Q_SLOTS:
 private:
     AutoFocusMode qt2Android(QCameraFocus::FocusModes mode);
     QCameraFocus::FocusModes android2Qt(AutoFocusMode mode);
-    FocusRegion point2Region(const QPointF &point) const;
+    void point2Region(const QPointF &point, FocusRegion& region, MeteringRegion& metering) const;
 
     AalCameraService *m_service;
     QCameraFocus::FocusModes m_focusMode;
