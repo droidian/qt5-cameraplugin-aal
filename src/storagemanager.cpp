@@ -111,6 +111,20 @@ bool StorageManager::updateJpegMetadata(QByteArray data, QVariantMap metadata, Q
     try {
         image->readMetadata();
         Exiv2::ExifData ed = image->exifData();
+
+        /* This works around the Exiv2's unability to deal with the MakerNote tag
+         * due to its totally unspecified nature.
+         * Its presence sometimes causes Exiv2 to refuse to write/modify any other
+         * metadata (including orientation, GPS metadata).
+         * See https://bugs.launchpad.net/zhongshan/+bug/1572878 for possible
+         * consequences.
+         */
+        Exiv2::ExifKey makerNoteKey = Exiv2::ExifKey("Exif.Photo.MakerNote");
+        Exiv2::ExifData::iterator makerNoteIter = ed.findKey(makerNoteKey);
+        if (makerNoteIter != ed.end()) {
+            ed.erase(makerNoteIter);
+        }
+
         const QString now = QDateTime::currentDateTime().toString("yyyy:MM:dd HH:mm:ss");
         ed["Exif.Photo.DateTimeOriginal"].setValue(now.toStdString());
         ed["Exif.Photo.DateTimeDigitized"].setValue(now.toStdString());
