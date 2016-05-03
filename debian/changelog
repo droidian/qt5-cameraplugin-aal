@@ -1,3 +1,11 @@
+qtubuntu-camera (0.3.3+16.04.20160503-0ubuntu1) xenial; urgency=medium
+
+  * Systematically remove EXIF Exif.Photo.MakerNote tag. Exiv2 is unable
+    to deal with it and this prevents any other tag to be
+    written/modified.
+
+ -- Florian Boucault <florian.boucault@canonical.com>  Tue, 03 May 2016 13:31:12 +0000
+
 qtubuntu-camera (0.3.3+16.04.20160421-0ubuntu1) xenial; urgency=medium
 
   * New release: Set the metering area to the same as the focus area.
