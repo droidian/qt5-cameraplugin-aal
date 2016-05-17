@@ -21,7 +21,7 @@ Homepage: https://launchpad.net/qtubuntu-camera
 Vcs-Bzr: https://code.launchpad.net/~phablet-team/qtubuntu-camera/trunk
 
 Package: cameraplugin-aal
-Architecture: amd64 armhf i386
+Architecture: amd64 armhf i386 arm64
 Depends: ${misc:Depends},
          ${shlibs:Depends},
          qtvideonode-plugin,
