@@ -1,3 +1,9 @@
+qtubuntu-camera (0.3.4+ubports) xenial; urgency=medium
+
+  * Imported to UBports
+
+ -- UBports auto importer <infra@ubports.com>  Mon, 15 Jan 2018 14:50:24 +0100
+
 qtubuntu-camera (0.3.3+16.04.20160517-0ubuntu1) xenial; urgency=medium
 
   * Enable arm64
