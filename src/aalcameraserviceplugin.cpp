@@ -96,7 +96,16 @@ int AalServicePlugin::cameraOrientation(const QByteArray & device) const
     }
 
     int result = android_camera_get_device_info(deviceID, &facing, &orientation);
-    return (result != 0) ? 0 : orientation;
+    if (result != 0) {
+        return 0;
+    }
+
+    // Android's orientation means differently compared to QT's orientation.
+    // On Android, it means "the angle that the camera image needs to be
+    // rotated", but on QT, it means "the physical orientation of the camera
+    // sensor". So, the value will have to be inverted.
+
+    return (360 - orientation) % 360;
 }
 
 QCamera::Position AalServicePlugin::cameraPosition(const QByteArray & device) const
