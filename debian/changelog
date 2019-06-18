@@ -1,3 +1,14 @@
+qtubuntu-camera (0.4.0+ubports0) xenial; urgency=medium
+
+  * Correctly report camera orientation by inverting the value given from
+    Android as it has different meanning compared to Qt.
+    - Add an override for krillin & vegetahd as they report camera orientaion
+      incorrectly.
+  * Captured image/video's rotation is now handled within the plugin. This is
+    for consistency with other plugins from Qt itself.
+
+ -- Ratchanan Srirattanamet <peathot@hotmail.com>  Tue, 18 Jun 2019 04:23:38 +0700
+
 qtubuntu-camera (0.3.4+ubports) xenial; urgency=medium
 
   * Imported to UBports
