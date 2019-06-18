@@ -21,6 +21,7 @@
 #include "aalviewfindersettingscontrol.h"
 #include "audiocapture.h"
 #include "storagemanager.h"
+#include "rotationhandler.h"
 
 #include <QDebug>
 #include <QFile>
@@ -466,9 +467,12 @@ int AalMediaRecorderControl::startRecording()
     setParameter(PARAM_AUDIO_BITRATE, 48000);
     setParameter(PARAM_AUDIO_CHANNELS, 2);
     setParameter(PARAM_AUTIO_SAMPLING, 96000);
+
+    int rotation = m_service->rotationHandler()->calculateRotation();
+    setParameter(PARAM_ORIENTATION, rotation);
+
     if (m_service->metadataWriterControl()) {
-        int rotation = m_service->metadataWriterControl()->correctedOrientation();
-        setParameter(PARAM_ORIENTATION, rotation);
+        // FIXME: what metadata can be supported?
         m_service->metadataWriterControl()->clearAllMetaData();
     }
 

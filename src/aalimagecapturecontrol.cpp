@@ -21,6 +21,7 @@
 #include "aalvideorenderercontrol.h"
 #include "aalviewfindersettingscontrol.h"
 #include "storagemanager.h"
+#include "rotationhandler.h"
 
 #include <hybris/camera/camera_compatibility_layer.h>
 #include <hybris/camera/camera_compatibility_layer_capabilities.h>
@@ -79,8 +80,8 @@ int AalImageCaptureControl::capture(const QString &fileName)
     m_targetFileName = fileName;
     m_captureCancelled = false;
 
-    AalMetaDataWriterControl* metadataControl = m_service->metadataWriterControl();
-    int rotation = metadataControl->correctedOrientation();
+    RotationHandler *rotationHandler = m_service->rotationHandler();
+    int rotation = rotationHandler->calculateRotation();
     android_camera_set_rotation(m_service->androidControl(), rotation);
 
     android_camera_take_snapshot(m_service->androidControl());

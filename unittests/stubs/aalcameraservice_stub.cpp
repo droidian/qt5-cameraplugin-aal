@@ -17,6 +17,7 @@
 #include "aalcameraservice.h"
 #include "aalvideoencodersettingscontrol.h"
 #include "storagemanager.h"
+#include "rotationhandler.h"
 
 #include "camera_control.h"
 
@@ -30,6 +31,7 @@ AalCameraService::AalCameraService(QObject *parent) :
 {
     m_storageManager = new StorageManager;
     m_videoEncoderControl = new AalVideoEncoderSettingsControl(this);
+    m_rotationHandler = new RotationHandler(this);
 }
 
 AalCameraService::~AalCameraService()
@@ -37,6 +39,7 @@ AalCameraService::~AalCameraService()
     delete m_storageManager;
     delete m_androidControl;
     delete m_videoEncoderControl;
+    delete m_rotationHandler;
 }
 
 QMediaControl *AalCameraService::requestControl(const char *name)
@@ -102,4 +105,9 @@ void AalCameraService::updateCaptureReady()
 StorageManager *AalCameraService::storageManager()
 {
     return m_storageManager;
+}
+
+RotationHandler *AalCameraService::rotationHandler()
+{
+    return m_rotationHandler;
 }
