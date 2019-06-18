@@ -2,7 +2,7 @@ include(../coverage.pri)
 TARGET = aalcamera
 TEMPLATE = lib
 CONFIG += plugin
-QT += concurrent multimedia opengl gui
+QT += concurrent multimedia opengl gui sensors
 
 PLUGIN_TYPE = mediaservice
 
@@ -32,7 +32,8 @@ HEADERS += \
     aalcamerainfocontrol.h \
     audiocapture.h \
     aalcameraexposurecontrol.h \
-    storagemanager.h
+    storagemanager.h \
+    rotationhandler.h
 
 SOURCES += \
     aalcameracontrol.cpp \
@@ -52,4 +53,5 @@ SOURCES += \
     aalcamerainfocontrol.cpp \
     audiocapture.cpp \
     aalcameraexposurecontrol.cpp \
-    storagemanager.cpp
+    storagemanager.cpp \
+    rotationhandler.cpp
