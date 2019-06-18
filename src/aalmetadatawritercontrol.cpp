@@ -24,8 +24,7 @@
  */
 AalMetaDataWriterControl::AalMetaDataWriterControl(AalCameraService *service, QObject *parent) :
     QMetaDataWriterControl(parent),
-    m_service(service),
-    m_orientation(0)
+    m_service(service)
 {
     Q_ASSERT(service);
 }
@@ -84,32 +83,6 @@ QVariant AalMetaDataWriterControl::metaData(const QString &key) const
 void AalMetaDataWriterControl::setMetaData(const QString &key, const QVariant &value)
 {
     m_metaData[key] = value;
-    if (key == QLatin1String("Orientation"))
-        m_orientation = value.toInt();
-}
-
-/*!
- * \brief AalMetaDataWriterControl::orientation returns the orientation of the device, as set by the
- * app in degrees.
- * \return orientation, set by the app. Defaults is 0
- */
-int AalMetaDataWriterControl::orientation() const
-{
-    return m_orientation;
-}
-
-/*!
- * \brief AalMetaDataWriterControl::correctedOrientation returns the orientation
- * depending on which camera is active, the value is adapted
- * \return
- */
-int AalMetaDataWriterControl::correctedOrientation() const
-{
-    int rotation = m_orientation % 360;
-    // the front camera rotates the other way round
-    if (!m_service->isBackCameraUsed())
-        rotation = (360 - rotation) % 360;
-    return rotation;
 }
 
 /*!
@@ -117,6 +90,5 @@ int AalMetaDataWriterControl::correctedOrientation() const
  */
 void AalMetaDataWriterControl::clearAllMetaData()
 {
-    m_orientation = 0;
     m_metaData.clear();
 }

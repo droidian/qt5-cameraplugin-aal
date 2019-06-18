@@ -50,16 +50,6 @@ void AalMetaDataWriterControl::setMetaData(const QString &key, const QVariant &v
     m_metaData[key] = value;
 }
 
-int AalMetaDataWriterControl::orientation() const
-{
-    return m_orientation;
-}
-
-int AalMetaDataWriterControl::correctedOrientation() const
-{
-    return m_orientation;
-}
-
 void AalMetaDataWriterControl::clearAllMetaData()
 {
 }
