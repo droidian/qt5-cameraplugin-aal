@@ -20,6 +20,7 @@
 
 #include <pulse/simple.h>
 #include <pulse/error.h>
+#include <pulse/sample.h>
 
 #include <errno.h>
 #include <fcntl.h>
@@ -127,9 +128,29 @@ int AudioCapture::setupMicrophoneStream()
         .rate = 48000,
         .channels = 1
     };
+
+    /*
+     * On some device, it can take some time between pa_simple_new() below and
+     * first pa_simple_read(). By setting these buffer attributes, we try to
+     * make PulseAudio drop (initially) unread samples. Otherwise, we'll get
+     * those samples and write them into /dev/socket/micshm, which expects
+     * (roughly) realtime audio. This causes A/V desync as those extra samples
+     * will advance /dev/socket/micshm's internal timestamp ahead.
+     *
+     * I actually want to set PA_STREAM_ADJUST_LATENCY to the stream, but it
+     * seems to be impossible with PA's simple API.
+     */
+    static const pa_buffer_attr buf_attr = {
+        .maxlength = pa_usec_to_bytes(100000 /* 100 msec */, &ss),
+        .tlength = (uint32_t) -1,
+        .prebuf = (uint32_t) -1,
+        .minreq = (uint32_t) -1,
+        .fragsize = pa_usec_to_bytes(100000 /* 100 msec */, &ss)
+    };
+
     int error = 0;
 
-    m_paStream = pa_simple_new(NULL, "qtubuntu-camera", PA_STREAM_RECORD, NULL, "record", &ss, NULL, NULL, &error);
+    m_paStream = pa_simple_new(NULL, "qtubuntu-camera", PA_STREAM_RECORD, NULL, "record", &ss, NULL, &buf_attr, &error);
     if (m_paStream == NULL)
     {
         qWarning() << "Failed to open a PulseAudio channel to read the microphone: " << pa_strerror(error);
