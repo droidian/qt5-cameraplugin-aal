@@ -41,6 +41,7 @@ struct CameraControl;
 struct CameraControlListener;
 
 class StorageManager;
+class RotationHandler;
 
 class AalCameraService : public QMediaService
 {
@@ -70,6 +71,7 @@ public:
     CameraControl *androidControl();
 
     StorageManager *storageManager();
+    RotationHandler *rotationHandler();
 
     bool connectCamera();
     void disconnectCamera();
@@ -118,6 +120,7 @@ private:
     CameraControlListener *m_androidListener;
 
     StorageManager *m_storageManager;
+    RotationHandler *m_rotationHandler;
     bool m_restoreStateWhenApplicationActive;
     QCamera::State m_cameraStateWhenApplicationActive;
     Qt::ApplicationState m_previousApplicationState;

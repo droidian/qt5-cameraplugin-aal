@@ -17,13 +17,25 @@
 #include "aalcameraserviceplugin.h"
 #include "aalcameraservice.h"
 
+#include <QString>
 #include <QDebug>
 #include <QMetaType>
 #include <qgl.h>
 
+#include <hybris/properties/properties.h>
 #include <hybris/camera/camera_compatibility_layer.h>
 #include <hybris/camera/camera_compatibility_layer_capabilities.h>
 
+static QString getAndroidDeviceCodename() {
+    char deviceCodename[PROP_VALUE_MAX];
+
+    int length = property_get("ro.product.device", deviceCodename, "");
+    if (length <= 0) {
+        return QString();
+    }
+
+    return QString(deviceCodename);
+}
 
 AalServicePlugin::AalServicePlugin()
 {
@@ -96,7 +108,32 @@ int AalServicePlugin::cameraOrientation(const QByteArray & device) const
     }
 
     int result = android_camera_get_device_info(deviceID, &facing, &orientation);
-    return (result != 0) ? 0 : orientation;
+    if (result != 0) {
+        return 0;
+    }
+
+    if (facing == FRONT_FACING_CAMERA_TYPE) {
+        QString deviceCodename = getAndroidDeviceCodename();
+
+        if (deviceCodename == "krillin" || deviceCodename == "vegetahd") {
+            // krillin / vegetahd lies to us - the top of the front facing camera
+            // points to the right of the screen (viewed from the front), which means
+            // the camera image needs rotating by 270deg with the device in its natural
+            // orientation (portrait). It tells us the camera orientation is 90deg
+            // though (see https://launchpad.net/bugs/1567542)
+            // https://git.launchpad.net/oxide/tree/shared/browser/media/oxide_video_capture_device_hybris.cc#n92
+
+            // FIXME: is this the right place to do this?
+            orientation = 270;
+        }
+    }
+
+    // Android's orientation means differently compared to QT's orientation.
+    // On Android, it means "the angle that the camera image needs to be
+    // rotated", but on QT, it means "the physical orientation of the camera
+    // sensor". So, the value will have to be inverted.
+
+    return (360 - orientation) % 360;
 }
 
 QCamera::Position AalServicePlugin::cameraPosition(const QByteArray & device) const

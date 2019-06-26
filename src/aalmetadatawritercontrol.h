@@ -42,15 +42,11 @@ public:
     QVariant metaData(const QString & key) const;
     void setMetaData(const QString & key, const QVariant & value);
 
-    int orientation() const;
-    int correctedOrientation() const;
-
     void clearAllMetaData();
 
 private:
     AalCameraService *m_service;
     QMap<QString, QVariant> m_metaData;
-    int m_orientation;
 };
 
 #endif // AALMETADATAWRITERCONTROL_H

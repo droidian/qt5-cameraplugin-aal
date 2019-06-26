@@ -30,6 +30,7 @@
 #include "aalcamerainfocontrol.h"
 #include "storagemanager.h"
 #include "aalcameraexposurecontrol.h"
+#include "rotationhandler.h"
 
 #include <hybris/camera/camera_compatibility_layer.h>
 
@@ -62,6 +63,7 @@ AalCameraService::AalCameraService(QObject *parent):
     m_viewfinderControl = new AalViewfinderSettingsControl(this);
     m_exposureControl = new AalCameraExposureControl(this);
     m_infoControl = new AalCameraInfoControl(this);
+    m_rotationHandler = new RotationHandler(this);
 
     QGuiApplication* application = qobject_cast<QGuiApplication*>(QGuiApplication::instance());
     m_previousApplicationState = application->applicationState();
@@ -90,6 +92,7 @@ AalCameraService::~AalCameraService()
     if (m_androidControl)
         android_camera_delete(m_androidControl);
     delete m_storageManager;
+    delete m_rotationHandler;
 }
 
 QMediaControl *AalCameraService::requestControl(const char *name)
@@ -152,6 +155,11 @@ CameraControl *AalCameraService::androidControl()
 StorageManager *AalCameraService::storageManager()
 {
     return m_storageManager;
+}
+
+RotationHandler *AalCameraService::rotationHandler()
+{
+    return m_rotationHandler;
 }
 
 bool AalCameraService::connectCamera()
