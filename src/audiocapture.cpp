@@ -83,6 +83,16 @@ void AudioCapture::run()
         return;
     }
 
+    // To reduce latency, try to flush samples not read before this function is called.
+    {
+        int ret = 0, error = 0;
+        ret = pa_simple_flush(m_paStream, &error);
+        if (ret < 0) {
+            qWarning() << "Failed to flush sample not read before run(): " << pa_strerror(error)
+                       << " (but continuing anyway).";
+        }
+    }
+
     do {
         bytesRead = readMicrophone();
         if (bytesRead > 0)
