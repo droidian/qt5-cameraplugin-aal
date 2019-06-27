@@ -1,3 +1,12 @@
+qtubuntu-camera (0.4.1+ubports0) xenial; urgency=medium
+
+  * Prevent AudioCapture from sending late samples into /dev/socket/micshm,
+    which will cause A/V desync because micshm doesn't accept timing.
+    This is done by limiting maximum PA buffer size & flush buffer before
+    first read.
+
+ -- Ratchanan Srirattanamet <peathot@hotmail.com>  Fri, 28 Jun 2019 01:12:17 +0700
+
 qtubuntu-camera (0.4.0+ubports0) xenial; urgency=medium
 
   * Correctly report camera orientation by inverting the value given from
