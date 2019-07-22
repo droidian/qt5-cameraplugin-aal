@@ -1,3 +1,9 @@
+qtubuntu-camera (0.4.2+ubports0) xenial; urgency=medium
+
+  * Read orientation overrides from Android property
+
+ -- Ratchanan Srirattanamet <peathot@hotmail.com>  Mon, 22 Jul 2019 23:31:40 +0700
+
 qtubuntu-camera (0.4.1+ubports0) xenial; urgency=medium
 
   * Prevent AudioCapture from sending late samples into /dev/socket/micshm,
