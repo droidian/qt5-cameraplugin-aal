@@ -17,10 +17,12 @@
 #include "aalcameraserviceplugin.h"
 #include "aalcameraservice.h"
 
+#include <QByteArray>
 #include <QDebug>
 #include <QMetaType>
 #include <qgl.h>
 
+#include <hybris/properties/properties.h>
 #include <hybris/camera/camera_compatibility_layer.h>
 #include <hybris/camera/camera_compatibility_layer_capabilities.h>
 
@@ -84,8 +86,29 @@ QString AalServicePlugin::deviceDescription(const QByteArray &service, const QBy
     }
 }
 
+int AalServicePlugin::getCameraOrientationOverride(const QString deviceID) const {
+    QByteArray propertyName = QString("aal.camera.orientations.%1").arg(deviceID).toLocal8Bit();
+
+    char orientationStr[PROP_VALUE_MAX];
+    property_get(propertyName.data(), orientationStr, "");
+
+    bool ok;
+    int orientation = QString(orientationStr).toInt(&ok, /* base */ 10);
+    if (!ok) {
+        orientation = -1;
+    }
+
+    return orientation;
+}
+
 int AalServicePlugin::cameraOrientation(const QByteArray & device) const
 {
+    // Check for the override
+    int override = getCameraOrientationOverride(device);
+    if (override != -1) {
+        return override;
+    }
+
     int facing;
     int orientation;
 

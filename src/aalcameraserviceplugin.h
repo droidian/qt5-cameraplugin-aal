@@ -38,6 +38,9 @@ public:
     QString deviceDescription(const QByteArray &service, const QByteArray &device);
     int cameraOrientation(const QByteArray & device) const;
     QCamera::Position cameraPosition(const QByteArray & device) const;
+
+private:
+    int getCameraOrientationOverride(const QString deviceID) const;
 };
 
 #endif
