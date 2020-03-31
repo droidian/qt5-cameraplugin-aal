@@ -16,6 +16,9 @@
 
 #include "aalcameracontrol.h"
 #include "aalcameraservice.h"
+#include "aalmediarecordercontrol.h"
+
+#include <QtGui/QGuiApplication>
 
 #include <hybris/camera/camera_compatibility_layer.h>
 
@@ -24,8 +27,13 @@ AalCameraControl::AalCameraControl(AalCameraService *service, QObject *parent)
     m_service(service),
     m_state(QCamera::UnloadedState),
     m_status(QCamera::UnloadedStatus),
-    m_captureMode(QCamera::CaptureStillImage)
+    m_captureMode(QCamera::CaptureStillImage),
+    m_restoreStateWhenApplicationActive(false)
 {
+    QGuiApplication* application = qobject_cast<QGuiApplication*>(QGuiApplication::instance());
+    m_previousApplicationState = application->applicationState();
+    connect(application, &QGuiApplication::applicationStateChanged,
+            this, &AalCameraControl::onApplicationStateChanged);
 }
 
 AalCameraControl::~AalCameraControl()
@@ -38,6 +46,16 @@ QCamera::State AalCameraControl::state() const
 }
 
 void AalCameraControl::setState(QCamera::State state)
+{
+    // If the application set state while suspended (which can happen), we won't
+    // override it when the application is active with the value before the app
+    // is suppended.
+    m_restoreStateWhenApplicationActive = false;
+
+    doSetState(state);
+}
+
+void AalCameraControl::doSetState(QCamera::State state)
 {
     if (m_state == state)
         return;
@@ -120,6 +138,25 @@ void AalCameraControl::init(CameraControl *control, CameraControlListener *liste
 {
     Q_UNUSED(control);
     listener->on_msg_error_cb = &AalCameraControl::errorCB;
+}
+
+void AalCameraControl::onApplicationStateChanged()
+{
+    QGuiApplication* application = qobject_cast<QGuiApplication*>(QGuiApplication::instance());
+    Qt::ApplicationState applicationState = application->applicationState();
+
+    if (applicationState == Qt::ApplicationActive) {
+        if (m_restoreStateWhenApplicationActive) {
+            doSetState(m_cameraStateWhenApplicationActive);
+        }
+    } else if (m_previousApplicationState == Qt::ApplicationActive) {
+        m_cameraStateWhenApplicationActive = m_state;
+        m_restoreStateWhenApplicationActive = true;
+        m_service->mediaRecorderControl()->setState(QMediaRecorder::StoppedState);
+        doSetState(QCamera::UnloadedState);
+    }
+
+    m_previousApplicationState = applicationState;
 }
 
 void AalCameraControl::handleError()

@@ -79,10 +79,6 @@ bool AalCameraService::isPreviewStarted() const
     return true;
 }
 
-void AalCameraService::onApplicationStateChanged()
-{
-}
-
 void AalCameraService::initControls(CameraControl *camControl, CameraControlListener *listener)
 {
     m_exposureControl->init(camControl, listener);

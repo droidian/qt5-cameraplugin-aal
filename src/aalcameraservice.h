@@ -93,9 +93,6 @@ public:
 public Q_SLOTS:
     void updateCaptureReady();
 
-protected Q_SLOTS:
-    void onApplicationStateChanged();
-
 private:
     void initControls(CameraControl *camControl, CameraControlListener *listener);
 
@@ -121,9 +118,6 @@ private:
 
     StorageManager *m_storageManager;
     RotationHandler *m_rotationHandler;
-    bool m_restoreStateWhenApplicationActive;
-    QCamera::State m_cameraStateWhenApplicationActive;
-    Qt::ApplicationState m_previousApplicationState;
 };
 
 #endif

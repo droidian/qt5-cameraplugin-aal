@@ -75,10 +75,6 @@ bool AalCameraService::isCameraActive() const
     return true;
 }
 
-void AalCameraService::onApplicationStateChanged()
-{
-}
-
 void AalCameraService::initControls(CameraControl *camControl, CameraControlListener *listener)
 {
     Q_UNUSED(camControl);

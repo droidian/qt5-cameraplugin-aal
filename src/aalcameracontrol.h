@@ -54,6 +54,15 @@ private:
     QCamera::State m_state;
     QCamera::Status m_status;
     QCamera::CaptureModes m_captureMode;
+
+    bool m_restoreStateWhenApplicationActive;
+    QCamera::State m_cameraStateWhenApplicationActive;
+    Qt::ApplicationState m_previousApplicationState;
+
+    // Used as a slot but not declared as such to avoid problems with unit tests
+    void onApplicationStateChanged();
+    // Used to bypass m_restoreStateWhenApplicationActive
+    void doSetState(QCamera::State state);
 };
 
 #endif
