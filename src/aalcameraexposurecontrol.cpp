@@ -33,8 +33,8 @@ AalCameraExposureControl::AalCameraExposureControl(AalCameraService *service, QO
     m_androidToQtExposureModes[SCENE_MODE_AUTO] = QCameraExposure::ExposureAuto;
     m_androidToQtExposureModes[SCENE_MODE_ACTION] = QCameraExposure::ExposureSports;
     m_androidToQtExposureModes[SCENE_MODE_NIGHT] = QCameraExposure::ExposureNight;
-    m_androidToQtExposureModes[SCENE_MODE_PARTY] = QCameraExposure::ExposureAuto; // FIXME: no correspondance
-    m_androidToQtExposureModes[SCENE_MODE_SUNSET] = QCameraExposure::ExposureAuto; // FIXME: no correspondance
+    m_androidToQtExposureModes[SCENE_MODE_PARTY] = QCameraExposure::ExposureParty;
+    m_androidToQtExposureModes[SCENE_MODE_SUNSET] = QCameraExposure::ExposureSunset;
     m_androidToQtExposureModes[SCENE_MODE_HDR] = ExposureHdr;
 }
 
