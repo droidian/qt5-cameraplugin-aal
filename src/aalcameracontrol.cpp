@@ -97,6 +97,11 @@ QCamera::Status AalCameraControl::status() const
     return m_status;
 }
 
+void AalCameraControl::setStatus(QCamera::Status status) {
+    m_status = status;
+    Q_EMIT statusChanged(status);
+}
+
 QCamera::CaptureModes AalCameraControl::captureMode() const
 {
     return m_captureMode;

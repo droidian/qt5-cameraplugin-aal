@@ -184,6 +184,8 @@ bool AalCameraService::connectCamera()
     m_androidListener->context = m_androidControl;
     initControls(m_androidControl, m_androidListener);
 
+    this->m_cameraControl->setStatus(QCamera::LoadedStatus);
+
     return true;
 }
 
@@ -204,6 +206,8 @@ void AalCameraService::disconnectCamera()
         delete m_androidListener;
         m_androidListener = 0;
     }
+
+    this->m_cameraControl->setStatus(QCamera::UnloadedStatus);
 }
 
 void AalCameraService::startPreview()
@@ -211,6 +215,8 @@ void AalCameraService::startPreview()
     if (m_videoOutput) {
         m_videoOutput->startPreview();
     }
+
+    this->m_cameraControl->setStatus(QCamera::ActiveStatus);
 }
 
 void AalCameraService::stopPreview()
@@ -218,6 +224,8 @@ void AalCameraService::stopPreview()
     if (m_videoOutput) {
         m_videoOutput->stopPreview();
     }
+
+    this->m_cameraControl->setStatus(QCamera::LoadedStatus);
 }
 
 bool AalCameraService::isPreviewStarted() const
@@ -246,10 +254,17 @@ bool AalCameraService::isBackCameraUsed() const
  */
 void AalCameraService::enablePhotoMode()
 {
+    if (isPreviewStarted())
+        // Trick to make applications notice the change.
+        this->m_cameraControl->setStatus(QCamera::StartingStatus);
+
     m_flashControl->init(m_service->androidControl());
     m_imageEncoderControl->enablePhotoMode();
     m_focusControl->enablePhotoMode();
     m_viewfinderControl->setAspectRatio(m_imageEncoderControl->getAspectRatio());
+
+    if (isPreviewStarted())
+        this->m_cameraControl->setStatus(QCamera::ActiveStatus);
 }
 
 /*!
@@ -257,9 +272,16 @@ void AalCameraService::enablePhotoMode()
  */
 void AalCameraService::enableVideoMode()
 {
+    if (isPreviewStarted())
+        // Trick to make applications notice the change.
+        this->m_cameraControl->setStatus(QCamera::StartingStatus);
+
     m_flashControl->init(m_service->androidControl());
     m_focusControl->enableVideoMode();
     m_viewfinderControl->setAspectRatio(m_videoEncoderControl->getAspectRatio());
+
+    if (isPreviewStarted())
+        this->m_cameraControl->setStatus(QCamera::ActiveStatus);
 }
 
 /*!

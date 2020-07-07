@@ -63,6 +63,9 @@ private:
     void onApplicationStateChanged();
     // Used to bypass m_restoreStateWhenApplicationActive
     void doSetState(QCamera::State state);
+
+    friend AalCameraService;
+    void setStatus(QCamera::Status);
 };
 
 #endif
