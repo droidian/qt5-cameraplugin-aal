@@ -243,7 +243,7 @@ SaveToDiskResult StorageManager::saveJpegImage(QByteArray data, QVariantMap meta
         const qint64 writtenSize = file.write(data);
         file.close();
         if (writtenSize != data.size()) {
-            result.errorMessage = QString("Could not write file %1").arg(fileName);
+            result.errorMessage = QString("Could not write file %1").arg(file.fileName());
             return result;
         }
     }
@@ -251,7 +251,7 @@ SaveToDiskResult StorageManager::saveJpegImage(QByteArray data, QVariantMap meta
     QFile finalFile(file.fileName());
     bool ok = finalFile.rename(captureFile);
     if (!ok) {
-        result.errorMessage = QString("Could not save image to %1").arg(fileName);
+        result.errorMessage = QString("Could not save image to %1").arg(captureFile);
         return result;
     }
 
