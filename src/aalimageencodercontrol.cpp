@@ -173,6 +173,16 @@ bool AalImageEncoderControl::setSize(const QSize &size)
         } else {
             m_currentThumbnailSize = QSize((int)(128.0f * imageAspectRatio), 128);
         }
+
+        QSize closestSize = m_availableThumbnailSizes[0];
+        foreach (const QSize &size, m_availableThumbnailSizes) {
+            if (abs(size.width() * size.height() - m_currentThumbnailSize.width() * m_currentThumbnailSize.height())
+                    < abs(closestSize.width() * closestSize.height() - m_currentThumbnailSize.width() * m_currentThumbnailSize.height())) {
+                closestSize = size;
+            }
+        }
+        m_currentThumbnailSize = closestSize;
+
         thumbnailAspectRatio = (float)m_currentThumbnailSize.width() / (float)m_currentThumbnailSize.height();
     }
 
