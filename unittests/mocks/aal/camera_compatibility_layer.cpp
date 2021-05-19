@@ -37,7 +37,7 @@ int android_camera_get_number_of_devices()
 }
 
 CameraControl* android_camera_connect_to(CameraType camera_type, CameraControlListener* listener)
-{    
+{
     Q_UNUSED(camera_type);
     CameraControl* cc = new CameraControl();
     cc->listener = listener;
@@ -110,6 +110,7 @@ void android_camera_enumerate_supported_flash_modes(CameraControl* control, flas
     crashTest(control);
     cb(ctx, FLASH_MODE_ON);
     cb(ctx, FLASH_MODE_AUTO);
+    cb(ctx, FLASH_MODE_RED_EYE);
     cb(ctx, FLASH_MODE_TORCH);
     cb(ctx, FLASH_MODE_OFF);
 }
