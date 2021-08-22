@@ -220,9 +220,22 @@ int AudioCapture::writeDataToPipe()
 ssize_t AudioCapture::loopWrite(int fd, const void *data, size_t size)
 {
     ssize_t ret = 0;
+    fd_set set;
+    struct timeval tv;
+
+    tv.tv_sec = 1;
+    tv.tv_usec = 0;
+    FD_ZERO(&set);
+    FD_SET(fd, &set);
+
     while (size > 0)
     {
         ssize_t r;
+        int n = select(fd+1, NULL, &set, NULL, &tv);
+
+        if (!n || n == -1 || m_flagExit)
+            break;
+
         if ((r = write(fd, data, size)) < 0)
             return r;
         if (r == 0)
