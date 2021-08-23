@@ -225,12 +225,14 @@ ssize_t AudioCapture::loopWrite(int fd, const void *data, size_t size)
 
     tv.tv_sec = 1;
     tv.tv_usec = 0;
-    FD_ZERO(&set);
-    FD_SET(fd, &set);
 
     while (size > 0)
     {
         ssize_t r;
+
+        FD_ZERO(&set);
+        FD_SET(fd, &set);
+
         int n = select(fd+1, NULL, &set, NULL, &tv);
 
         if (!n || n == -1 || m_flagExit)
