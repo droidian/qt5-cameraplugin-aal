@@ -1,7 +1,7 @@
 Source: qtubuntu-camera
 Section: libs
 Priority: optional
-Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Maintainer: UBports Developers <devs@ubports.com>
 Build-Depends: debhelper (>= 9),
                libgl1-mesa-dev | libgl-dev,
                libgles2-mesa-dev,
@@ -17,10 +17,9 @@ Build-Depends: debhelper (>= 9),
                libexiv2-dev,
                libandroid-properties-dev
 Standards-Version: 3.9.4
-Homepage: https://launchpad.net/qtubuntu-camera
-# If you aren't a member of ~phablet-team but need to upload packaging changes,
-# just go ahead.  ~phablet-team will notice and sync up the code again.
-Vcs-Bzr: https://code.launchpad.net/~phablet-team/qtubuntu-camera/trunk
+Homepage: https://gitlab.com/ubports/core/qtubuntu-camera
+Vcs-Browser: https://gitlab.com/ubports/core/qtubuntu-camera
+Vcs-Git: https://gitlab.com/ubports/core/qtubuntu-camera.git
 
 Package: cameraplugin-aal
 Architecture: amd64 armhf i386 arm64
