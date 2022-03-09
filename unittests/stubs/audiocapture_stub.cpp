@@ -42,6 +42,7 @@ void AudioCapture::stopCapture()
 
 int AudioCapture::setupMicrophoneStream()
 {
+    return 0;
 }
 
 void AudioCapture::run()
