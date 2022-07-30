@@ -29,6 +29,21 @@
 
 AalServicePlugin::AalServicePlugin()
 {
+    // Devices are identified in android only by their index, so we do the same
+    int cameras = android_camera_get_number_of_devices();
+    for (int deviceId = 0; deviceId < cameras; deviceId++) {
+        int facing;
+        int orientation;
+        int result = android_camera_get_device_info(deviceId, &facing, &orientation);
+        if (result != 0 || facing < 0 || facing > 1 || orientation < 0 || orientation > 360) {
+            qWarning() << "Failed to get camera info for device" << deviceId;
+            continue;
+        }   
+        QString camera("%1");
+        camera = camera.arg(deviceId);
+        deviceList.append(camera.toLatin1());
+        qWarning() << "Added camera" << camera;
+    }
 }
 
 QMediaService* AalServicePlugin::create(QString const& key)
@@ -46,30 +61,14 @@ void AalServicePlugin::release(QMediaService *service)
     delete service;
 }
 
-QList<QByteArray> AalServicePlugin::devices(const QByteArray &service)
+QList<QByteArray> AalServicePlugin::devices(const QByteArray &service) const
 {
 
-    if (deviceList.size() > 0 || QString::fromLatin1(service) != QLatin1String(Q_MEDIASERVICE_CAMERA)) {
+    if (deviceList.size() > 0 && QString::fromLatin1(service) == QLatin1String(Q_MEDIASERVICE_CAMERA)) {
         return deviceList;
     }
-
-    // Devices are identified in android only by their index, so we do the same
-    int cameras = android_camera_get_number_of_devices();
-    for (int deviceId = 0; deviceId < cameras; deviceId++) {
-        int facing;
-        int orientation;
-        int result = android_camera_get_device_info(deviceId, &facing, &orientation);
-        if (result != 0 || facing < 0 || facing > 1 || orientation < 0 || orientation > 360) {
-            qWarning() << "Failed to get camera info for device" << deviceId;
-            continue;
-        }   
-        QString camera("%1");
-        camera = camera.arg(deviceId);
-        deviceList.append(camera.toLatin1());
-        qWarning() << "Added camera" << camera;
-    }
-
-    return deviceList;
+    
+    return QList<QByteArray>();
 }
 
 QString AalServicePlugin::deviceDescription(const QByteArray &service, const QByteArray &device)
