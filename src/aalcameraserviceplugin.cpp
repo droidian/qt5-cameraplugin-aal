@@ -48,9 +48,8 @@ void AalServicePlugin::release(QMediaService *service)
 
 QList<QByteArray> AalServicePlugin::devices(const QByteArray &service) const
 {
-    QList<QByteArray> deviceList;
 
-    if (QString::fromLatin1(service) != QLatin1String(Q_MEDIASERVICE_CAMERA)) {
+    if (deviceList.size() > 0 || QString::fromLatin1(service) != QLatin1String(Q_MEDIASERVICE_CAMERA)) {
         return deviceList;
     }
 
@@ -67,6 +66,7 @@ QList<QByteArray> AalServicePlugin::devices(const QByteArray &service) const
         QString camera("%1");
         camera = camera.arg(deviceId);
         deviceList.append(camera.toLatin1());
+        qWarning() << "Added camera" << camera;
     }
 
     return deviceList;
