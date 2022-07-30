@@ -57,6 +57,13 @@ QList<QByteArray> AalServicePlugin::devices(const QByteArray &service) const
     // Devices are identified in android only by their index, so we do the same
     int cameras = android_camera_get_number_of_devices();
     for (int deviceId = 0; deviceId < cameras; deviceId++) {
+        int facing;
+        int orientation;
+        int result = android_camera_get_device_info(deviceID, &facing, &orientation);
+        if (result != 0 || facing < 0 || facing > 1 || orientation < 0 || orientation > 360) {
+            qWarning() << "Failed to get camera info for device" << deviceId;
+            continue;
+        }   
         QString camera("%1");
         camera = camera.arg(deviceId);
         deviceList.append(camera.toLatin1());
