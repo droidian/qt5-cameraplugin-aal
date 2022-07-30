@@ -34,7 +34,7 @@ public:
     QMediaService* create(QString const& key);
     void release(QMediaService *service);
 
-    QList<QByteArray> devices(const QByteArray &service) const;
+    QList<QByteArray> devices(const QByteArray &service);
     QString deviceDescription(const QByteArray &service, const QByteArray &device);
     int cameraOrientation(const QByteArray & device) const;
     QCamera::Position cameraPosition(const QByteArray & device) const;

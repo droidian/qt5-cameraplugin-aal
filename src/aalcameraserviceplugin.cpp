@@ -46,7 +46,7 @@ void AalServicePlugin::release(QMediaService *service)
     delete service;
 }
 
-QList<QByteArray> AalServicePlugin::devices(const QByteArray &service) const
+QList<QByteArray> AalServicePlugin::devices(const QByteArray &service)
 {
 
     if (deviceList.size() > 0 || QString::fromLatin1(service) != QLatin1String(Q_MEDIASERVICE_CAMERA)) {
@@ -58,7 +58,7 @@ QList<QByteArray> AalServicePlugin::devices(const QByteArray &service) const
     for (int deviceId = 0; deviceId < cameras; deviceId++) {
         int facing;
         int orientation;
-        int result = android_camera_get_device_info(deviceID, &facing, &orientation);
+        int result = android_camera_get_device_info(deviceId, &facing, &orientation);
         if (result != 0 || facing < 0 || facing > 1 || orientation < 0 || orientation > 360) {
             qWarning() << "Failed to get camera info for device" << deviceId;
             continue;
