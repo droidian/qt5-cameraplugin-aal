@@ -15,7 +15,8 @@ Build-Depends: debhelper (>= 9),
                qtmultimedia5-dev,
                libpulse-dev,
                libexiv2-dev,
-               libandroid-properties-dev
+               libandroid-properties-dev,
+               android-headers
 Standards-Version: 3.9.4
 Homepage: https://gitlab.com/ubports/core/qtubuntu-camera
 Vcs-Browser: https://gitlab.com/ubports/core/qtubuntu-camera
