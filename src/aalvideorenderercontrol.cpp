@@ -161,8 +161,8 @@ public:
         GLuint targetTexture;
         gl->glGenTextures(1, &targetTexture);
         gl->glBindTexture(GL_TEXTURE_EXTERNAL_OES, targetTexture);
-        gl->glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        gl->glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        gl->glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        gl->glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         gl->glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         gl->glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glEGLImageTargetTexture2DOES(GL_TEXTURE_EXTERNAL_OES, m_eglImage);
@@ -244,8 +244,6 @@ private:
             1, 1
         };
 
-        gl->glViewport(0, 0, width, height);
-
         QOpenGLVertexArrayObject vao;
         QOpenGLBuffer vertexBuffer;
         QOpenGLBuffer textureBuffer;
@@ -310,7 +308,7 @@ private:
             "varying highp vec2 uv;\n"
             "\n"
             "void main() {\n"
-            "    gl_FragColor = texture2D(tex, uv);\n"
+            "    gl_FragColor.bgra = texture2D(tex, uv).bgra;\n"
             "}\n"
         };
 
