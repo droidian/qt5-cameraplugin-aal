@@ -10,7 +10,7 @@ target.path += $$[QT_INSTALL_PLUGINS]/$${PLUGIN_TYPE}
 INSTALLS = target
 
 CONFIG += link_pkgconfig
-PKGCONFIG += exiv2 libqtubuntu-media-signals libmedia libcamera hybris-egl-platform libpulse-simple libandroid-properties android-headers
+PKGCONFIG += exiv2 libqtubuntu-media-signals libmedia libcamera hybris-egl-platform libpulse-simple libandroid-properties android-headers deviceinfo
 LIBS += -lEGL -lui
 
 OTHER_FILES += aalcamera.json

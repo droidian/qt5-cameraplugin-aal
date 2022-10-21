@@ -22,6 +22,8 @@
 #include <hybris/camera/camera_compatibility_layer_capabilities.h>
 #include <qtubuntu_media_signals.h>
 
+#include <deviceinfo/deviceinfo.h>
+
 #include <QAbstractVideoBuffer>
 #include <QAbstractVideoSurface>
 #include <QDebug>
@@ -476,7 +478,13 @@ AalVideoRendererControl::AalVideoRendererControl(AalCameraService *service, QObj
         static const char* ldpath = "/system/lib/libui_compat_layer.so";
 #endif
         void* handle = hybris_dlopen(ldpath, RTLD_LAZY);
-        if (!handle) {
+
+        // Possible configuration values for viewfinder memory mapping:
+        // libui_compat_layer, glReadPixels
+        DeviceInfo deviceInfo;
+        const std::string mapperMethod = deviceInfo.get("QtUbuntuCameraMemoryMapper", "libui_compat_layer");
+
+        if (!handle || mapperMethod == "glReadPixels") {
             m_mapper = new AalTextureBufferPixelReadMapper();
         } else {
             m_mapper = new AalTextureBufferGraphicMapper();
