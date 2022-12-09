@@ -41,6 +41,7 @@ public:
 
 private:
     int getCameraOrientationOverride(const QString deviceID) const;
+    QList<QByteArray> deviceList;
 };
 
 #endif
