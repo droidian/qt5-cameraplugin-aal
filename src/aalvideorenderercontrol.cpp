@@ -110,7 +110,7 @@ public:
     uchar* map(QAbstractVideoBuffer::MapMode mode, int* numBytes, int* bytesPerLine) override
     {
         if (mode != QAbstractVideoBuffer::ReadOnly) {
-            qWarning() << "Tried to map in invalid mode:" << mode;
+            qWarning() << "Tried to map in unsupported mode:" << mode;
             return nullptr;
         }
 
@@ -365,7 +365,7 @@ public:
     uchar* map(QAbstractVideoBuffer::MapMode mode, int* numBytes, int* bytesPerLine) override
     {
         if (mode != QAbstractVideoBuffer::ReadOnly) {
-            qWarning() << "Tried to map in invalid mode:" << mode;
+            qWarning() << "Tried to map in unsupported mode:" << mode;
             return nullptr;
         }
 
