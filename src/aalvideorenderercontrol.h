@@ -24,6 +24,7 @@
 class AalCameraService;
 struct CameraControl;
 struct CameraControlListener;
+class AalTextureBufferMapper;
 
 class AalVideoRendererControl : public QVideoRendererControl
 {
@@ -59,6 +60,7 @@ private Q_SLOTS:
 private:
     QAbstractVideoSurface *m_surface;
     AalCameraService *m_service;
+    AalTextureBufferMapper* m_mapper;
 
     bool m_viewFinderRunning;
     bool m_previewStarted;
