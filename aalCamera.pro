@@ -4,5 +4,9 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     src \
-    unittests
+    shadervideonode \
+    sharedsignal
 OTHER_FILES += .qmake.conf
+
+src.depends += sharedsignal
+shadervideonode.depends += sharedsignal

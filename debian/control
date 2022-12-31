@@ -1,35 +1,33 @@
-Source: qtubuntu-camera
+Source: qt5-cameraplugin-aal
 Section: libs
 Priority: optional
 Maintainer: UBports Developers <devs@ubports.com>
 Build-Depends: debhelper (>= 9),
                libgl1-mesa-dev | libgl-dev,
                libgles2-mesa-dev,
-               libhybris-dev (>= 0.1.0+git20131207+e452e83-0ubuntu36),
+               libhybris-dev,
                libpulse-dev,
                libqt5opengl5-dev,
                libqt5sensors5-dev,
-               libqtubuntu-media-signals-dev (>=0.3+15.04.20150618.1-0ubuntu1),
+               qtdeclarative5-dev,
                pkg-config,
-               qt5-default,
+               pkg-kde-tools,
+               qt5-qmake,
                qtmultimedia5-dev,
                libpulse-dev,
                libexiv2-dev,
                libandroid-properties-dev,
                android-headers,
-               libdeviceinfo-dev
+               libdeviceinfo-dev,
+               qtdeclarative5-private-dev
 Standards-Version: 3.9.4
 Homepage: https://gitlab.com/ubports/core/qtubuntu-camera
 Vcs-Browser: https://gitlab.com/ubports/core/qtubuntu-camera
 Vcs-Git: https://gitlab.com/ubports/core/qtubuntu-camera.git
 
-Package: cameraplugin-aal
+Package: qt5-cameraplugin-aal
 Architecture: amd64 armhf i386 arm64
 Depends: ${misc:Depends},
-         ${shlibs:Depends},
-         qtvideonode-plugin,
-Conflicts: cameraplugin-fake
-Replaces: cameraplugin-fake
-Provides: cameraplugin-fake
+         ${shlibs:Depends}
 Description: Camera plugin that talks to Android by using Aal+
  A QtMultimedia camera plugin that talks to Android by using Aal+

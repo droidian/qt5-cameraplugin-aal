@@ -18,9 +18,10 @@
 #include "aalcameraservice.h"
 #include "aalviewfindersettingscontrol.h"
 
+#include "media_signals.h"
+
 #include <hybris/camera/camera_compatibility_layer.h>
 #include <hybris/camera/camera_compatibility_layer_capabilities.h>
-#include <qtubuntu_media_signals.h>
 
 #include <deviceinfo/deviceinfo.h>
 
@@ -472,29 +473,14 @@ AalVideoRendererControl::AalVideoRendererControl(AalCameraService *service, QObj
       m_textureId(0)
 {
     {
-#ifdef __LP64__
-        static const char* ldpath = "/system/lib64/libui_compat_layer.so";
-#else
-        static const char* ldpath = "/system/lib/libui_compat_layer.so";
-#endif
-        void* handle = hybris_dlopen(ldpath, RTLD_LAZY);
-
-        // Possible configuration values for viewfinder memory mapping:
-        // libui_compat_layer, glReadPixels
-        DeviceInfo deviceInfo;
-        const std::string mapperMethod = deviceInfo.get("QtUbuntuCameraMemoryMapper", "libui_compat_layer");
-
-        if (!handle || mapperMethod == "glReadPixels") {
-            m_mapper = new AalTextureBufferPixelReadMapper();
-        } else {
-            m_mapper = new AalTextureBufferGraphicMapper();
-            hybris_dlclose(handle);
-        }
+        m_mapper = new AalTextureBufferPixelReadMapper();
     }
 
     // Get notified when qtvideo-node creates a GL texture
     connect(SharedSignal::instance(), SIGNAL(textureCreated(unsigned int)), this, SLOT(onTextureCreated(unsigned int)));
     connect(SharedSignal::instance(), SIGNAL(snapshotTaken(QImage)), this, SLOT(onSnapshotTaken(QImage)));
+
+    qDebug() << SharedSignal::instance();
 }
 
 AalVideoRendererControl::~AalVideoRendererControl()

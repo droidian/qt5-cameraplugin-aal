@@ -10,8 +10,8 @@ target.path += $$[QT_INSTALL_PLUGINS]/$${PLUGIN_TYPE}
 INSTALLS = target
 
 CONFIG += link_pkgconfig
-PKGCONFIG += exiv2 libqtubuntu-media-signals libmedia libcamera hybris-egl-platform libpulse-simple libandroid-properties android-headers deviceinfo
-LIBS += -lEGL -lui
+PKGCONFIG += exiv2 libmedia libcamera hybris-egl-platform libpulse-simple libandroid-properties android-headers deviceinfo
+LIBS += -lEGL -lui -lhybris_ics -lsharedsignal -L../sharedsignal/
 
 OTHER_FILES += aalcamera.json
 
@@ -34,7 +34,11 @@ HEADERS += \
     audiocapture.h \
     aalcameraexposurecontrol.h \
     storagemanager.h \
-    rotationhandler.h
+    rotationhandler.h \
+    video_sink.h \
+    video_sink_p.h \
+    egl_video_sink.h \
+    media_signals.h
 
 SOURCES += \
     aalcameracontrol.cpp \
@@ -55,4 +59,7 @@ SOURCES += \
     audiocapture.cpp \
     aalcameraexposurecontrol.cpp \
     storagemanager.cpp \
-    rotationhandler.cpp
+    rotationhandler.cpp \
+    video_sink.cpp \
+    egl_video_sink.cpp \
+
