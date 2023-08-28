@@ -188,9 +188,9 @@ bool AalImageEncoderControl::setSize(const QSize &size)
 
     // Thumbnails will appear squashed or stretched if not the same aspect ratio as the original image.
     // This will most likely be an incorrect size list supplied to qtubuntu-camera from the camera driver.
-    if (imageAspectRatio != thumbnailAspectRatio) {
-        qWarning() << "(AalImageEncoderControl::setSize) ** Image and thumbnail aspect ratios are different. Thumbnails will look wrong!";
-    }
+    // if (imageAspectRatio != thumbnailAspectRatio) {
+    //    qWarning() << "(AalImageEncoderControl::setSize) ** Image and thumbnail aspect ratios are different. Thumbnails will look wrong!";
+    // }
 
     android_camera_set_picture_size(cc, m_currentSize.width(), m_currentSize.height());
     android_camera_set_thumbnail_size(cc, m_currentThumbnailSize.width(), m_currentThumbnailSize.height());

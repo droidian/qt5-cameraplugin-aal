@@ -51,8 +51,13 @@ AalImageCaptureControl::AalImageCaptureControl(AalCameraService *service, QObjec
     m_audioPlayer(new QMediaPlayer(this))
 {
     m_galleryPath = QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
-    m_audioPlayer->setMedia(QUrl::fromLocalFile("/usr/share/sounds/camera/click/camera_click.ogg"));
-    m_audioPlayer->setAudioRole(QAudio::NotificationRole);
+
+    QString soundFilePath = "/usr/share/sounds/camera/click/camera_click.ogg";
+
+    if (QFile::exists(soundFilePath)) {
+        m_audioPlayer->setMedia(QUrl::fromLocalFile(soundFilePath));
+        m_audioPlayer->setAudioRole(QAudio::NotificationRole);
+    }
 
     QObject::connect(&m_storageManager, &StorageManager::previewReady,
                      this, &AalImageCaptureControl::imageCaptured);
