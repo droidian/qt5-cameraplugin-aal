@@ -23,8 +23,6 @@
 #include <hybris/camera/camera_compatibility_layer.h>
 #include <hybris/camera/camera_compatibility_layer_capabilities.h>
 
-#include <deviceinfo/deviceinfo.h>
-
 #include <QAbstractVideoBuffer>
 #include <QAbstractVideoSurface>
 #include <QDebug>
@@ -47,6 +45,9 @@
 
 #include <dlfcn.h>
 #include <memory>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #ifndef GL_TEXTURE_EXTERNAL_OES
 #define GL_TEXTURE_EXTERNAL_OES 0x8D65
@@ -463,6 +464,10 @@ private:
     AalTextureBufferMapper* m_mapper;
 };
 
+bool fileExists(const std::string& filename) {
+    struct stat buffer;
+    return (stat(filename.c_str(), &buffer) == 0);
+}
 
 AalVideoRendererControl::AalVideoRendererControl(AalCameraService *service, QObject *parent)
     : QVideoRendererControl(parent)
@@ -473,14 +478,28 @@ AalVideoRendererControl::AalVideoRendererControl(AalCameraService *service, QObj
       m_textureId(0)
 {
     {
-        m_mapper = new AalTextureBufferPixelReadMapper();
+#ifdef __LP64__
+        static const char* ldpath = "/system/lib64/libui_compat_layer.so";
+#else
+        static const char* ldpath = "/system/lib/libui_compat_layer.so";
+#endif
+        void* handle = hybris_dlopen(ldpath, RTLD_LAZY);
+
+        bool useGlReadPixels = fileExists("/usr/lib/droidian/device/aal-glreadpixels");
+
+        if (!handle || useGlReadPixels) {
+            qDebug() << "AalTextureBufferPixelReadMapper";
+            m_mapper = new AalTextureBufferPixelReadMapper();
+        } else {
+            qDebug() << "AalTextureBufferGraphicMapper";
+            m_mapper = new AalTextureBufferGraphicMapper();
+            hybris_dlclose(handle);
+        }
     }
 
     // Get notified when qtvideo-node creates a GL texture
     connect(SharedSignal::instance(), SIGNAL(textureCreated(unsigned int)), this, SLOT(onTextureCreated(unsigned int)));
     connect(SharedSignal::instance(), SIGNAL(snapshotTaken(QImage)), this, SLOT(onSnapshotTaken(QImage)));
-
-    qDebug() << SharedSignal::instance();
 }
 
 AalVideoRendererControl::~AalVideoRendererControl()
