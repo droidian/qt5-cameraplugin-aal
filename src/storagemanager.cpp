@@ -98,13 +98,13 @@ bool StorageManager::updateJpegMetadata(QByteArray data, QVariantMap metadata, Q
 {
     if (data.isEmpty() || destination == 0) return false;
 
-    Exiv2::Image::AutoPtr image;
+    Exiv2::Image::UniquePtr image;
     try {
         image = Exiv2::ImageFactory::open(static_cast<const Exiv2::byte*>((const unsigned char*)data.constData()), data.size());
         if (!image.get()) {
             return false;
         }
-    } catch(const Exiv2::AnyError&) {
+    } catch(const Exiv2::Error&) {
         return false;
     }
 
@@ -161,7 +161,7 @@ bool StorageManager::updateJpegMetadata(QByteArray data, QVariantMap metadata, Q
             if (metadata.contains("GPSAltitude")) {
                 // Assume altitude precision to the meter
                 unsigned int altitude = floor(metadata.value("GPSAltitude").toDouble());
-                Exiv2::URationalValue::AutoPtr altitudeValue(new Exiv2::URationalValue);
+                Exiv2::URationalValue::UniquePtr altitudeValue(new Exiv2::URationalValue);
                 altitudeValue->value_.push_back(std::make_pair(altitude,1));
                 ed.add(Exiv2::ExifKey("Exif.GPSInfo.GPSAltitude"), altitudeValue.get());
 
@@ -179,7 +179,7 @@ bool StorageManager::updateJpegMetadata(QByteArray data, QVariantMap metadata, Q
 
         image->setExifData(ed);
         image->writeMetadata();
-    } catch(const Exiv2::AnyError&) {
+    } catch(const Exiv2::Error&) {
         return false;
     }
 
@@ -196,7 +196,7 @@ bool StorageManager::updateJpegMetadata(QByteArray data, QVariantMap metadata, Q
         destination->close();
         return (writtenSize == size);
 
-    } catch(const Exiv2::AnyError&) {
+    } catch(const Exiv2::Error&) {
         destination->close();
         return false;
     }
